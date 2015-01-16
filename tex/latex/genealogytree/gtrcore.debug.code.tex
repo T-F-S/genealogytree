@@ -1,0 +1,134 @@
+%% The LaTeX package genealogytree - version 0.10 (2015/01/12)
+%% gtrcore.debug.code.tex: Debugger
+%%
+%% -------------------------------------------------------------------------------------------
+%% Copyright (c) 2014-2015 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% -------------------------------------------------------------------------------------------
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status `author-maintained'.
+%%
+%% This work consists of all files listed in README
+%%
+\gtr@set@library@version{0.10}
+
+\definecolorseries{gtr@debug}{rgb}{grad}[rgb]{.95,.85,.55}{3,11,17}
+\resetcolorseries[16]{gtr@debug}
+
+\def\gtr@debug@colorletfamily#1{%
+  \pgfmathsetmacro\gtr@temp@col{int(Mod(\csuse{gtr@fam@\gtr@currentfamily @debugnum},16)+1)}%
+  \colorlet{#1}{gtr@debug!![\gtr@temp@col]}%
+}
+
+\def\gtr@debug@setleveldistance#1{%
+  \pgfmathsetmacro#1{-(\gtrkv@debug@markerleft-\gtrkv@debug@markerright)*e^(-abs(\number\gtr@c@level)/4)-\gtrkv@debug@markerright}%
+}
+
+\tcbset{%
+  gtr@debug@box/.style={enhanced,beforeafter skip=0pt,flushleft upper,
+    boxrule=0.25mm,leftrule=5mm,colframe=gtr@debug@color,
+    arc=5mm,boxsep=0pt,top=1mm,bottom=1mm},
+  debug marker left/.store in=\gtrkv@debug@markerleft,
+  debug marker right/.store in=\gtrkv@debug@markerright,
+  debug marker left=1.3cm,
+  debug marker right=0.3cm,
+}
+
+\def\gtr@debug@person@content#1#2#3#4{%
+  \gtr@debug@colorletfamily{gtr@debug@color}%
+  \begin{tcolorbox}[gtr@debug@box,sharp corners=west,
+    interior style={top color=gtr@debug@color!30!white,bottom color=gray!10!white},
+    overlay={\node[fill=gtr@debug@color!10!white,draw=black] at ([xshift=2.5mm]frame.west) {\small #1};}]
+    #2: Individual~\gtr@currentperson~(\number\gtr@c@pid),
+        Family~\gtr@currentfamily~(\csuse{gtr@fam@\gtr@currentfamily @debugnum}),
+        Level~\number\gtr@c@level%
+        \ifblank{#3}{}{\par Options: {\ttfamily\detokenize{#3}}}%
+        \par Content: {\ttfamily\detokenize{#4}}%
+  \end{tcolorbox}%
+}
+
+\def\gtr@debug@family@begin#1#2{%
+  \gtr@debug@colorletfamily{gtr@debug@color}%
+  \begin{tcolorbox}[gtr@debug@box,rightrule=5mm,sharp corners,
+    colback=gtr@debug@color!30!white,
+    overlay={%
+      \gtr@debug@setleveldistance{\gtr@temp}%
+      \path[draw=gtr@debug@color,very thick,->] (frame.west) -- ++(\gtr@temp pt,0) -- ++(0,-0.5);
+    }]%
+    Start: #1 Family~{\csuse{gtr@fam@\gtr@currentfamily @debugnum}} (\gtr@currentfamily), Level~\number\gtr@c@level
+    \ifblank{#2}{}{\par Options: {\ttfamily\detokenize{#2}}}%
+  \end{tcolorbox}%
+}
+
+\def\gtr@debug@family@end#1{%
+  \gtr@debug@colorletfamily{gtr@debug@color}%
+  \begin{tcolorbox}[gtr@debug@box,rightrule=5mm,sharp corners,
+    colback=gtr@debug@color!30!white,
+    overlay={%
+      \gtr@debug@setleveldistance{\gtr@temp}%
+      \path[draw=gtr@debug@color,very thick,->] (frame.west) -- ++(\gtr@temp pt,0) -- ++(0,0.5);
+    }]%
+  End: #1 Family~{\csuse{gtr@fam@\gtr@currentfamily @debugnum}} (\gtr@currentfamily), Level~\number\gtr@c@level
+  \end{tcolorbox}%
+}
+
+\newcommand{\gtrparserdebug}[2][]{%
+  \begingroup%
+  \parskip0pt%
+  %
+  \appto\gtr@next@family{\csedef{gtr@fam@\gtr@currentfamily @debugnum}{\number\gtr@c@family}}%
+  %
+  \let\gtr@org@@parse@err=\gtr@parse@err%
+  \let\gtr@org@@parse@error=\gtr@parse@error%
+  \let\gtr@org@@parse@error@token=\gtr@parse@error@token%
+  \def\gtr@parse@err{%
+    \fbox{\textbf{Parser error}}%
+    \gtr@org@@parse@err}%
+  \long\def\gtr@parse@error##1{%
+    \fbox{\textbf{Parser: undefined ##1}}%
+    \gtr@org@@parse@error{##1}}%
+  \long\def\gtr@parse@error@token{%
+    \fbox{\textbf{Parser: unfeasible token '\@gtr@token'}}%
+    \gtr@org@@parse@error@token}%
+  %
+  \def\gtr@proc@@parent@begin##1{\gtr@debug@family@begin{Parent}{##1}}%
+  \def\gtr@proc@@child@begin##1{\gtr@debug@family@begin{Child}{##1}}%
+  \def\gtr@proc@@union@begin##1{\gtr@debug@family@begin{Union}{##1}}%
+  \def\gtr@proc@@sandclock@begin##1{\gtr@debug@family@begin{Sandclock}{##1}}%
+  %
+  \def\gtr@proc@@parent@end{\gtr@debug@family@end{Parent}}%
+  \def\gtr@proc@@child@end{\gtr@debug@family@end{Child}}%
+  \def\gtr@proc@@union@end{\gtr@debug@family@end{Union}}%
+  \def\gtr@proc@@sandclock@end{\gtr@debug@family@end{Sandclock}}%
+  %
+  \long\def\gtr@proc@@parent@g@content##1##2{\gtr@debug@person@content{g}{Child}{##1}{##2}}%
+  \long\def\gtr@proc@@child@g@content##1##2{\gtr@debug@person@content{g}{Parent}{##1}{##2}}%
+  \long\def\gtr@proc@@p@content##1##2{\gtr@debug@person@content{p}{Parent}{##1}{##2}}%
+  \long\def\gtr@proc@@c@content##1##2{\gtr@debug@person@content{c}{Child}{##1}{##2}}%
+  %
+  \def\gtr@positioning{}%
+  %
+  \colorlet{gtr@debug@color}{black!75!white}%
+  \begin{tcolorbox}[gtr@debug@box,before skip=\medskipamount,
+    sharp corners,toprule=1mm,rightrule=5mm]
+    Genealogytree Parser Debugger
+    \ifblank{#1}{}{\par Graph Options: {\ttfamily\detokenize{#1}}}%
+  \end{tcolorbox}%
+  \gtr@parsegraph[#1]{#2}%
+  \begin{tcolorbox}[
+    gtr@debug@box,after skip=\medskipamount,sharp corners,colframe=black!75!white,
+    bottomrule=1mm,rightrule=5mm]
+    End of Genealogytree Parser Debugger
+  \end{tcolorbox}%
+  \endgroup%
+}
+
+\newcommand{\gtrparserdebuginput}[2][]{%
+  \gtrparserdebug[#1]{input{#2}}}

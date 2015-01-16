@@ -1,0 +1,520 @@
+%% The LaTeX package genealogytree - version 0.10 (2015/01/12)
+%% gtrcore.parser.code.tex: Parser
+%%
+%% -------------------------------------------------------------------------------------------
+%% Copyright (c) 2013-2015 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% -------------------------------------------------------------------------------------------
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status `author-maintained'.
+%%
+%% This work consists of all files listed in README
+%%
+\gtr@set@library@version{0.10}
+
+%% (local) stack implementation
+\def\gtrnewstack#1{%
+  \csedef{gtr@stack@#1@size}{0}%
+}
+
+\def\gtrstacksize#1{%
+  \csname gtr@stack@#1@size\endcsname%
+}
+
+\def\gtrstackpush#1#2{%
+  \count@\gtrstacksize{#1}%
+  \advance\count@ 1\relax%
+  \csedef{gtr@stack@#1@size}{\number\count@}%
+  \csedef{gtr@stack@#1@\romannumeral\count@}{#2}%
+}
+
+\def\gtrstackpopto#1#2{%
+  \count@\gtrstacksize{#1}%
+  \edef#2{\csname gtr@stack@#1@\romannumeral\count@\endcsname}%
+  \advance\count@ -1\relax%
+  \csedef{gtr@stack@#1@size}{\number\count@}%
+}
+
+\def\gtrstackpop#1{%
+  \count@\gtrstacksize{#1}%
+  \csname gtr@stack@#1@\romannumeral\count@\endcsname%
+  \advance\count@ -1\relax%
+  \csedef{gtr@stack@#1@size}{\number\count@}%
+}
+
+\def\gtrstackpeekto#1#2{%
+  \count@\gtrstacksize{#1}%
+  \edef#2{\csname gtr@stack@#1@\romannumeral\count@\endcsname}%
+}
+
+\def\gtrstackpeek#1{%
+  \count@\gtrstacksize{#1}%
+  \csname gtr@stack@#1@\romannumeral\count@\endcsname%
+}
+
+\def\gtrmakestack#1{%
+  \gtrnewstack{#1}%
+  \csdef{#1size}{\gtrstacksize{#1}}%
+  \csdef{#1push}{\gtrstackpush{#1}}%
+  \csdef{#1popto}{\gtrstackpopto{#1}}%
+  \csdef{#1pop}{\gtrstackpop{#1}}%
+  \csdef{#1peekto}{\gtrstackpeekto{#1}}%
+  \csdef{#1peek}{\gtrstackpeek{#1}}%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Main Parser
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcount\gtr@c@level%
+\newcount\gtr@c@family%
+\newcount\gtr@c@pid%
+
+\gtrmakestack{gtr@famstack@}%
+\gtrmakestack{gtr@levelstack@}%
+
+\gtr@c@family\z@\relax%---- reset ?
+\gtr@c@pid\z@\relax%%---- reset ?
+
+\def\gtr@level@argument@reset{%
+  \dimdef\gtr@rv@level@distance{\gtrkv@level@distance}%
+  \dimdef\gtr@rv@level@size{\gtrkv@level@size}%
+  \dimdef\gtr@rv@node@minsize{\gtrkv@node@minsize}%
+  \dimdef\gtr@rv@node@maxsize{\gtrkv@node@maxsize}%
+  \dimdef\gtr@rv@dist@sibling@par{\gtrkv@dist@sibling@par}%
+  \dimdef\gtr@rv@dist@sibling@chi{\gtrkv@dist@sibling@chi}%
+  \dimdef\gtr@rv@dist@parent@par{\gtrkv@dist@parent@par}%
+  \dimdef\gtr@rv@dist@parent@chi{\gtrkv@dist@parent@chi}%
+  \dimdef\gtr@rv@dist@further{\gtrkv@dist@further}%
+  \let\gtr@rv@tcboptions\gtrkv@tcboptions%
+}
+
+
+\def\gtr@level@argument@set{%
+  \let\gtrkv@level@distance\gtr@rv@level@distance%
+  \let\gtrkv@level@size\gtr@rv@level@size%
+  \let\gtrkv@node@minsize\gtr@rv@node@minsize%
+  \let\gtrkv@node@maxsize\gtr@rv@node@maxsize%
+  \let\gtrkv@dist@sibling@par\gtr@rv@dist@sibling@par%
+  \let\gtrkv@dist@sibling@chi\gtr@rv@dist@sibling@chi%
+  \let\gtrkv@dist@parent@par\gtr@rv@dist@parent@par%
+  \let\gtrkv@dist@parent@chi\gtr@rv@dist@parent@chi%
+  \let\gtrkv@dist@further\gtr@rv@dist@further%
+  \let\gtrkv@tcboptions\gtr@rv@tcboptions%
+  %
+  \gtrset{level=\number\gtr@c@level}%
+  \pgfkeysifdefined{/gtr/level \number\gtr@c@level/.@cmd}{%
+    \gtrset{level \number\gtr@c@level}%
+    }{%
+    }%
+  \gtr@init@leveldimens%
+}
+
+\newcommand{\gtr@parsegraph}[2][]{%
+  \gtrset{#1}%
+  %
+  \let\gtr@timeflow=\gtrkv@timeflow%
+  \letcs\gtr@init@leveldimens{gtr@init@timeflow@\gtr@timeflow}%
+  \letcs\gtr@set@level@position{gtr@set@level@position@\gtr@timeflow}%
+  \letcs\gtr@set@position@family{gtr@set@position@family@\gtr@timeflow}%
+  %
+  \edef\gtr@level@reference{0pt}%
+  \gtr@level@argument@reset%
+  \gtr@set@level{\gtrkv@proband@level}%
+  \let\gtr@currentfamily=\@undefined%
+  \numdef\gtr@num@fam@first{\gtr@c@family+1}%
+  \numdef\gtr@num@per@first{\gtr@c@pid+1}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@graph}#2x%
+  \numdef\gtr@num@fam@last{\gtr@c@family}%
+  \numdef\gtr@num@per@last{\gtr@c@pid}%
+  \edef\gtr@temp{\romannumeral\number\gtr@num@fam@first}%
+  \csdimdef{gtr@fam@\gtr@temp @offset}{\gtrkv@tree@offset}%
+  \gtr@positioning%
+}
+
+\def\gtr@parse@graphwithhandle#1{%
+  \let\gtr@handle@continue=#1%
+  \gtr@parse@graph%
+}
+
+\def\gtr@parse@graph{%
+  \afterassignment\gtr@handle@graph\let\@gtr@token=%
+}
+
+\def\gtr@handle@graph{%
+  \let\@next=\gtr@parse@error@token%
+  \ifx\@gtr@token x%
+    \let\@next=\gtr@parse@x%
+  \else%
+    \expandafter\ifx\space\@gtr@token%
+      \let\@next\gtr@parse@graph%
+    \else%
+      \ifx\@gtr@token i%
+        \let\@next\gtr@parse@input@%
+      \else%
+        \gtr@handle@continue%
+      \fi%
+    \fi%
+  \fi%
+  \@next%
+}
+
+\def\gtr@handle@continue@graph{%
+  \ifx\@gtr@token p%
+    \let\gtr@handle@continue\gtr@handle@continue@parent%
+    \let\@next=\gtr@parse@graph@parent@%
+  \else%
+    \ifx\@gtr@token c%
+      \let\gtr@handle@continue\gtr@handle@continue@child%
+      \let\@next=\gtr@parse@graph@child@%
+    \else%
+      \ifx\@gtr@token s%
+        \let\gtr@handle@continue\gtr@handle@continue@sandclock%
+        \let\@next=\gtr@parse@graph@sandclock@%
+      \fi%
+    \fi%
+  \fi%
+}
+
+
+\def\gtr@parse@graph@parent@ arent{\@ifnextchar[{\gtr@parent@@parent}{\gtr@parent@@parent[]}}
+
+\def\gtr@parse@graph@child@ hild{%
+  \gtr@up@level%
+  \dimdef\gtr@level@reference{\gtr@level@reference+\gtrkv@level@size+\gtrkv@level@distance}%
+  \@ifnextchar[{\gtr@child@@child}{\gtr@child@@child[]}}
+
+\def\gtr@parse@graph@sandclock@ andclock{\@ifnextchar[{\gtr@sandclock@@}{\gtr@sandclock@@[]}}
+
+\def\gtr@parse@input@ nput#1{\expandafter\expandafter\expandafter \gtr@parse@graph \csname @@input\endcsname #1 }
+
+\def\gtr@parse@x{}
+
+\def\gtr@parse@err{%
+  \gtr@error{Parser error}%
+}
+
+\def\gtr@parse@error@token{%
+  \show\@gtr@token
+  \gtr@error{Parser: unfeasible token}%
+}
+
+\long\def\gtr@parse@error#1{%
+  \gtr@error{Parser: undefined #1}%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Parent Parser
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\gtr@handle@continue@parent{%
+  \ifx\@gtr@token g%
+    \let\@next=\gtr@pparse@g%
+  \else%
+    \ifx\@gtr@token p%
+      \let\@next=\gtr@pparse@p%
+    \else
+      \ifx\@gtr@token c%
+        \let\@next=\gtr@pparse@c%
+      \fi%
+    \fi%
+  \fi%
+}
+
+\def\gtr@pparse@c{\@ifnextchar[{\gtr@parent@@c}{\gtr@parent@@c[]}}
+\long\def\gtr@parent@@c[#1]#2{%
+  \gtr@trav@@c[#1]{#2}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@parent}%
+}
+
+\def\gtr@pparse@p{%
+  \@ifnextchar a{\gtr@pparse@parent@}{\gtr@pparse@p@}}
+\def\gtr@pparse@parent@ arent{\@ifnextchar[{\gtr@parent@@parent}{\gtr@parent@@parent[]}}
+\long\def\gtr@parent@@parent[#1]#2{%
+  \gtr@trav@@parent[#1]{#2}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@parent}%
+}
+\def\gtr@pparse@p@{\@ifnextchar[{\gtr@parent@@p}{\gtr@parent@@p[]}}
+\long\def\gtr@parent@@p[#1]#2{%
+  \gtr@trav@@p[#1]{#2}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@parent}%
+}
+
+\def\gtr@pparse@g{\@ifnextchar[{\gtr@parent@@g}{\gtr@parent@@g[]}}
+\long\def\gtr@parent@@g[#1]#2{%
+  \gtr@trav@@parent@g[#1]{#2}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@parent}%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Child Parser
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\gtr@handle@continue@child{%
+  \ifx\@gtr@token g%
+    \let\@next=\gtr@cparse@g%
+  \else%
+    \ifx\@gtr@token p%
+      \let\@next=\gtr@cparse@p%
+    \else
+      \ifx\@gtr@token c%
+        \let\@next=\gtr@cparse@c%
+      \else
+        \ifx\@gtr@token u%
+          \let\@next=\gtr@cparse@u%
+        \fi
+      \fi%
+    \fi%
+  \fi%
+}
+
+
+\def\gtr@cparse@p{\@ifnextchar[{\gtr@child@@p}{\gtr@child@@p[]}}
+\long\def\gtr@child@@p[#1]#2{%
+  \gtr@trav@@p[#1]{#2}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@child}%
+}
+
+\def\gtr@cparse@c{%
+  \@ifnextchar h{\gtr@cparse@child@}{\gtr@cparse@c@}}
+\def\gtr@cparse@child@ hild{\@ifnextchar[{\gtr@child@@child}{\gtr@child@@child[]}}
+\long\def\gtr@child@@child[#1]#2{%
+  \gtr@trav@@child[#1]{#2}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@child}%
+}
+\def\gtr@cparse@c@{\@ifnextchar[{\gtr@child@@c}{\gtr@child@@c[]}}
+\long\def\gtr@child@@c[#1]#2{%
+  \gtr@trav@@c[#1]{#2}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@child}%
+}
+
+\def\gtr@cparse@u nion{\@ifnextchar[{\gtr@child@@union}{\gtr@child@@union[]}}
+\long\def\gtr@child@@union[#1]#2{%
+  \gtr@trav@@union[#1]{#2}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@child}%
+}
+
+\def\gtr@cparse@g{\@ifnextchar[{\gtr@child@@g}{\gtr@child@@g[]}}
+\long\def\gtr@child@@g[#1]#2{%
+  \gtr@trav@@child@g[#1]{#2}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@child}%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Union Parser
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\gtr@handle@continue@union{%
+  \ifx\@gtr@token c%
+    \let\@next=\gtr@uparse@c%
+  \else%
+    \ifx\@gtr@token p%
+      \let\@next=\gtr@uparse@p%
+    \fi%
+  \fi%
+}
+
+\def\gtr@uparse@c{%
+  \@ifnextchar h{\gtr@uparse@child@}{\gtr@uparse@c@}}
+\def\gtr@uparse@child@ hild{\@ifnextchar[{\gtr@union@@child}{\gtr@union@@child[]}}
+\long\def\gtr@union@@child[#1]#2{%
+  \let\gtr@handle@continue\gtr@handle@continue@child%
+  \gtr@trav@@child[#1]{#2}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@union}%
+}
+\def\gtr@uparse@c@{\@ifnextchar[{\gtr@union@@c}{\gtr@union@@c[]}}
+\long\def\gtr@union@@c[#1]#2{%
+  \gtr@trav@@c[#1]{#2}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@union}%
+}
+
+\def\gtr@uparse@p{\@ifnextchar[{\gtr@union@@p}{\gtr@union@@p[]}}
+\long\def\gtr@union@@p[#1]#2{%
+  \gtr@trav@@p[#1]{#2}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@union}%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Sandclock Parser
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\gtr@handle@continue@sandclock{%
+  \ifx\@gtr@token c%
+    \let\@next=\gtr@sparse@c%
+  \else%
+    \ifx\@gtr@token p%
+      \let\@next=\gtr@sparse@p%
+    \fi%
+  \fi%
+}
+
+
+\long\def\gtr@sandclock@@[#1]#2{%
+  \gtr@trav@@sandclock[#1]{#2}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@graph}%
+}
+
+\def\gtr@sparse@c{%
+  \@ifnextchar h{\gtr@sparse@child@}{\gtr@sparse@c@}}
+\def\gtr@sparse@child@ hild{\@ifnextchar[{\gtr@sandclock@@child}{\gtr@sandclock@@child[]}}
+\long\def\gtr@sandclock@@child[#1]#2{%
+  \gtr@trav@@child[#1]{#2}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@sandclock}%
+}
+\def\gtr@sparse@c@{\@ifnextchar[{\gtr@sandclock@@c}{\gtr@sandclock@@c[]}}
+\long\def\gtr@sandclock@@c[#1]#2{%
+  \gtr@trav@@c[#1]{#2}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@sandclock}%
+}
+
+\def\gtr@sparse@p{%
+  \@ifnextchar a{\gtr@sparse@parent@}{\gtr@sparse@p@}}
+\def\gtr@sparse@parent@ arent{\@ifnextchar[{\gtr@sandclock@@parent}{\gtr@sandclock@@parent[]}}
+\long\def\gtr@sandclock@@parent[#1]#2{%
+  \gtr@trav@@parent[#1]{#2}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@sandclock}%
+}
+\def\gtr@sparse@p@{\@ifnextchar[{\gtr@sandclock@@p}{\gtr@sandclock@@p[]}}
+\long\def\gtr@sandclock@@p[#1]#2{%
+  \gtr@trav@@p[#1]{#2}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@sandclock}%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Traversing
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\gtr@next@family{%
+  \ifdef{\gtr@currentfamily}{\gtr@famstack@push{\gtr@currentfamily}}{}%
+  \advance\gtr@c@family 1\relax%
+  \edef\gtr@currentfamily{\romannumeral\gtr@c@family}%
+}
+
+\def\gtr@previous@family{%
+  \ifnum\gtr@famstack@size>0%
+     \gtr@famstack@popto{\gtr@currentfamily}%
+  \else%
+     \let\gtr@currentfamily=\@undefined%
+  \fi%
+}
+
+\def\gtr@next@person{%
+  \advance\gtr@c@pid 1\relax%
+  \edef\gtr@currentperson{\romannumeral\gtr@c@pid}%
+}
+
+\def\gtr@set@level#1{%
+  \gtr@c@level#1\relax%
+  \edef\gtr@currentlevel{\romannumeral\numexpr 1000+\gtr@c@level\relax}%
+  \gtr@level@argument@set%
+}
+
+\def\gtr@up@level{%
+  \advance\gtr@c@level 1\relax%
+  \edef\gtr@currentlevel{\romannumeral\numexpr 1000+\gtr@c@level\relax}%
+  \gtr@level@argument@set%
+}
+
+\def\gtr@up@level@push{%
+  \gtr@levelstack@push{\gtr@level@reference}%
+  \gtr@up@level%
+  \dimdef\gtr@level@reference{\gtr@level@reference+\gtrkv@level@size+\gtrkv@level@distance}%
+}
+
+\def\gtr@up@level@pop{%
+  \gtr@up@level%
+  \gtr@levelstack@popto{\gtr@level@reference}%
+}
+
+\def\gtr@down@level{%
+  \advance\gtr@c@level -1\relax%
+  \edef\gtr@currentlevel{\romannumeral\numexpr 1000+\gtr@c@level\relax}%
+  \gtr@level@argument@set%
+}
+
+\def\gtr@down@level@push{%
+  \gtr@levelstack@push{\gtr@level@reference}%
+  \dimdef\gtr@level@reference{\gtr@level@reference-\gtrkv@level@size-\gtrkv@level@distance}%
+  \gtr@down@level%
+}
+
+\def\gtr@down@level@pop{%
+  \gtr@down@level%
+  \gtr@levelstack@popto{\gtr@level@reference}%
+}
+
+\long\def\gtr@trav@@parent[#1]#2{%
+  \gtr@up@level@push%
+  \gtr@next@family%
+  \gtr@proc@@parent@begin{#1}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@parent}#2x%
+  \gtr@proc@@parent@end%
+  \gtr@previous@family%
+  \gtr@down@level@pop%
+}
+
+\long\def\gtr@trav@@child[#1]#2{%
+  \gtr@down@level@push%
+  \gtr@next@family%
+  \gtr@proc@@child@begin{#1}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@child}#2x%
+  \gtr@proc@@child@end%
+  \gtr@previous@family%
+  \gtr@up@level@pop%
+}
+
+\long\def\gtr@trav@@sandclock[#1]#2{%
+  \gtr@up@level@push%
+  \gtr@next@family%
+  \gtr@proc@@sandclock@begin{#1}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@sandclock}#2x%
+  \gtr@proc@@sandclock@end%
+  \gtr@previous@family%
+  \gtr@down@level@pop%
+}
+
+\long\def\gtr@trav@@union[#1]#2{%
+  \gtr@next@family%
+  \gtr@proc@@union@begin{#1}%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@union}#2x%
+  \gtr@proc@@union@end%
+  \gtr@previous@family%
+}
+
+\long\def\gtr@trav@@parent@g[#1]#2{%
+  \gtr@down@level@push%
+  \gtr@next@person%
+  \gtr@proc@@parent@g@content{#1}{#2}%
+  \gtr@up@level@pop%
+}
+
+\long\def\gtr@trav@@child@g[#1]#2{%
+  \gtr@next@person%
+  \gtr@proc@@child@g@content{#1}{#2}%
+}
+
+\long\def\gtr@trav@@p[#1]#2{%
+  \gtr@next@person%
+  \gtr@proc@@p@content{#1}{#2}%
+}
+
+\long\def\gtr@trav@@c[#1]#2{%
+  \gtr@down@level@push%
+  \gtr@next@person%
+  \gtr@proc@@c@content{#1}{#2}%
+  \gtr@up@level@pop%
+}
+

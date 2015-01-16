@@ -1,0 +1,101 @@
+%% The LaTeX package genealogytree - version 0.10 (2015/01/12)
+%% genealogytree.sty: genealogy trees (graphs)
+%%
+%% -------------------------------------------------------------------------------------------
+%% Copyright (c) 2013-2015 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% -------------------------------------------------------------------------------------------
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status `author-maintained'.
+%%
+%% This work consists of all files listed in README
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{genealogytree}[2015/01/12 version 0.10 genealogy trees]
+\def\gtr@version{0.10}
+
+\RequirePackage{pgf}[2008/01/15]
+\RequirePackage{etoolbox}[2011/01/03]
+
+\def\gtr@warning#1{\PackageWarning{genealogytree}{#1}}
+\def\gtr@error#1{\PackageError{genealogytree}{#1}}
+
+\pgfkeys{/handlers/.gstore in/.code=\pgfkeysalso{\pgfkeyscurrentpath/.code=\gdef#1{##1}}}
+\pgfkeys{/handlers/.xstore in/.code=\pgfkeysalso{\pgfkeyscurrentpath/.code=\xdef#1{##1}}}
+\pgfkeys{/gtr/.is family}
+\def\gtrset{\pgfqkeys{/gtr}}
+
+\def\gtr@optionlist{}
+
+\def\gtr@set@library@version#1{%
+  \def\gtr@library@version{#1}%
+  \typeout{Library (genealogytree): '\gtr@library@inload' version '\gtr@library@version'}
+  \gtr@check@library@version%
+}
+
+\def\gtr@check@library@version{%
+  \ifx\gtr@library@version\gtr@version\else%
+  \PackageError{genealogytree}{genealogytree version '\gtr@version' loads library '\gtr@library@inload' with version '\gtr@library@version'}
+  \fi%
+}
+
+\def\gtruselibrary#1{\gtrset{library/.cd,#1}}
+\@onlypreamble\gtruselibrary
+
+\providecommand{\gtrpkgprefix}{}
+
+\def\gtr@input@library@in#1{%
+  \input\gtrpkgprefix#1\relax%
+}
+
+\let\gtr@input@library=\gtr@input@library@in%
+
+\def\gtr@input@library@ex#1{%
+  \let\gtr@input@library=\gtr@input@library@in%
+  \edef\gtr@at@catcode{\the\catcode`@}%
+  \catcode`\@11\relax%
+  \gtr@input@library@in{#1}%
+  \catcode`\@\gtr@at@catcode\relax%
+  \let\gtr@input@library=\gtr@input@library@ex%
+}
+
+\def\gtr@load@library#1#2{%
+  \pgfkeysifdefined{/gtr/libload/#1}{}{%
+    \pgfkeyssetvalue{/gtr/libload/#1}{}%
+    \def\gtr@library@inload{#2}%
+    \def\gtr@library@version{-}%
+    \gtr@input@library{#2}%
+    \gtr@check@library@version}%
+}
+
+\def\gtr@add@library#1#2{%
+  \gtrset{library/#1/.code={\gtr@load@library{#1}{#2}}}%
+  \DeclareOption{#1}{\appto\gtr@optionlist{,#1}}%
+}
+\def\gtr@add@library@style#1#2{%
+  \gtrset{library/#1/.style={#2}}%
+  \DeclareOption{#1}{\appto\gtr@optionlist{,#1}}%
+}
+
+\gtr@add@library{core.parser}{gtrcore.parser.code.tex}
+\gtr@add@library{core.options}{gtrcore.options.code.tex}
+\gtr@add@library{core.debug}{gtrcore.debug.code.tex}
+
+\ProcessOptions*
+
+\gtruselibrary{%
+  core.parser,%
+  core.options,%
+  core.debug,%
+}
+
+\edef\gtr@temp{\noexpand\gtruselibrary{\gtr@optionlist}}
+\gtr@temp
+\let\gtr@input@library=\gtr@input@library@ex%

@@ -1,0 +1,84 @@
+%% The LaTeX package genealogytree - version 0.10 (2015/01/12)
+%% gtrcore.options.code.tex: Options
+%%
+%% -------------------------------------------------------------------------------------------
+%% Copyright (c) 2013-2015 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% -------------------------------------------------------------------------------------------
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status `author-maintained'.
+%%
+%% This work consists of all files listed in README
+%%
+\gtr@set@library@version{0.10}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Key Management
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\newif\ifgtr@timeflow@vertical
+
+\def\gtr@init@timeflow@down{%
+  \gtr@timeflow@verticaltrue%
+  \let\gtrkv@node@minwidth=\gtrkv@node@minsize%
+  \let\gtrkv@node@maxwidth=\gtrkv@node@maxsize%
+  \let\gtrkv@node@minheigth=\gtrkv@level@size%
+  \let\gtrkv@node@maxheigth=\gtrkv@level@size%
+}
+
+\let\gtr@init@timeflow@up=\gtr@init@timeflow@down
+
+\def\gtr@init@timeflow@left{%
+  \gtr@timeflow@verticalfalse%
+  \let\gtrkv@node@minwidth=\gtrkv@level@size%
+  \let\gtrkv@node@maxwidth=\gtrkv@level@size%
+  \let\gtrkv@node@minheigth=\gtrkv@node@minsize%
+  \let\gtrkv@node@maxheigth=\gtrkv@node@maxsize%
+}
+
+\let\gtr@init@timeflow@right=\gtr@init@timeflow@left
+
+
+\gtrset{%
+  child distance in parent graph/.store in=\gtrkv@dist@sibling@par,%
+  child distance in child graph/.store in=\gtrkv@dist@sibling@chi,%
+  parent distance in parent graph/.store in=\gtrkv@dist@parent@par,%
+  parent distance in child graph/.store in=\gtrkv@dist@parent@chi,%
+  further distance/.store in=\gtrkv@dist@further,%
+  %
+  child distance/.style={child distance in parent graph=#1,child distance in child graph=#1},%
+  parent distance/.style={parent distance in parent graph=#1,parent distance in child graph=#1},%
+  %
+  level/.style=,
+}
+
+\gtrset{%
+  timeflow/.store in=\gtrkv@timeflow,
+  level distance/.store in=\gtrkv@level@distance,
+  level size/.store in=\gtrkv@level@size,
+  node sizes/.code args={#1~#2}{\def\gtrkv@node@minsize{#1}\def\gtrkv@node@maxsize{#2}},
+  node size/.style={node sizes=#1~#1},%
+  proband level/.store in=\gtrkv@proband@level,
+  tree offset/.store in=\gtrkv@tree@offset,
+}
+
+\gtrset{%
+  timeflow=down,
+  level distance=5mm,
+  level size=3.5cm,
+  node size=2.5cm,
+  proband level=0,
+  tree offset=0pt,
+  child distance in parent graph=1mm,%
+  child distance in child graph=2mm,%
+  parent distance in parent graph=2mm,%
+  parent distance in child graph=1mm,%
+  further distance=3mm,%
+}
