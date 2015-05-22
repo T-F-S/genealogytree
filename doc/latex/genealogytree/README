@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 0.10 (2015/01/12)
+%% The LaTeX package genealogytree - version 0.90 (2015/05/22)
 %%
 %% -------------------------------------------------------------------------------------------
 %% Copyright (c) 2013-2015 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
@@ -30,10 +30,10 @@ customized to e.g. prioritize certain paths.
 Contents of the package
 =======================
   'README'                         this file
-  'CHANGES'                        log of changes (history)
   'genealogytree.sty'              LaTeX package file (style file)
   '*.code.tex'                     LaTeX package file (library of genealogytree)
   'genealogytree.pdf'              Documentation for genealogytree
+  'genealogytree-example-*.pdf'    Example pedigree charts
   'genealogytree.doc.sources.zip'  Source code of the documentation
 
 Installation

@@ -1,0 +1,558 @@
+%% The LaTeX package genealogytree - version 0.90 (2015/05/22)
+%% gtrcore.drawing.code.tex: Drawing
+%%
+%% -------------------------------------------------------------------------------------------
+%% Copyright (c) 2013-2015 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% -------------------------------------------------------------------------------------------
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status `author-maintained'.
+%%
+%% This work consists of all files listed in README
+%%
+\gtr@set@library@version{0.90}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Drawing
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\tikzset{genealogytree edges scope/.style={}}
+
+\def\gtr@reset@after{%
+  \global\def\gtrkv@after@parser{}%
+  \def\gtrkv@after@tree{}%
+  \def\gtr@parse@afternode@hook{}%
+  \def\gtr@parse@afterfamily@hook{}%
+  \def\gtr@parse@beginfamily@hook{}%
+  \def\gtr@parse@endfamily@hook{}%
+  \undef\gtr@parse@afternode@hook@content%
+  \undef\gtr@parse@afterfamily@hook@content%
+  \undef\gtr@parse@beginfamily@hook@content%
+  \undef\gtr@parse@endfamily@hook@content%
+}
+
+\newcommand{\genealogytree}[2][]{%
+  \ifdefined\pgfpictureid%
+  \else%
+    \gtr@error{\genealogytree\space outside tikzpicture environment}
+      {\genealogytree\space can only be used inside a tikzpicture environment.
+        Alternatively, use genealogypicture (see documentation).}%
+  \fi%
+  \gtr@reset@after%
+  \tcb@layer@pushup%
+  \gtr@parsegraph[#1]{#2}%
+  \gtrkv@after@parser%
+  %
+  \tikzset{gtr@init@timeflow@\gtrkv@timeflow}%
+  \letcs\gtr@predraw@family{gtr@predraw@family@\gtr@timeflow}%
+  %
+  \gtr@create@all@persons%
+  \gtr@draw@all@families%
+  \gtr@draw@all@boxes%
+  %
+  \gtrkv@after@tree%
+}
+
+
+\NewEnviron{genealogypicture}[1][]{%
+  \ifdefined\pgfpictureid%
+    \gtr@error{genealogypicture inside tikzpicture environment}
+      {genealogypicture cannot be used inside a tikzpicture environment.
+        Alternatively, use \genealogytree\space (see documentation).}%
+  \fi%
+  \gtr@reset@after%
+  \def\gtr@reset@after{}%
+  \gtrset{#1}%
+  \begingroup\edef\x{\endgroup\noexpand\begin{tikzpicture}[\expandonce\gtrkv@tikzpicture]%
+    \noexpand\genealogytree{\expandonce\BODY}%
+    \noexpand\end{tikzpicture}}%
+  \x%
+}
+
+\newcommand{\genealogytreeinput}[2][]{\genealogytree[#1]{input{#2}}}
+
+\tikzset{%
+  gtr@init@timeflow@down/.style={gtr@node@person/.style={below right}},%
+  gtr@init@timeflow@up/.style={gtr@node@person/.style={above right}},%
+  gtr@init@timeflow@left/.style={gtr@node@person/.style={below left}},%
+  gtr@init@timeflow@right/.style={gtr@node@person/.style={below right}}%
+}
+
+\def\gtr@create@node@person#1{%
+  \letcs\gtr@temp{gtr@per@#1@box}%
+  \node[minimum width=\dimexpr\wd\gtr@temp\relax,
+    minimum height=\dimexpr\ht\gtr@temp+\dp\gtr@temp\relax,
+    alias={\csuse{gtr@per@#1@id}}] (p@#1)
+    at (\csuse{gtr@per@#1@x},\csuse{gtr@per@#1@y}){};
+}
+
+\def\gtr@create@all@persons{%
+  \begin{scope}[line width=0pt,inner sep=0pt,outer sep=0pt,draw=none,fill=none,rectangle,gtr@node@person]%
+    \gtr@forall@nodes{\gtr@create@node@person}%
+  \end{scope}%
+}
+
+\def\gtr@draw@box@person#1{%
+  \node at (p@#1) {\unhbox\csuse{gtr@per@#1@box}};%
+}
+
+\def\gtr@draw@all@boxes{%
+  \begin{scope}[line width=0pt,inner sep=0pt,outer sep=0pt,draw=none,fill=none,rectangle]%
+    \gtr@forall@nodes{\gtr@draw@box@person}%
+  \end{scope}%
+}
+
+\newcommand*{\gtr@forlistloop}[2]{%
+  \def\gtr@tmp@macro##1{#1(##1)}%
+  \ifdefined#2\forlistloop{\gtr@tmp@macro}{#2}\fi%
+}
+
+%% edge draw preparation
+\def\gtr@reset@minmax{%
+  \dimdef\gtr@dim@min{\maxdimen}%
+  \dimdef\gtr@dim@max{-\maxdimen}%
+  \let\gtr@level@mid=\@undefined%
+  \let\gtr@dat@draw@x=\@undefined%
+  \let\gtr@dat@draw@y=\@undefined%
+  \let\gtr@dat@draw@par=\@undefined%
+  \let\gtr@dat@draw@chi=\@undefined%
+  \def\gtr@legnum{0}%
+}
+
+\def\gtr@record@minmax#1{%
+  \ifdim\dimexpr#1<\gtr@dim@min\relax\let\gtr@dim@min=#1\fi%
+  \ifdim\dimexpr#1>\gtr@dim@max\relax\let\gtr@dim@max=#1\fi%
+  \numdef\gtr@legnum{\gtr@legnum+1}%
+}
+
+\def\gtr@process@anchor#1#2{%
+  \pgf@process{\pgfpointanchor{#1}{#2}}%
+  \dimdef\gtr@x{\pgf@x}%
+  \dimdef\gtr@y{\pgf@y}%
+}
+
+\def\gtr@predraw@family@vert#1#2#3{%
+  \gtr@reset@minmax%
+  \def\do##1{%
+    \gtr@process@anchor{p@##1}{#2}%
+    \gtr@record@minmax{\gtr@x}%
+    \listeadd{\gtr@dat@draw@chi}{\gtr@x,\gtr@y}%
+  }%
+  \ifcsname gtr@fam@#1@chi\endcsname\dolistcsloop{gtr@fam@#1@chi}\fi%
+  \letcs\gtr@gnode{gtr@fam@#1@g}%
+  \def\do##1{%
+    \gtr@process@anchor{p@##1}{#3}%
+    \edef\gtr@temp{##1}%
+    \ifdefequal{\gtr@gnode}{\gtr@temp}{%
+      \edef\gtr@temp@w{\csuse{gtr@per@##1@dim}}%
+      \dimdef\gtr@x{\gtr@x-0.5\dimexpr\gtr@temp@w\relax+\csname gtr@fam@#1@frac\endcsname\dimexpr\gtr@temp@w}%
+    }{}%
+    \gtr@record@minmax{\gtr@x}%
+    \listeadd{\gtr@dat@draw@par}{\gtr@x,\gtr@y}%
+  }%
+  \ifcsname gtr@fam@#1@par\endcsname\dolistcsloop{gtr@fam@#1@par}\fi%
+  \ifnum\gtr@legnum>0\relax%
+    \dimdef\gtr@dat@draw@x{(\gtr@dim@min+\gtr@dim@max)/2}%
+  \else%
+    \letcs\gtr@dat@draw@x{gtr@fam@#1@x}%
+  \fi%
+  \letcs\gtr@dat@draw@y{gtr@fam@#1@pos}%
+}
+
+\def\gtr@predraw@family@down#1{%
+  \gtr@predraw@family@vert{#1}{\gtrkv@edge@anchor@vert@A}{\gtrkv@edge@anchor@vert@B}%
+}
+
+\def\gtr@predraw@family@up#1{%
+  \gtr@predraw@family@vert{#1}{\gtrkv@edge@anchor@vert@B}{\gtrkv@edge@anchor@vert@A}%
+}
+
+\def\gtr@predraw@family@hori#1#2#3{%
+  \gtr@reset@minmax%
+  \def\do##1{%
+    \gtr@process@anchor{p@##1}{#2}%
+    \gtr@record@minmax{\gtr@y}%
+    \listeadd{\gtr@dat@draw@chi}{\gtr@x,\gtr@y}%
+  }%
+  \ifcsname gtr@fam@#1@chi\endcsname\dolistcsloop{gtr@fam@#1@chi}\fi%
+  \letcs\gtr@gnode{gtr@fam@#1@g}%
+  \def\do##1{%
+    \gtr@process@anchor{p@##1}{#3}%
+    \edef\gtr@temp{##1}%
+    \ifdefequal{\gtr@gnode}{\gtr@temp}{%
+      \edef\gtr@temp@w{\csuse{gtr@per@##1@dim}}%
+      \dimdef\gtr@y{\gtr@y+0.5\dimexpr\gtr@temp@w\relax-\csname gtr@fam@#1@frac\endcsname\dimexpr\gtr@temp@w}%
+    }{}%
+    \gtr@record@minmax{\gtr@y}%
+    \listeadd{\gtr@dat@draw@par}{\gtr@x,\gtr@y}%
+  }%
+  \ifcsname gtr@fam@#1@par\endcsname\dolistcsloop{gtr@fam@#1@par}\fi%
+  \letcs\gtr@dat@draw@x{gtr@fam@#1@pos}%
+  \ifnum\gtr@legnum>0\relax%
+    \dimdef\gtr@dat@draw@y{(\gtr@dim@min+\gtr@dim@max)/2}%
+  \else%
+    \letcs\gtr@dat@draw@y{gtr@fam@#1@y}%
+  \fi%
+}
+
+\def\gtr@predraw@family@left#1{%
+  \gtr@predraw@family@hori{#1}{\gtrkv@edge@anchor@hori@A}{\gtrkv@edge@anchor@hori@B}%
+}
+
+\def\gtr@predraw@family@right#1{%
+  \gtr@predraw@family@hori{#1}{\gtrkv@edge@anchor@hori@B}{\gtrkv@edge@anchor@hori@A}%
+}
+
+% edge mode = perpendicular
+
+\def\gtr@edge@perpendicular@line@vert(#1,#2){%
+  \draw[gtr@link]\pgfextra{\pgfsetarrowsend{}\pgfsetshortenend{0pt}} (#1,#2)--(#1,\gtr@dat@draw@y);
+}
+
+\def\gtr@edge@perpendicular@line@vert@inv(#1,#2){%
+  \draw[gtr@link]\pgfextra{\pgfsetarrowsstart{}\pgfsetshortenstart{0pt}} (#1,\gtr@dat@draw@y)--(#1,#2);
+}
+
+\def\gtr@edge@perpendicular@hori(#1,#2){%
+  \draw[gtr@link]\pgfextra{\pgfsetarrowsend{}\pgfsetshortenend{0pt}} (#1,#2)--(\gtr@dat@draw@x,#2);
+}
+
+\def\gtr@edge@perpendicular@hori@inv(#1,#2){%
+  \draw[gtr@link]\pgfextra{\pgfsetarrowsstart{}\pgfsetshortenstart{0pt}} (\gtr@dat@draw@x,#2)--(#1,#2);
+}
+
+\def\gtr@edge@perpendicular@down{%
+  \gtr@forlistloop{\gtr@edge@perpendicular@line@vert@inv}{\gtr@dat@draw@chi}%
+  \gtr@forlistloop{\gtr@edge@perpendicular@line@vert}{\gtr@dat@draw@par}%
+  \draw[line cap=round,gtr@link,-]\pgfextra{\pgfsetshortenstart{0pt}\pgfsetshortenend{0pt}} (\gtr@dim@min,\gtr@dat@draw@y)--(\gtr@dim@max,\gtr@dat@draw@y);%
+}
+
+\let\gtr@edge@perpendicular@up\gtr@edge@perpendicular@down
+
+\def\gtr@edge@perpendicular@left{%
+  \gtr@forlistloop{\gtr@edge@perpendicular@hori@inv}{\gtr@dat@draw@chi}%
+  \gtr@forlistloop{\gtr@edge@perpendicular@hori}{\gtr@dat@draw@par}%
+  \draw[line cap=round,gtr@link,-]\pgfextra{\pgfsetshortenstart{0pt}\pgfsetshortenend{0pt}} (\gtr@dat@draw@x,\gtr@dim@min)--(\gtr@dat@draw@x,\gtr@dim@max);%
+}
+
+\let\gtr@edge@perpendicular@right\gtr@edge@perpendicular@left
+
+
+% edge mode = rounded
+
+\def\gtr@edge@rounded@line@vert(#1,#2){%
+  \def\gtr@temp{\pgfsetcornersarced{\pgfpoint{\gtrkv@edge@arc}{\gtrkv@edge@arc}}}%
+  \ifdim\dimexpr#1-\gtr@dat@draw@x>-\gtrkv@edge@arc\relax%
+    \ifdim\dimexpr#1-\gtr@dat@draw@x<\gtrkv@edge@arc\relax%
+      \def\gtr@temp{}%
+  \fi\fi%
+  \draw[gtr@link]\pgfextra{\gtr@temp\pgfsetarrowsend{}\pgfsetshortenend{0pt}} (#1,#2)|-(dat@draw);%
+}
+
+\def\gtr@edge@rounded@line@vert@inv(#1,#2){%
+  \def\gtr@temp{\pgfsetcornersarced{\pgfpoint{\gtrkv@edge@arc}{\gtrkv@edge@arc}}}%
+  \ifdim\dimexpr#1-\gtr@dat@draw@x>-\gtrkv@edge@arc\relax%
+    \ifdim\dimexpr#1-\gtr@dat@draw@x<\gtrkv@edge@arc\relax%
+      \def\gtr@temp{}%
+  \fi\fi%
+  \draw[gtr@link]\pgfextra{\gtr@temp\pgfsetarrowsstart{}\pgfsetshortenstart{0pt}} (dat@draw)-|(#1,#2);%
+}
+
+\def\gtr@edge@rounded@line@hori(#1,#2){%
+  \def\gtr@temp{\pgfsetcornersarced{\pgfpoint{\gtrkv@edge@arc}{\gtrkv@edge@arc}}}%
+  \ifdim\dimexpr#2-\gtr@dat@draw@y>-\gtrkv@edge@arc\relax%
+    \ifdim\dimexpr#2-\gtr@dat@draw@y<\gtrkv@edge@arc\relax%
+      \def\gtr@temp{}%
+  \fi\fi%
+  \draw[gtr@link]\pgfextra{\gtr@temp\pgfsetarrowsend{}\pgfsetshortenend{0pt}} (#1,#2)-|(dat@draw);%
+}
+
+\def\gtr@edge@rounded@line@hori@inv(#1,#2){%
+  \def\gtr@temp{\pgfsetcornersarced{\pgfpoint{\gtrkv@edge@arc}{\gtrkv@edge@arc}}}%
+  \ifdim\dimexpr#2-\gtr@dat@draw@y>-\gtrkv@edge@arc\relax%
+    \ifdim\dimexpr#2-\gtr@dat@draw@y<\gtrkv@edge@arc\relax%
+      \def\gtr@temp{}%
+  \fi\fi%
+  \draw[gtr@link]\pgfextra{\gtr@temp\pgfsetarrowsstart{}\pgfsetshortenstart{0pt}} (dat@draw)|-(#1,#2);%
+}
+
+\def\gtr@edge@rounded@down{%
+  \gtr@forlistloop{\gtr@edge@rounded@line@vert@inv}{\gtr@dat@draw@chi}%
+  \gtr@forlistloop{\gtr@edge@rounded@line@vert}{\gtr@dat@draw@par}%
+  \draw[line cap=round,gtr@link,-]\pgfextra{\pgfsetshortenstart{0pt}\pgfsetshortenend{0pt}} (dat@draw)--(dat@draw);%
+}
+
+\let\gtr@edge@rounded@up\gtr@edge@rounded@down
+
+\def\gtr@edge@rounded@left{%
+  \gtr@forlistloop{\gtr@edge@rounded@line@hori@inv}{\gtr@dat@draw@chi}%
+  \gtr@forlistloop{\gtr@edge@rounded@line@hori}{\gtr@dat@draw@par}%
+  \draw[line cap=round,gtr@link,-]\pgfextra{\pgfsetshortenstart{0pt}\pgfsetshortenend{0pt}} (dat@draw)--(dat@draw);%
+}
+
+\let\gtr@edge@rounded@right\gtr@edge@rounded@left
+
+
+% edge mode = swing
+
+\def\gtr@edge@swing@line@vertA(#1,#2){%
+  \draw[gtr@link]\pgfextra{\pgfsetarrowsend{}\pgfsetshortenend{0pt}} (#1,#2) to[controls=+(270:\gtrkv@edge@swingcontrol) and +(90:\gtrkv@edge@swingcontrol)] (dat@draw);
+}
+
+\def\gtr@edge@swing@line@vertA@inv(#1,#2){%
+  \draw[gtr@link]\pgfextra{\pgfsetarrowsstart{}\pgfsetshortenstart{0pt}} (dat@draw) to[controls=+(90:\gtrkv@edge@swingcontrol) and +(270:\gtrkv@edge@swingcontrol)] (#1,#2);
+}
+
+\def\gtr@edge@swing@line@vertB(#1,#2){%
+  \draw[gtr@link]\pgfextra{\pgfsetarrowsend{}\pgfsetshortenend{0pt}} (#1,#2) to[controls=+(90:\gtrkv@edge@swingcontrol) and +(270:\gtrkv@edge@swingcontrol)] (dat@draw);
+}
+
+\def\gtr@edge@swing@line@vertB@inv(#1,#2){%
+  \draw[gtr@link]\pgfextra{\pgfsetarrowsstart{}\pgfsetshortenstart{0pt}} (dat@draw) to[controls=+(270:\gtrkv@edge@swingcontrol) and +(90:\gtrkv@edge@swingcontrol)] (#1,#2);
+}
+
+\def\gtr@edge@swing@line@horiA(#1,#2){%
+  \draw[gtr@link]\pgfextra{\pgfsetarrowsend{}\pgfsetshortenend{0pt}} (#1,#2) to[controls=+(180:\gtrkv@edge@swingcontrol) and +(0:\gtrkv@edge@swingcontrol)] (dat@draw);
+}
+
+\def\gtr@edge@swing@line@horiA@inv(#1,#2){%
+  \draw[gtr@link]\pgfextra{\pgfsetarrowsstart{}\pgfsetshortenstart{0pt}} (dat@draw) to[controls=+(0:\gtrkv@edge@swingcontrol) and +(180:\gtrkv@edge@swingcontrol)] (#1,#2);
+}
+
+\def\gtr@edge@swing@line@horiB(#1,#2){%
+  \draw[gtr@link]\pgfextra{\pgfsetarrowsend{}\pgfsetshortenend{0pt}} (#1,#2) to[controls=+(0:\gtrkv@edge@swingcontrol) and +(180:\gtrkv@edge@swingcontrol)] (dat@draw);
+}
+
+\def\gtr@edge@swing@line@horiB@inv(#1,#2){%
+  \draw[gtr@link]\pgfextra{\pgfsetarrowsstart{}\pgfsetshortenstart{0pt}} (dat@draw) to[controls=+(180:\gtrkv@edge@swingcontrol) and +(0:\gtrkv@edge@swingcontrol)] (#1,#2);
+}
+
+\def\gtr@edge@swing@down{%
+  \gtr@forlistloop{\gtr@edge@swing@line@vertB@inv}{\gtr@dat@draw@chi}%
+  \gtr@forlistloop{\gtr@edge@swing@line@vertA}{\gtr@dat@draw@par}%
+}
+
+\def\gtr@edge@swing@up{%
+  \gtr@forlistloop{\gtr@edge@swing@line@vertA@inv}{\gtr@dat@draw@chi}%
+  \gtr@forlistloop{\gtr@edge@swing@line@vertB}{\gtr@dat@draw@par}%
+}
+
+\def\gtr@edge@swing@left{%
+  \gtr@forlistloop{\gtr@edge@swing@line@horiB@inv}{\gtr@dat@draw@chi}%
+  \gtr@forlistloop{\gtr@edge@swing@line@horiA}{\gtr@dat@draw@par}%
+}
+
+\def\gtr@edge@swing@right{%
+  \gtr@forlistloop{\gtr@edge@swing@line@horiA@inv}{\gtr@dat@draw@chi}%
+  \gtr@forlistloop{\gtr@edge@swing@line@horiB}{\gtr@dat@draw@par}%
+}
+
+
+% edge mode = mesh
+
+\def\gtr@edge@mesh@line(#1){%
+  \def\do##1{%
+    \begingroup\edef\x{\endgroup\noexpand\draw[gtr@link] (#1) to[\expandonce\gtrkv@edge@meshoptions] (##1);}%
+    \x%
+  }%
+  \dolistloop{\gtr@dat@draw@chi}%
+}
+
+\def\gtr@edge@mesh@down{%
+  \gtr@forlistloop{\gtr@edge@mesh@line}{\gtr@dat@draw@par}%
+}
+
+\let\gtr@edge@mesh@up\gtr@edge@mesh@down
+\let\gtr@edge@mesh@left\gtr@edge@mesh@down
+\let\gtr@edge@mesh@right\gtr@edge@mesh@down
+
+
+% edge mode = custom
+
+\def\gtr@edge@custom@none@macro#1#2#3#4{}
+
+\def\gtr@edge@custom@down{\gtr@edge@custom@down@macro{\gtr@dat@draw@par}{\gtr@dat@draw@chi}{dat@draw}{gtr@link}}
+\def\gtr@edge@custom@up{\gtr@edge@custom@up@macro{\gtr@dat@draw@par}{\gtr@dat@draw@chi}{dat@draw}{gtr@link}}
+\def\gtr@edge@custom@left{\gtr@edge@custom@left@macro{\gtr@dat@draw@par}{\gtr@dat@draw@chi}{dat@draw}{gtr@link}}
+\def\gtr@edge@custom@right{\gtr@edge@custom@right@macro{\gtr@dat@draw@par}{\gtr@dat@draw@chi}{dat@draw}{gtr@link}}
+
+%%%%%%%%%%%%%%%%%%
+
+\def\gtr@draw@family@extra(#1#2#3){%
+  \begingroup%
+  \csundef{gtr@fam@\gtr@currentfamily @par}%
+  \def\do##1{%
+    \gtr@getPerNumForId{##1}%
+    \ifdefempty{\gtr@tmp@num}{}{%
+      \listcseadd{gtr@fam@\gtr@currentfamily @par}{\gtr@tmp@num}}%
+  }%
+  \docsvlist{#1}%
+  \csundef{gtr@fam@\gtr@currentfamily @chi}%
+  \def\do##1{%
+    \gtr@getPerNumForId{##1}%
+    \ifdefempty{\gtr@tmp@num}{}{%
+      \listcseadd{gtr@fam@\gtr@currentfamily @chi}{\gtr@tmp@num}}%
+  }%
+  \docsvlist{#2}%
+  \gtrset{edges={#3}}%
+  %
+  \gtr@predraw@family{\gtr@currentfamily}%
+  \dimdef\gtr@dat@draw@x{\gtr@dat@draw@x+\gtrkv@edge@core@xshift}%
+  \dimdef\gtr@dat@draw@y{\gtr@dat@draw@y+\gtrkv@edge@core@yshift}%
+  \coordinate (dat@draw) at (\gtr@dat@draw@x,\gtr@dat@draw@y) {};
+  \ifnum\numexpr\gtr@legnum>\gtrkv@edge@noleg\relax%
+    \tikzset{gtr@link/.style={/gtr/edge/gtr@edge@background}}%,
+    \csuse{gtr@edge@\gtrkv@edgemode @\gtr@timeflow}%
+    \tikzset{gtr@link/.style={/gtr/edge/gtr@edge@foreground}}%,
+    \csuse{gtr@edge@\gtrkv@edgemode @\gtr@timeflow}%
+  \fi%
+  \endgroup%
+}
+
+\def\gtr@draw@family#1{%
+  \begingroup%
+  \let\gtr@extra@edges@pre=\@undefined%
+  \let\gtr@extra@edges@app=\@undefined%
+  \gtrset{code={%
+    \gtr@cs@keysalsofrom{gtr@fam@#1@opt@subtree}%
+    \gtr@cs@keysalsofrom{gtr@fam@#1@opt@family}%
+  }}%
+  \gtr@forlistloop{\gtr@draw@family@extra}{\gtr@extra@edges@pre}%
+  \gtr@predraw@family{#1}%
+  \dimdef\gtr@dat@draw@x{\gtr@dat@draw@x+\gtrkv@edge@core@xshift}%
+  \dimdef\gtr@dat@draw@y{\gtr@dat@draw@y+\gtrkv@edge@core@yshift}%
+  \coordinate[alias={\csuse{gtr@fam@#1@id}},alias={f@#1}] (dat@draw) at (\gtr@dat@draw@x,\gtr@dat@draw@y) {};
+  \ifnum\numexpr\gtr@legnum>\gtrkv@edge@noleg\relax%
+    \tikzset{gtr@link/.style={/gtr/edge/gtr@edge@background}}%,
+    \csuse{gtr@edge@\gtrkv@edgemode @\gtr@timeflow}%
+    \tikzset{gtr@link/.style={/gtr/edge/gtr@edge@foreground}}%,
+    \csuse{gtr@edge@\gtrkv@edgemode @\gtr@timeflow}%
+  \fi%
+  \gtr@forlistloop{\gtr@draw@family@extra}{\gtr@extra@edges@app}%
+  \ifdefvoid{\gtrkv@family@label}{}{%
+    \begingroup\edef\x{\endgroup\noexpand\node[\expandonce\gtrkv@family@label@options] at (f@#1) {\expandonce\gtrkv@family@label};}%
+    \x%
+  }%
+  \endgroup%
+}
+
+\def\gtr@draw@all@families{%
+  \begin{scope}[genealogytree edges scope]%
+    \gtrset{%
+      use family database,
+      database format=marriage,
+      code={\pgfkeysalsofrom{\gtrkv@database@label}},
+    }%
+    \gtr@forall@families{\gtr@draw@family}%
+  \end{scope}%
+}
+
+
+% fit to family / subtree
+
+\def\gtr@addboundary@node#1{%
+  \pgfpointanchor{p@#1}{south west}\unskip%
+  \ifdim\pgf@x<\pgf@xa\relax%
+    \pgf@xa\pgf@x%
+  \fi%
+  \ifdim\pgf@y<\pgf@ya\relax%
+    \pgf@ya\pgf@y%
+  \fi%
+  \pgfpointanchor{p@#1}{north east}\unskip%
+  \ifdim\pgf@x>\pgf@xb\relax%
+    \pgf@xb\pgf@x%
+  \fi%
+  \ifdim\pgf@y>\pgf@yb\relax%
+    \pgf@yb\pgf@y%
+  \fi%
+}%
+
+
+\def\gtr@getboundingrectangle@family#1{%
+  \pgf@xa=\maxdimen%
+  \pgf@ya=\maxdimen%
+  \pgf@xb=-\maxdimen%
+  \pgf@yb=-\maxdimen%
+  \letcs\gtr@temp@list{gtr@fam@#1@chi}%
+  \ifdefvoid{\gtr@temp@list}{}{%
+    \forlistloop{\gtr@addboundary@node}{\gtr@temp@list}%
+  }%
+  \letcs\gtr@temp@list{gtr@fam@#1@par}%
+  \ifdefvoid{\gtr@temp@list}{}{%
+    \forlistloop{\gtr@addboundary@node}{\gtr@temp@list}%
+  }%
+  \ifdim\pgf@xa>\pgf@xb\relax%
+    \pgf@xa=0pt%
+    \pgf@ya=0pt%
+    \pgf@xb=0pt%
+    \pgf@yb=0pt%
+  \fi%
+}
+
+\def\gtr@pushchildfamily#1{%
+ \ifcsname gtr@per@#1@parof\endcsname%
+   \gtr@famstack@push{\csname gtr@per@#1@parof\endcsname}%
+ \fi%
+}
+
+\def\gtr@pushparentfamily#1{%
+ \ifcsname gtr@per@#1@chiof\endcsname%
+   \gtr@famstack@push{\csname gtr@per@#1@chiof\endcsname}%
+ \fi%
+}
+
+
+\def\gtr@getboundingrectangle@subtree#1{%
+  \pgf@xa=\maxdimen%
+  \pgf@ya=\maxdimen%
+  \pgf@xb=-\maxdimen%
+  \pgf@yb=-\maxdimen%
+  \gtr@famstack@push{#1}%
+  \loop%
+    \gtr@famstack@popto{\gtr@currentfamily}%
+    \letcs\gtr@temp@list{gtr@fam@\gtr@currentfamily @patchi}%
+    \ifdefvoid{\gtr@temp@list}{}{%
+      \forlistloop{\gtr@addboundary@node}{\gtr@temp@list}%
+      \ifcsstring{gtr@fam@\gtr@currentfamily @type}{chi}{%
+        \forlistloop{\gtr@pushchildfamily}{\gtr@temp@list}}%
+      {%
+        \ifcsstring{gtr@fam@\gtr@currentfamily @type}{uni}{%
+        \forlistloop{\gtr@pushchildfamily}{\gtr@temp@list}}{}%
+      }%
+    }%
+    \letcs\gtr@temp@list{gtr@fam@\gtr@currentfamily @patpar}%
+    \ifdefvoid{\gtr@temp@list}{}{%
+      \forlistloop{\gtr@addboundary@node}{\gtr@temp@list}%
+      \ifcsstring{gtr@fam@\gtr@currentfamily @type}{par}{%
+        \forlistloop{\gtr@pushparentfamily}{\gtr@temp@list}}{}%
+    }%
+  \ifnum\gtr@famstack@size>0\relax%
+  \repeat%
+  \ifdim\pgf@xa>\pgf@xb\relax%
+    \pgf@xa=0pt%
+    \pgf@ya=0pt%
+    \pgf@xb=0pt%
+    \pgf@yb=0pt%
+  \fi%
+}
+
+
+\tikzset{
+  fit to family/.code={%
+    \gtr@getFamNumForId{#1}%
+    \gtr@getboundingrectangle@family{\gtr@tmp@num}%
+    \pgfkeysalso{fit/.expanded={(\the\pgf@xa,\the\pgf@ya)(\the\pgf@xb,\the\pgf@yb)}}%
+  },
+  fit to subtree/.code={%
+    \gtr@getFamNumForId{#1}%
+    \gtr@getboundingrectangle@subtree{\gtr@tmp@num}%
+    \pgfkeysalso{fit/.expanded={(\the\pgf@xa,\the\pgf@ya)(\the\pgf@xb,\the\pgf@yb)}}%
+  },
+}

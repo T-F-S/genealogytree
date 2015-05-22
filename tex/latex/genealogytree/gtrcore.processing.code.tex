@@ -1,0 +1,710 @@
+%% The LaTeX package genealogytree - version 0.90 (2015/05/22)
+%% gtrcore.processing.code.tex: Processing
+%%
+%% -------------------------------------------------------------------------------------------
+%% Copyright (c) 2013-2015 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% -------------------------------------------------------------------------------------------
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status `author-maintained'.
+%%
+%% This work consists of all files listed in README
+%%
+\gtr@set@library@version{0.90}
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Processing - common
+%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\def\gtr@proc@level@save@settings{%
+  \dimdef\gtr@rv@level@distance{\gtrkv@level@distance}%
+  \dimdef\gtr@rv@level@size{\gtrkv@level@size}%
+  \dimdef\gtr@rv@node@minsize{\gtrkv@node@minsize}%
+  \dimdef\gtr@rv@node@maxsize{\gtrkv@node@maxsize}%
+  \dimdef\gtr@rv@dist@sibling@par{\gtrkv@dist@sibling@par}%
+  \dimdef\gtr@rv@dist@sibling@chi{\gtrkv@dist@sibling@chi}%
+  \dimdef\gtr@rv@dist@parent@par{\gtrkv@dist@parent@par}%
+  \dimdef\gtr@rv@dist@parent@chi{\gtrkv@dist@parent@chi}%
+  \dimdef\gtr@rv@dist@further{\gtrkv@dist@further}%
+}
+
+
+\def\gtr@proc@level@opt{%
+  \begingroup%
+    \let\gtrkv@level@distance\gtr@rv@level@distance%
+    \let\gtrkv@level@size\gtr@rv@level@size%
+    \let\gtrkv@node@minsize\gtr@rv@node@minsize%
+    \let\gtrkv@node@maxsize\gtr@rv@node@maxsize%
+    \let\gtrkv@dist@sibling@par\gtr@rv@dist@sibling@par%
+    \let\gtrkv@dist@sibling@chi\gtr@rv@dist@sibling@chi%
+    \let\gtrkv@dist@parent@par\gtr@rv@dist@parent@par%
+    \let\gtrkv@dist@parent@chi\gtr@rv@dist@parent@chi%
+    \let\gtrkv@dist@further\gtr@rv@dist@further%
+    %
+    \global\let\gtr@gkv@opt@family@level\@empty%
+    \global\let\gtr@gkv@opt@subtree@level\@empty%
+    \global\let\gtr@gkv@opt@node@level\@empty%
+    %
+    \gtrset{%
+      family/.code={\gtrkeysgappto\gtr@gkv@opt@family@level{##1}},
+      subtree/.code={\gtrkeysgappto\gtr@gkv@opt@subtree@level{##1}},
+      node/.code={\gtrkeysgappto\gtr@gkv@opt@node@level{##1}},
+    }%
+    %
+    \global\gtr@ignorefalse%
+    \gtrset{level=\number\gtr@c@level}%
+    \pgfkeysifdefined{/gtr/level \number\gtr@c@level/.@cmd}{%
+      \gtrset{level \number\gtr@c@level}%
+      }{%
+      }%
+    \ifgtr@ignore%
+      \global\def\gtr@gkv@opt@ignore@level{ignore}%
+    \else%
+      \global\let\gtr@gkv@opt@ignore@level\@empty%
+    \fi%
+    %
+    \global\let\gtr@level@distance\gtrkv@level@distance%
+    \global\let\gtr@level@size\gtrkv@level@size%
+    \global\let\gtr@node@minsize\gtrkv@node@minsize%
+    \global\let\gtr@node@maxsize\gtrkv@node@maxsize%
+    \global\let\gtr@dist@sibling@par\gtrkv@dist@sibling@par%
+    \global\let\gtr@dist@sibling@chi\gtrkv@dist@sibling@chi%
+    \global\let\gtr@dist@parent@par\gtrkv@dist@parent@par%
+    \global\let\gtr@dist@parent@chi\gtrkv@dist@parent@chi%
+    \global\let\gtr@dist@further\gtrkv@dist@further%
+    %
+  \endgroup%
+  %
+  \gtr@init@leveldimens%
+}
+
+
+\long\def\gtr@proc@subtree@opt#1{%
+  \global\gtr@ignorefalse%
+  \begingroup%
+    \gtrset{id=,pivot shift=0pt,
+      family/.code={\gtrkeysgappto\gtr@gkv@opt@family{##1}},
+      subtree/.code={\gtrkeysgappto\gtr@gkv@opt@subtree{##1}},
+      node/.code={\gtrkeysgappto\gtr@gkv@opt@family{##1}},% sic!
+    }%
+    \global\let\gtr@gkv@opt@family\gtr@gkv@opt@family@level%
+    \global\let\gtr@gkv@opt@subtree\gtr@gkv@opt@subtree@level%
+    \gtrset{#1,code={\pgfkeysalsofrom{\gtr@gkv@opt@ignore@level}\gtr@key@keysalsofrom{/gtr/sopt/\gtr@gkv@id}}}%
+  \endgroup%
+  \csedef{gtr@fam@\gtr@currentfamily @id}{\gtr@gkv@id}%
+  \csedef{gtr@fam@\gtr@currentfamily @ps}{\gtr@gkv@pivotshift}%
+  %
+  \gtr@cs@storekey{gtr@fam@\gtr@currentfamily @opt@family}{\gtr@gkv@opt@family}%
+  %
+  \ifcsdef{gtr@fam@\gtr@currentfamily @fam}{%
+    \letcs\gtr@encfamily{gtr@fam@\gtr@currentfamily @fam}%
+    \letcs\gtr@temp{gtr@fam@\gtr@encfamily @opt@subtree}%
+    \gtr@cs@storekeys{gtr@fam@\gtr@currentfamily @opt@subtree}{\gtr@temp}{\gtr@gkv@opt@subtree}%
+  }{%
+    \gtr@cs@storekey{gtr@fam@\gtr@currentfamily @opt@subtree}{\gtr@gkv@opt@subtree}%
+  }%
+}
+
+
+\def\gtr@proc@@set@enc@family{%
+  \ifnum\gtr@famstack@size>0%
+    \gtr@famstack@peekto{\gtr@encfamily}%
+    \csedef{gtr@fam@\gtr@currentfamily @fam}{\gtr@encfamily}%
+  \fi%
+  \csdef{gtr@fam@\gtr@currentfamily @offset}{0pt}%
+}
+
+\long\def\gtr@proc@@family@begin#1{%
+  \gtr@proc@@set@enc@family%
+  \gtr@proc@subtree@opt{#1}%
+}
+
+\def\gtr@proc@@parent@begin{%
+  \csdef{gtr@fam@\gtr@currentfamily @type}{par}%
+  \gtr@proc@@family@begin%
+}
+
+\def\gtr@proc@@child@begin{%
+  \csdef{gtr@fam@\gtr@currentfamily @type}{chi}%
+  \gtr@proc@@family@begin%
+}
+
+\def\gtr@proc@@union@begin{%
+  \csdef{gtr@fam@\gtr@currentfamily @type}{uni}%
+  \gtr@proc@@family@begin%
+}
+
+\def\gtr@proc@@sandclock@begin{%
+  \csdef{gtr@fam@\gtr@currentfamily @type}{san}%
+  \gtr@proc@@family@begin%
+}
+
+\def\gtr@proc@pivot@reset{%
+  \let\gtr@current@pivot@chi=\@undefined%
+  \let\gtr@current@pivot@par=\@undefined%
+}
+
+
+\def\gtr@proc@pivot@check@child#1#2{%
+  \ifcsname gtr@per@#1@pivo@chi\endcsname%
+    \let\gtr@current@pivot@chi=#2%
+  \fi%
+}
+
+
+\def\gtr@proc@pivot@check@parent#1#2{%
+  \ifcsname gtr@per@#1@pivo@par\endcsname%
+    \let\gtr@current@pivot@par=#2%
+  \fi%
+}
+
+
+\def\gtr@proc@compute@pivotpoint@chi{%
+  \ifdefined\gtr@current@pivot@chi%
+    \let\gtr@tmp@chipos@mid=\gtr@current@pivot@chi%
+  \else%
+    \dimdef\gtr@tmp@chipos@mid{(\gtr@tmp@chipos@A+\gtr@tmp@chipos@B)/2}%
+  \fi%
+}
+
+\def\gtr@proc@compute@pivotpoint@par{%
+  \ifdefined\gtr@current@pivot@par%
+    \let\gtr@tmp@parpos@mid=\gtr@current@pivot@par%
+  \else%
+    \dimdef\gtr@tmp@parpos@mid{(\gtr@tmp@parpos@A+\gtr@tmp@parpos@B)/2}%
+  \fi%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Processing - parent
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\gtr@procpar@following@parent#1{%
+  \ifcsname gtr@per@#1@chiof\endcsname
+    \letcs\gtr@parent@fam{gtr@per@#1@chiof}%
+    \gtr@cont@merge@tree{\gtr@parent@fam}{\gtr@dist@parent@par}%
+  \else
+    \gtr@cont@merge@node{#1}{\gtr@dist@parent@par}%
+  \fi%
+  \let\gtr@tmp@parpos@B=\gtr@tmp@linkpos%
+  \gtr@proc@pivot@check@parent{#1}{\gtr@tmp@linkpos}%
+}
+
+
+\def\gtr@procpar@first@parent#1{%
+  \let\do=\gtr@procpar@following@parent%
+  \ifcsname gtr@per@#1@chiof\endcsname
+    \letcs\gtr@parent@fam{gtr@per@#1@chiof}%
+    \gtr@cont@first@tree{\gtr@parent@fam}%
+  \else
+    \gtr@cont@first@node{#1}%
+  \fi%
+  \let\gtr@tmp@parpos@A=\gtr@tmp@linkpos%
+  \let\gtr@tmp@parpos@B=\gtr@tmp@linkpos%
+  \gtr@proc@pivot@check@parent{#1}{\gtr@tmp@linkpos}%
+}
+
+
+\def\gtr@procpar@following@child#1{%
+  \gtr@cont@merge@anchor{#1}{\gtr@dist@sibling@par}%
+  \let\gtr@tmp@chipos@B=\gtr@tmp@linkpos%
+  \gtr@proc@pivot@check@child{#1}{\gtr@tmp@linkpos}%
+}
+
+
+\def\gtr@procpar@first@child#1{%
+  \let\do=\gtr@procpar@following@child%
+  \gtr@cont@first@anchor{#1}%
+  \let\gtr@tmp@chipos@A=\gtr@tmp@linkpos%
+  \let\gtr@tmp@chipos@B=\gtr@tmp@linkpos%
+  \gtr@proc@pivot@check@child{#1}{\gtr@tmp@linkpos}%
+}
+
+
+\def\gtr@proc@@parent@end{%
+  \ifcsname gtr@fam@\gtr@currentfamily @g\endcsname%
+  \else\gtr@error{No g-node in parent family (\gtr@currentfamily)}{Every family need a g-node}%
+  \fi%
+  \gtr@proc@pivot@reset%
+  \csdef{gtr@fam@\gtr@currentfamily @frac}{0.5}%
+  \gtr@set@position@family{\gtr@currentfamily}%
+  \let\gtr@tmp@nextwest=\@undefined%
+  \let\gtr@tmp@nexteast=\@undefined%
+  %
+  \csdef{gtr@fam@\gtr@currentfamily @offset}{0pt}%
+  \letcs\gtr@currentchildlist{gtr@fam@\gtr@currentfamily @chi}%
+  \letcs\gtr@currentparentlist{gtr@fam@\gtr@currentfamily @par}%
+  %
+  \ifdefined\gtr@currentparentlist%
+    \let\do=\gtr@procpar@first@parent%
+    \dolistloop{\gtr@currentparentlist}%
+    \gtr@proc@compute@pivotpoint@par%
+  \fi%
+  \let\do=\gtr@procpar@first@child%
+  \dolistloop{\gtr@currentchildlist}%
+  \gtr@proc@compute@pivotpoint@chi%
+  \ifdefined\gtr@currentparentlist%
+    \dimdef\gtr@temp{\gtr@tmp@parpos@mid-\gtr@tmp@chipos@mid+\csuse{gtr@fam@\gtr@currentfamily @ps}}%
+    \gtr@cont@shift{\gtr@currentchildlist}{\gtr@temp}%
+  \fi%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Processing - child
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\gtr@procchi@following@parent#1{%
+  \gtr@cont@merge@anchor{#1}{\gtr@dist@parent@chi}%
+  \let\gtr@tmp@parpos@B=\gtr@tmp@linkpos%
+  \gtr@proc@pivot@check@parent{#1}{\gtr@tmp@linkpos}%
+}
+
+
+\def\gtr@procchi@first@parent#1{%
+  \let\do=\gtr@procchi@following@parent%
+  \gtr@cont@first@anchor{#1}%
+  \let\gtr@tmp@parpos@A=\gtr@tmp@linkpos%
+  \let\gtr@tmp@parpos@B=\gtr@tmp@linkpos%
+  \gtr@proc@pivot@check@parent{#1}{\gtr@tmp@linkpos}%
+}
+
+
+\def\gtr@procchi@following@child#1{%
+  \ifcsname gtr@per@#1@parof\endcsname
+    \letcs\gtr@child@fam{gtr@per@#1@parof}%
+    \gtr@cont@merge@tree{\gtr@child@fam}{\gtr@dist@sibling@chi}%
+  \else
+    \gtr@cont@merge@node{#1}{\gtr@dist@sibling@chi}%
+  \fi%
+  \let\gtr@tmp@chipos@B=\gtr@tmp@linkpos%
+  \gtr@proc@pivot@check@child{#1}{\gtr@tmp@linkpos}%
+}
+
+
+\def\gtr@procchi@first@child#1{%
+  \let\do=\gtr@procchi@following@child%
+  \ifcsname gtr@per@#1@parof\endcsname
+    \letcs\gtr@child@fam{gtr@per@#1@parof}%
+    \gtr@cont@first@tree{\gtr@child@fam}%
+  \else
+    \gtr@cont@first@node{#1}%
+  \fi%
+  \let\gtr@tmp@chipos@A=\gtr@tmp@linkpos%
+  \let\gtr@tmp@chipos@B=\gtr@tmp@linkpos%
+  \gtr@proc@pivot@check@child{#1}{\gtr@tmp@linkpos}%
+}
+
+\def\gtr@proc@@child@end{%
+  \ifcsname gtr@fam@\gtr@currentfamily @g\endcsname%
+  \else\gtr@error{No g-node in child family (\gtr@currentfamily)}{Every family needs a g-node}%
+  \fi%
+  \gtr@proc@pivot@reset%
+  \letcs\gtr@gnode{gtr@fam@\gtr@currentfamily @g}%
+  \csdef{gtr@fam@\gtr@currentfamily @offset}{0pt}%
+  \ifcsname gtr@fam@\gtr@currentfamily @union\endcsname%
+    \numdef\gtr@@parts{2}%
+    \def\do##1{\numdef\gtr@@parts{\gtr@@parts+1}}%
+    \dolistcsloop{gtr@fam@\gtr@currentfamily @union}%
+    \dimdef\gtr@@dimfrac{1pt/\gtr@@parts}%
+    \pgfmathqparse{\gtr@@dimfrac}%
+    \csedef{gtr@fam@\gtr@currentfamily @frac}{\pgfmathresult}%
+    \gtr@set@position@family{\gtr@currentfamily}%
+    \let\gtr@@dimsumfrac=\gtr@@dimfrac%
+    %
+    \def\dodo##1{%
+      \dimdef\gtr@@dimsumfrac{\gtr@@dimsumfrac+\gtr@@dimfrac}%
+      \pgfmathqparse{\gtr@@dimsumfrac}%
+      \csedef{gtr@fam@##1@frac}{\pgfmathresult}%
+      \gtr@set@position@family{##1}%
+      \ifcsname gtr@fam@##1@g\endcsname%
+      \else%
+        \listcseadd{gtr@fam@##1@par}{\gtr@gnode}%
+        \gtr@add@gnode{\gtr@gnode}{##1}%
+      \fi%
+      \let\do=\dodo% loop-in-loop
+    }%
+    \let\do=\dodo%
+    \dolistcsloop{gtr@fam@\gtr@currentfamily @union}%
+  \else%
+    \csdef{gtr@fam@\gtr@currentfamily @frac}{0.5}%
+    \gtr@set@position@family{\gtr@currentfamily}%
+  \fi%
+  \let\gtr@tmp@nextwest=\@undefined%
+  \let\gtr@tmp@nexteast=\@undefined%
+  %
+  \letcs\gtr@currentchildlist{gtr@fam@\gtr@currentfamily @patchi}%
+  \letcs\gtr@currentparentlist{gtr@fam@\gtr@currentfamily @patpar}%
+  %
+  \ifdefined\gtr@currentchildlist%
+    \let\do=\gtr@procchi@first@child%
+    \dolistloop{\gtr@currentchildlist}%
+    \gtr@proc@compute@pivotpoint@chi%
+  \fi%
+  \let\do=\gtr@procchi@first@parent%
+  \dolistloop{\gtr@currentparentlist}%
+  \gtr@proc@compute@pivotpoint@par%
+  \ifdefined\gtr@currentchildlist%
+    \dimdef\gtr@temp{\gtr@tmp@chipos@mid-\gtr@tmp@parpos@mid-\csuse{gtr@fam@\gtr@currentfamily @ps}}%
+    \gtr@cont@shift{\gtr@currentparentlist}{\gtr@temp}%
+  \fi%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Processing - union
+%%%%%%%%%%%%%%%%%%%%%%%
+
+% merge list #1 to #2
+\def\gtr@procuni@mergechild@list#1#2{%
+  \ifcsname#1\endcsname%
+    \def\do##1{%
+      \ifcsname gtr@per@##1@parof\endcsname%
+      \else%
+        \gtr@add@family{##1}{\gtr@encfamily}%
+      \fi%
+      \listcseadd{#2}{##1}%
+    }%
+    \dolistcsloop{#1}%
+  \fi%
+}
+
+% merge list #1 to #2
+\def\gtr@procuni@mergeparent@list#1#2{%
+  \ifcsname#1\endcsname%
+    \def\do##1{%
+      \gtr@add@family{##1}{\gtr@encfamily}%
+      \listcseadd{#2}{##1}%
+    }%
+    \dolistcsloop{#1}%
+  \fi%
+}
+
+\def\gtr@proc@@union@end{%
+  \gtr@famstack@peekto{\gtr@encfamily}%
+  \gtr@add@union{\gtr@currentfamily}{\gtr@encfamily}%
+  \gtr@procuni@mergechild@list{gtr@fam@\gtr@currentfamily @chi}{gtr@fam@\gtr@encfamily @patchi}%
+  \gtr@procuni@mergeparent@list{gtr@fam@\gtr@currentfamily @par}{gtr@fam@\gtr@encfamily @patpar}%
+  \ifcsname gtr@fam@\gtr@encfamily @g\endcsname
+    \letcs\gtr@gnode{gtr@fam@\gtr@encfamily @g}%
+    \listcseadd{gtr@fam@\gtr@currentfamily @par}{\gtr@gnode}%
+    \gtr@add@gnode{\gtr@gnode}{\gtr@currentfamily}%
+  \fi%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Processing - sandclock
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\gtr@proc@@sandclock@end{%
+  \gtr@proc@pivot@reset%
+  \csdef{gtr@fam@\gtr@currentfamily @frac}{0.5}%
+  \gtr@set@position@family{\gtr@currentfamily}%
+  \let\gtr@tmp@nextwest=\@undefined%
+  \let\gtr@tmp@nexteast=\@undefined%
+  %
+  \csdef{gtr@fam@\gtr@currentfamily @offset}{0pt}%
+  \letcs\gtr@currentchildlist{gtr@fam@\gtr@currentfamily @chi}%
+  \letcs\gtr@currentparentlist{gtr@fam@\gtr@currentfamily @par}%
+  %
+  \ifdefined\gtr@currentparentlist%
+    \let\do=\gtr@procpar@first@parent%
+    \dolistloop{\gtr@currentparentlist}%
+    \gtr@proc@compute@pivotpoint@par%
+    \csedef{gtr@fam@\gtr@currentfamily @ceast@panchor}{\gtr@tmp@nexteast}%
+    \csedef{gtr@fam@\gtr@currentfamily @cwest@panchor}{\gtr@tmp@nextwest}%
+  \fi%
+  %
+  \let\gtr@tmp@nextwest=\@undefined%
+  \let\gtr@tmp@nexteast=\@undefined%
+  \ifdefined\gtr@currentchildlist%
+    \let\do=\gtr@procchi@first@child%
+    \dolistloop{\gtr@currentchildlist}%
+    \gtr@proc@compute@pivotpoint@chi%
+    \dimdef\gtr@temp{\gtr@tmp@chipos@mid-\gtr@tmp@parpos@mid-\csuse{gtr@fam@\gtr@currentfamily @ps}}%
+    \ifdefined\gtr@currentparentlist%
+      \gtr@cont@shift@sandclock{\gtr@currentparentlist}{\gtr@temp}%
+    \fi%
+    \csedef{gtr@fam@\gtr@currentfamily @ceast@canchor}{\gtr@tmp@nexteast}%
+    \csedef{gtr@fam@\gtr@currentfamily @cwest@canchor}{\gtr@tmp@nextwest}%
+  \fi%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Processing - g/p/c
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\long\def\gtr@proc@@parent@g@content{%
+  \gtr@add@child{\gtr@currentperson}{\gtr@currentfamily}%
+  \gtr@add@gnode{\gtr@currentperson}{\gtr@currentfamily}%
+  \gtr@add@family{\gtr@currentperson}{\gtr@currentfamily}%
+  \ifnum\gtr@famstack@size>0%
+    \gtr@famstack@peekto{\gtr@childfamily}%
+    \gtr@add@parent{\gtr@currentperson}{\gtr@childfamily}%
+  \fi%
+}
+
+\long\def\gtr@proc@@child@g@content{%
+  \gtr@add@parent{\gtr@currentperson}{\gtr@currentfamily}%
+  \gtr@add@gnode{\gtr@currentperson}{\gtr@currentfamily}%
+  \gtr@add@family{\gtr@currentperson}{\gtr@currentfamily}%
+  \ifnum\gtr@famstack@size>0%
+    \gtr@famstack@peekto{\gtr@parentfamily}%
+    \gtr@add@child{\gtr@currentperson}{\gtr@parentfamily}%
+  \fi%
+}
+
+\long\def\gtr@proc@@p@content{%
+  \gtr@add@parent{\gtr@currentperson}{\gtr@currentfamily}%
+  \gtr@add@family{\gtr@currentperson}{\gtr@currentfamily}%
+}
+
+\long\def\gtr@proc@@c@content{%
+  \gtr@add@child{\gtr@currentperson}{\gtr@currentfamily}%
+  \gtr@add@family{\gtr@currentperson}{\gtr@currentfamily}%
+}
+
+\gtrset{
+  linked@family@options/.is choice,
+  linked@family@options/p/.code={},
+  linked@family@options/c/.code={},
+  linked@family@options/pc/.code={},
+  linked@family@options/gc/.code={},
+}
+
+\def\gtr@linked@family@options@p{}
+\def\gtr@linked@family@options@c{}
+\def\gtr@linked@family@options@g{%
+  \ifnum\gtr@famstack@size>0%
+    \gtr@famstack@peekto{\gtr@linkedfamily}%
+    \gtr@cs@keysalsofrom{gtr@fam@\gtr@linkedfamily @opt@family}%
+  \fi%
+}
+
+\long\def\gtr@proc@add@node#1#2{%
+  \ifcsdef{gtr@per@\gtr@currentperson @box}%
+    {\letcs\gtr@pbox{gtr@per@\gtr@currentperson @box}}%
+    {\newbox\gtr@pbox\csxdef{gtr@per@\gtr@currentperson @box}{\the\gtr@pbox}}%
+  %
+  \setbox\gtr@pbox\hbox{%
+    \begingroup%
+    \begin{pgfinterruptpicture}%
+      \global\gtr@ignorefalse%
+      \gtrset{id=,distance=-1sp,pivot=none,
+        code={%
+          \gtr@cs@keysalsofrom{gtr@fam@\gtr@currentfamily @opt@subtree}%
+          \csuse{gtr@linked@family@options@\gtrnodetype}%
+          \gtr@cs@keysalsofrom{gtr@fam@\gtr@currentfamily @opt@family}%
+          \pgfkeysalsofrom{\gtr@gkv@opt@node@level}},%
+        #1,
+        code={\gtr@key@keysalsofrom{/gtr/nopt/\gtr@gkv@id}}%
+      }%
+      \unless\ifgtr@ignore%
+        \gtr@box@content@interpreter{#2}%
+        \gtr@box@content@processor%
+      \fi%
+    \end{pgfinterruptpicture}%
+    \endgroup%
+  }%
+  \unless\ifgtr@ignore%
+    \csedef{gtr@per@\gtr@currentperson @id}{\gtr@gkv@id}%
+    \ifdim\gtr@gkv@distance>-1sp\relax%
+      \csedef{gtr@per@\gtr@currentperson @distance}{\gtr@gkv@distance}%
+    \fi%
+    \ifcase\number\gtr@gkv@pivot\relax%
+    \or\csedef{gtr@per@\gtr@currentperson @pivo@chi}{}%
+    \or\csedef{gtr@per@\gtr@currentperson @pivo@par}{}%
+    \else\csedef{gtr@per@\gtr@currentperson @pivo@chi}{}%
+         \csedef{gtr@per@\gtr@currentperson @pivo@par}{}%
+    \fi%
+    %
+    \gtr@set@level@position{\gtr@currentperson}%
+  \fi%
+}
+
+\def\gtr@add@parent#1#2{%
+  \listcseadd{gtr@fam@#2@par}{#1}%
+  \listcseadd{gtr@fam@#2@patpar}{#1}%
+  \csedef{gtr@per@#1@parof}{#2}%
+}
+
+\def\gtr@add@child#1#2{%
+  \listcseadd{gtr@fam@#2@chi}{#1}%
+  \listcseadd{gtr@fam@#2@patchi}{#1}%
+  \csedef{gtr@per@#1@chiof}{#2}%
+}
+
+\def\gtr@add@gnode#1#2{%
+  \csedef{gtr@fam@#2@g}{#1}%
+}
+
+\def\gtr@add@family#1#2{%
+  \csedef{gtr@per@#1@fam}{#2}%
+}
+
+\def\gtr@add@union#1#2{%
+  \listcseadd{gtr@fam@#2@union}{#1}%
+}
+
+% loop through a single tree
+
+\def\gtr@forall@nodes#1{%
+  \numdef\gtr@num@per@count{\gtr@num@per@first}%
+  \loop%
+  \ifnum\gtr@num@per@count<\numexpr\gtr@num@per@last+1\relax%
+    \gtr@set@currentperson{\gtr@num@per@count}%
+    #1{\gtr@currentperson}%
+    \numdef\gtr@num@per@count{\gtr@num@per@count+1}%
+  \repeat%
+}
+
+\def\gtr@forall@families#1{%
+  \numdef\gtr@num@fam@count{\gtr@num@fam@first}%
+  \loop%
+  \ifnum\gtr@num@fam@count<\numexpr\gtr@num@fam@last+1\relax%
+    \gtr@set@currentfamily{\gtr@num@fam@count}%
+    #1{\gtr@currentfamily}%
+    \numdef\gtr@num@fam@count{\gtr@num@fam@count+1}%
+  \repeat%
+}
+
+% linear search for all trees
+
+\def\gtr@getPerNumForId@loop#1{%
+  \ifnum#1<\numexpr\gtr@num@per@last+1\relax%
+    \gtr@set@currentperson{#1}%
+    \letcs\gtr@currentid{gtr@per@\gtr@currentperson @id}%
+    \ifx\gtr@tmp@id\gtr@currentid\relax%
+      \let\gtr@tmp@num\gtr@currentperson%
+    \else%
+      \expandafter\gtr@getPerNumForId@loop\expandafter{\number\numexpr#1+1\expandafter}%
+    \fi%
+  \fi%
+}
+
+\def\gtr@getPerNumForId#1{%
+  \edef\gtr@tmp@id{#1}%
+  \edef\gtr@tmp@num{}%
+  \gtr@getPerNumForId@loop{1}%
+}
+
+\def\gtr@getFamNumForId@loop#1{%
+  \ifnum#1<\numexpr\gtr@num@fam@last+1\relax%
+    \gtr@set@currentfamily{#1}%
+    \letcs\gtr@currentid{gtr@fam@\gtr@currentfamily @id}%
+    \ifx\gtr@tmp@id\gtr@currentid\relax%
+      \let\gtr@tmp@num\gtr@currentfamily%
+    \else%
+      \expandafter\gtr@getFamNumForId@loop\expandafter{\number\numexpr#1+1\expandafter}%
+    \fi%
+  \fi%
+}
+
+\def\gtr@getFamNumForId#1{%
+  \edef\gtr@tmp@id{#1}%
+  \edef\gtr@tmp@num{}%
+  \gtr@getFamNumForId@loop{1}%
+}
+
+% #1: child (id)
+% #2: family (id)
+\def\gtr@add@child@after@parser#1#2{%
+  \gtr@getPerNumForId{#1}%
+  \let\gtr@tmp@pnum\gtr@tmp@num% person number for ID
+  %
+  \gtr@getFamNumForId{#2}%
+  \let\gtr@tmp@fnum\gtr@tmp@num% family number for ID
+  %
+  \listcseadd{gtr@fam@\gtr@tmp@fnum @chi}{\gtr@tmp@pnum}%
+}
+
+% #1: parent (id)
+% #2: family (id)
+\def\gtr@add@parent@after@parser#1#2{%
+  \gtr@getPerNumForId{#1}%
+  \let\gtr@tmp@pnum\gtr@tmp@num% person number for ID
+  %
+  \gtr@getFamNumForId{#2}%
+  \let\gtr@tmp@fnum\gtr@tmp@num% family number for ID
+  %
+  \listcseadd{gtr@fam@\gtr@tmp@fnum @par}{\gtr@tmp@pnum}%
+}
+
+
+\def\gtr@disconnect@child#1#2{%
+  \letcs\gtr@temp@list{gtr@fam@#2@chi}%
+  \ifdefvoid{\gtr@temp@list}{}{%
+    \csundef{gtr@fam@#2@chi}%
+    \def\do##1{%
+      \ifdefstring{#1}{##1}{}{\listcseadd{gtr@fam@#2@chi}{##1}}%
+    }%
+    \dolistloop{\gtr@temp@list}%
+  }%
+}
+
+\def\gtr@disconnect@node@as@child#1{%
+  \def\gtr@tmp@pnum{#1}%
+  \letcs\gtr@tmp@fnum{gtr@per@#1@chiof}%
+  \ifdefvoid{\gtr@tmp@fnum}{}{%
+    \gtr@disconnect@child{\gtr@tmp@pnum}{\gtr@tmp@fnum}%
+  }%
+}
+
+\def\gtr@remove@child@after@parser#1#2{%
+  \gtr@getPerNumForId{#1}%
+  \ifdefempty{\gtr@tmp@num}{}{%
+    \let\gtr@tmp@pnum\gtr@tmp@num% person number for ID
+    %
+    \gtr@getFamNumForId{#2}%
+    \ifdefempty{\gtr@tmp@num}{}{%
+      \let\gtr@tmp@fnum\gtr@tmp@num% family number for ID
+      %
+      \gtr@disconnect@child{\gtr@tmp@pnum}{\gtr@tmp@fnum}%
+    }%
+  }%
+}
+
+\def\gtr@disconnect@parent#1#2{%
+  \letcs\gtr@temp@list{gtr@fam@#2@par}%
+  \ifdefvoid{\gtr@temp@list}{}{%
+    \csundef{gtr@fam@#2@par}%
+    \def\do##1{%
+      \ifdefstring{#1}{##1}{}{\listcseadd{gtr@fam@#2@par}{##1}}%
+    }%
+    \dolistloop{\gtr@temp@list}%
+  }%
+}
+
+
+\def\gtr@disconnect@node@as@parent#1{%
+  \def\gtr@tmp@pnum{#1}%
+  \letcs\gtr@tmp@fnum{gtr@per@#1@parof}%
+  \ifdefvoid{\gtr@tmp@fnum}{}{%
+    \gtr@disconnect@parent{\gtr@tmp@pnum}{\gtr@tmp@fnum}%
+  }%
+}
+
+
+\def\gtr@remove@parent@after@parser#1#2{%
+  \gtr@getPerNumForId{#1}%
+  \ifdefempty{\gtr@tmp@num}{}{%
+    \let\gtr@tmp@pnum\gtr@tmp@num% person number for ID
+    %
+    \gtr@getFamNumForId{#2}%
+    \ifdefempty{\gtr@tmp@num}{}{%
+      \let\gtr@tmp@fnum\gtr@tmp@num% family number for ID
+      %
+      \gtr@disconnect@parent{\gtr@tmp@pnum}{\gtr@tmp@fnum}%
+    }%
+  }%
+}

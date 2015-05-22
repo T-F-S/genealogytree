@@ -1,0 +1,92 @@
+%% The LaTeX package genealogytree - version 0.90 (2015/05/22)
+%% gtrlang.german.code.tex: German language
+%%
+%% -------------------------------------------------------------------------------------------
+%% Copyright (c) 2015 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% -------------------------------------------------------------------------------------------
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status `author-maintained'.
+%%
+%% This work consists of all files listed in README
+%%
+\gtr@set@library@version{0.90}
+
+\gtrset{language@/german/.code={%
+  \gtrset{symlang/.cd,
+    Born=geboren,
+    Bornoutofwedlock=au\ss{}erehelich geboren,
+    Stillborn=tot geboren,
+    Diedonbirthday=am Tag der Geburt gestorben,
+    Baptized=getauft,
+    Engaged=verlobt,
+    Married=verheiratet,
+    Divorced=geschieden,
+    Partnership=au\ss{}ereheliche Verbindung,
+    Died=gestorben,
+    Killed=gefallen,
+    Buried=begraben,
+    Funeralurn=einge\"aschert,
+    Female=weiblich,
+    Male=m\"annlich,
+    Neuter=Geschlecht unbekannt
+  }%
+  \gtrset{%
+    month long/.cd,
+    01/.initial=Januar,
+    02/.initial=Februar,
+    03/.initial=M\"arz,
+    04/.initial=April,
+    05/.initial=Mai,
+    06/.initial=Juni,
+    07/.initial=Juli,
+    08/.initial=August,
+    09/.initial=September,
+    10/.initial=Oktober,
+    11/.initial=November,
+    12/.initial=Dezember,
+  }%
+  \gtrset{%
+    month short/.cd,
+    01/.initial=Jan\dot,
+    02/.initial=Feb\dot,
+    03/.initial=M\"ar\dot,
+    04/.initial=Apr\dot,
+    05/.initial=Mai,
+    06/.initial=Jun\dot,
+    07/.initial=Jul\dot,
+    08/.initial=Aug\dot,
+    09/.initial=Sep\dot,
+    10/.initial=Okt\dot,
+    11/.initial=Nov\dot,
+    12/.initial=Dez\dot,
+  }%
+  \gtrset{%
+    calendar text for=AD is {}{ n.~Chr.},
+    calendar text for=BC is {}{ v.~Chr.},
+    calendar text for=GR is {}{\textsuperscript{greg.}},
+    calendar text for=JU is {}{\textsuperscript{jul.}},
+    calendar text for=caAD is {ca.~}{ n.~Chr.},
+    calendar text for=caBC is {ca.~}{ v.~Chr.},
+    calendar text for=ca is {ca.~}{},
+    date range full={}{--}{},
+    date range before={vor }{},
+    date range after={nach }{},
+    place text={in }{},
+  }%
+},
+%
+language@/german-german/.style={language@=german},
+%
+language@/german-austrian/.style={language@=german,
+  month long/01/.initial=J\"anner,
+  month short/01/.initial=J\"an\dot,
+},
+}

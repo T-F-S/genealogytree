@@ -1,0 +1,419 @@
+%% The LaTeX package genealogytree - version 0.90 (2015/05/22)
+%% gtrlib.templates.code.tex: Templates
+%%
+%% -------------------------------------------------------------------------------------------
+%% Copyright (c) 2013-2015 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% -------------------------------------------------------------------------------------------
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status `author-maintained'.
+%%
+%% This work consists of all files listed in README
+%%
+\gtr@set@library@version{0.90}
+
+% Templates
+
+\gtrset{
+  template/.is choice,
+%
+  template/formal graph/.style={
+    processing=tcbox*,
+    level distance=5mm,
+    level size=8mm,
+    node size=8mm,
+    box clear,
+    box={enhanced,size=fbox,boxsep=0.15mm,boxrule=0.5mm,arc=1mm,valign=center,
+      before upper={\strut$\displaystyle},after upper={$},
+      colback=gtr_Peach_Back,colframe=gtr_Peach_Frame
+    }
+  },
+%
+  template/signpost/.style={
+    processing=fit,
+    level distance=1cm,
+    level size=1.5cm,
+    node size from=2cm to 4cm,
+    box clear,
+    box={enhanced,fit basedim=8pt,
+      halign=center,valign=center,
+      before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
+      drop fuzzy shadow
+    }
+  },
+%
+  template/symbol nodes/.style={
+    processing=tcbox*,
+    level distance=5mm,
+    level size=5mm,
+    node size=5mm,
+    box clear,
+    box={enhanced,size=fbox,boxsep=0mm,boxrule=0.25mm,valign=center,fontupper=\fontsize{4.7mm}{4.7mm}\selectfont},
+    content interpreter code={%
+      \gtrset{box={temp@late/symopt/##1}}%
+      \def\gtrBoxContent{\centering\gtrset{sex@/##1}}%
+    },
+    edges={anchoring=center,background={white,line width=0.6mm},foreground={green!25!black,line width=0.3mm}},
+  },
+%
+  template/tiny boxes/.style={
+    processing=tcbox*,
+    level distance=5mm,
+    level size=3mm,
+    node size=3mm,
+    box clear,
+    box={enhanced,size=fbox,boxsep=0mm,boxrule=0.15mm,colframe=black,colback=black!10},
+    deletion content interpreter,
+    edges={perpendicular,anchoring=center,background={white,line width=0.5mm},foreground={black,line width=0.2mm}},
+  },
+%
+  template/tiny circles/.style={
+    processing=tcbox*,
+    level distance=5mm,
+    level size=3mm,
+    node size=3mm,
+    child distance=2mm,
+    parent distance=2mm,
+    further distance=2mm,
+    box clear,
+    box={enhanced,size=fbox,boxsep=0mm,boxrule=0.15mm,circular arc,colframe=black,colback=black!50},
+    deletion content interpreter,
+    edges={mesh,anchoring=center,background={white,line width=0.5mm},foreground={black,line width=0.2mm}},
+  },
+%
+  template/directory/.style={
+    processing=tcbox*,
+    content interpreter content={\detokenize{##1}},
+    timeflow=right,
+    level distance=3mm,
+    level size=3cm,
+    node size=6mm,
+    box clear,
+    box={enhanced,
+      tcbox width=minimum left,
+      size=fbox,
+      colframe=black!20,
+      colback=yellow!20,
+      boxrule=0.3mm,
+      valign=center,
+      fontupper=\ttfamily,
+      before upper=\strut,
+      code={\ifdefstring{\gtrnodetype}{g}{\tcbset{after upper={/}}}{}},
+    },
+    edges={perpendicular,
+      foreground={black,line width=0.3mm},
+      background={white,line width=0.8mm}
+    },
+  },
+%
+  database@malefemale/.style={
+    tcbset={male/.style={colframe=blue!50!black,colback=blue!50!yellow!5,arc is angular,drop fuzzy shadow=blue!25!black!30},
+            female/.style={colframe=red!50!black,colback=red!50!yellow!5,drop fuzzy shadow=red!25!black!30},
+            neuter/.style={colframe=black!75,colback=yellow!5,drop fuzzy shadow=black!30}},
+  },
+%
+  template/database pole/.style={
+    processing=database,
+    database format=full marriage above,
+    level distance=6mm,
+    level size=4.5cm,
+    node size=2cm,
+    name font=\bfseries,
+    surn code=##1,
+    database@malefemale,
+    box clear,
+    box={enhanced,boxrule=0.3mm,
+      fit basedim=7pt,
+      halign=flush center,
+      fontupper=\sffamily,
+      before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
+      segmentation style={solid,shorten >=1mm,shorten <=1mm},
+      \gtrDBsex,
+    },
+    edges={perpendicular,
+      foreground={black,line width=0.3mm},
+      background={white,line width=0.8mm}
+    },
+  },
+%
+  template/database portrait/.style={
+    processing=database,
+    database format=short no marriage,
+    level distance=6mm,
+    level size=4cm,
+    node size=2cm,
+    name font=\bfseries,
+    surn code=##1,
+    event format=prefix date,
+    database@malefemale,
+    box clear,
+    box={enhanced,boxrule=0.3mm,
+      top=25mm+0.2\tcbfitdim,
+      fit basedim=7pt,
+      halign=flush center,
+      valign=center,
+      fontupper=\sffamily,
+      before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
+      \gtrDBsex,
+      underlay={\begin{tcbclipinterior}%
+        \gtrifimagedefined{\path[fill overzoom image=\gtrDBimage]
+          ([yshift=-25mm]interior.north west) rectangle (interior.north east);}{%
+          \path[fill overzoom picture=\gtrDrawSymbolicPortrait]
+          ([yshift=-25mm]interior.north west) rectangle (interior.north east);
+          }%
+      \end{tcbclipinterior}%
+      },
+    },
+    edges={perpendicular,
+      foreground={black,line width=0.3mm},
+      background={white,line width=0.8mm}
+    },
+  },
+%
+  template/database traditional/.style={
+    timeflow=down,
+    processing=database,
+    database format=short no marriage,
+    level distance=6mm,
+    level size=2cm,
+    node size=2cm,
+    event format=prefix date,
+    name font=\bfseries,
+    surn code={##1},
+    tcbset={gtrnodealign/.code={%
+      \gtrifleafchild{\tcbset{valign=top}}{%
+        \gtrifleafparent{\tcbset{valign=bottom}}{\tcbset{valign=center}}%
+      }%
+    }},
+    box clear,
+    box={blanker,
+      top=1mm,bottom=1mm,
+      fit basedim=7pt,
+      halign=flush center,
+      fontupper=\sffamily,
+      before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
+      gtrnodealign
+    },
+    edges={rounded=1mm,
+      foreground={black,line width=0.3mm},
+      background={white,line width=0.8mm}
+    },
+  },
+%
+  ahnentafel@malefemale/.style={
+    tcbset={male/.style={colframe=blue!50!black,colback=blue!50!yellow!5,arc is angular},
+            female/.style={colframe=red!50!black,colback=red!50!yellow!5},
+            neuter/.style={colframe=black!75,colback=yellow!5}},
+  },
+%
+  template/ahnentafel 3/.style={
+    timeflow=left,
+    processing=database,
+    database format=medium,
+    level distance=2mm,
+    level size=55mm,
+    node size=26mm,
+    parent distance=0mm,
+    further distance=0mm,
+    list separators hang,
+    ahnentafel@malefemale,
+    box={\gtrDBsex,before upper={\parskip=0.1\tcbfitdim},halign=flush left,},
+    edges={mesh,anchoring=center,no background,foreground={line width=10mm,green!50!black!50}},
+    level/.code={\ifnum\numexpr##1>2\relax%
+      \gtrset{%
+        parent distance=1mm,
+        further distance=0.5mm,
+        node box={boxrule=0.3mm,arc=0.6mm,valign=center,fit basedim=9pt},
+        family edges={foreground={line width=8mm,green!50!black!50}},
+      }%
+    \fi},
+    level 2/.style={
+      level distance=3mm,
+      level size=36mm,
+      node size=40mm,
+      parent distance=2mm,
+      further distance=1mm,
+      node box={boxrule=0.4mm,arc=0.8mm,fit basedim=9pt}
+    },
+    level 1/.style={
+      level size=37mm,
+      node size=50mm,
+      parent distance=4mm,
+      further distance=2mm,
+      node box={fit basedim=9pt}
+    },
+    level 0/.style={
+      level size=42mm,
+      node size=50mm,
+      node box={fit basedim=10pt}
+    },
+  },
+%
+  template/ahnentafel 4/.style={
+    timeflow=left,
+    processing=database,
+    database format=medium,
+    level distance=2mm,
+    level size=46mm,
+    node size=16mm,
+    parent distance=0mm,
+    further distance=0mm,
+    list separators hang,
+    ahnentafel@malefemale,
+    box={\gtrDBsex,before upper={\parskip=0.1\tcbfitdim},halign=flush left,},
+    edges={mesh,anchoring=center,no background,foreground={line width=10mm,green!50!black!50}},
+    level/.code={\ifnum\numexpr##1>3\relax%
+      \gtrset{%
+        parent distance=0.25mm,
+        further distance=0.25mm,
+        node box={boxrule=0.2mm,arc=0.4mm,valign=center,fit basedim=8pt},
+        family edges={foreground={line width=7mm,green!50!black!50}},
+      }%
+    \fi},
+    level 3/.style={
+      level size=38mm,
+      node size=26mm,
+      parent distance=1mm,
+      further distance=0.5mm,
+      node box={boxrule=0.3mm,arc=0.6mm,valign=center,fit basedim=8pt},
+      family edges={foreground={line width=8mm,green!50!black!50}},
+    },
+    level 2/.style={
+      level distance=3mm,
+      level size=36mm,
+      node size=40mm,
+      parent distance=2mm,
+      further distance=1mm,
+      node box={boxrule=0.4mm,arc=0.8mm,fit basedim=9pt}
+    },
+    level 1/.style={
+      level distance=-25mm,
+      level size=37mm,
+      node size=50mm,
+      parent distance=58mm,
+      further distance=2mm,
+      node box={fit basedim=9pt}
+    },
+    level 0/.style={
+      level size=42mm,
+      node size=50mm,
+      node box={fit basedim=10pt}
+    },
+  },
+%
+  template/ahnentafel 5/.style={
+    timeflow=left,
+    processing=database,
+    database format=medium,
+    level distance=2mm,
+    level size=34mm,
+    node size=8.2mm,
+    parent distance=0mm,
+    further distance=0mm,
+    list separators hang,
+    ahnentafel@malefemale,
+    box={\gtrDBsex,before upper={\parskip=0.1\tcbfitdim},halign=flush left,},
+    edges={mesh,anchoring=center,no background,foreground={line width=5mm,green!50!black!50}},
+    level/.code={\ifnum\numexpr##1>4\relax%
+      \gtrset{%
+        node={database format=short,list separators={, }{, }{.}{}},
+        node box={size=fbox,boxsep=0.5mm,boxrule=0.1mm,arc=0.2mm,
+          valign=center,fit basedim=6pt},
+        family edges={foreground={line width=5mm,green!50!black!50}},
+      }%
+    \fi},
+    level 4/.style={
+      level size=34mm,
+      node size=16mm,
+      parent distance=0.25mm,
+      further distance=0.25mm,
+      node={list separators={\par}{, }{.\par}{\par}},
+      node box={boxrule=0.2mm,arc=0.4mm,valign=center,fit basedim=7pt},
+      family edges={foreground={line width=7mm,green!50!black!50}},
+    },
+    level 3/.style={
+      level size=30mm,
+      node size=26mm,
+      parent distance=1mm,
+      further distance=0.5mm,
+      node box={boxrule=0.3mm,arc=0.6mm,fit basedim=7pt},
+      family edges={foreground={line width=8mm,green!50!black!50}},
+    },
+    level 2/.style={
+      level distance=3mm,
+      level size=30mm,
+      node size=40mm,
+      parent distance=2mm,
+      further distance=1mm,
+      node box={boxrule=0.4mm,arc=0.8mm,fit basedim=8pt},
+      family edges={foreground={line width=10mm,green!50!black!50}},
+    },
+    level 1/.style={
+      level distance=-25mm,
+      level size=35mm,
+      node size=50mm,
+      parent distance=58mm,
+      further distance=2mm,
+      node box={fit basedim=9pt},
+      family edges={foreground={line width=10mm,green!50!black!50}},
+    },
+    level 0/.style={
+      level size=40mm,
+      node size=50mm,
+      node box={fit basedim=10pt},
+      family edges={foreground={line width=10mm,green!50!black!50}},
+    },
+  },
+%
+}
+
+
+% Auxiliary
+\tcbset{
+  temp@late/symopt/m/.style={colframe=blue!50!black,colback=blue!8,arc=0.15mm},
+  temp@late/symopt/male/.style={colframe=blue!50!black,colback=blue!8,arc=0.15mm},
+  temp@late/symopt/f/.style={colframe=red!50!black,colback=red!8,circular arc},
+  temp@late/symopt/female/.style={colframe=red!50!black,colback=red!8,circular arc},
+  temp@late/symopt/.unknown/.style={colframe=black!75,colback=black!5,arc=1.2mm}
+}
+
+\csdef{gtrparent1}{p{male} p{female}}
+\csdef{gtrparent2}{parent{g{male} p{male} p{female}} parent{g{female} p{male} p{female}}}
+\csdef{gtrparent3}{parent{g{male} insert{gtrparent2}} parent{g{female} insert{gtrparent2}}}
+\csdef{gtrparent4}{parent{g{male} insert{gtrparent3}} parent{g{female} insert{gtrparent3}}}
+\csdef{gtrparent5}{parent{g{male} insert{gtrparent4}} parent{g{female} insert{gtrparent4}}}
+\csdef{gtrparent6}{parent{g{male} insert{gtrparent5}} parent{g{female} insert{gtrparent5}}}
+\csdef{gtrparent7}{parent{g{male} insert{gtrparent6}} parent{g{female} insert{gtrparent6}}}
+
+\def\gtrDrawSymbolicPortrait{%
+\path[top color=tcbcol@frame!25!tcbcol@back,bottom color=tcbcol@frame!25!tcbcol@back,
+  middle color=tcbcol@back]
+  (-1.75,0) rectangle (1.75,4.5);
+ \path[fill=tcbcol@frame!75!tcbcol@back] (0,2.5) circle (1cm);
+ \path[fill=tcbcol@frame!75!tcbcol@back] (1.5,0) arc
+   [start angle=0, end angle=180, x radius=15mm, y radius=12mm] -- cycle;
+}
+
+% Colors
+
+\definecolor{gtr_Peach_Back}{rgb}{1.000000, 0.917647, 0.788235}
+\definecolor{gtr_Peach_Frame}{rgb}{0.611765, 0.160784, 0.015686}
+
+\definecolor{gtr_Yellow_Back}{rgb}{1.000000, 1.000000, 0.862745}
+\definecolor{gtr_Yellow_Frame}{rgb}{0.764706, 0.678431, 0.407843}
+
+\definecolor{gtr_Blue_1}{rgb}{0.090196,0.211765,0.364706}
+\definecolor{gtr_Blue_2}{rgb}{0.211765,0.372549,0.568627}
+\definecolor{gtr_Blue_3}{rgb}{0.309804,0.505882,0.741176}
+\definecolor{gtr_Blue_4}{rgb}{0.584314,0.701961,0.843137}
+\definecolor{gtr_Blue_5}{rgb}{0.721569,0.800000,0.894118}
+\definecolor{gtr_Blue_6}{rgb}{0.858824,0.898039,0.945098}
+
+\definecolor{gtr_Bright_Red}{rgb}{1.000000,0.294118,0.062745}

@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 0.10 (2015/01/12)
+%% The LaTeX package genealogytree - version 0.90 (2015/05/22)
 %% gtrcore.options.code.tex: Options
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,36 +17,247 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{0.10}
+\gtr@set@library@version{0.90}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% General handling
+%%%%%%%%%%%%%%%%%%%%%%%
+
+% #1 macro
+% #2 key list to append
+\newrobustcmd{\gtrkeysappto}[2]{%
+  \ifdefvoid{#1}%
+    {\edef#1{\unexpanded{#2}}}%
+    {\edef#1{\expandonce#1,\unexpanded{#2}}}}
+
+
+% #1 macro
+% #2 key list to append (global)
+\newrobustcmd{\gtrkeysgappto}[2]{%
+  \ifdefvoid{#1}%
+    {\xdef#1{\unexpanded{#2}}}%
+    {\xdef#1{\expandonce#1,\unexpanded{#2}}}}
+
+
+% #1 key
+% #2 key list to append
+\newrobustcmd{\gtr@keys@addvalue}[2]{%
+  \pgfkeysifdefined{#1}{%
+    \pgfkeysgetvalue{#1}{\gtr@temp}%
+    \edef\gtr@temp{\noexpand\pgfkeyssetvalue{#1}{\expandonce\gtr@temp,\unexpanded{#2}}}%
+    \gtr@temp%
+  }{%
+    \pgfkeyssetvalue{#1}{#2}%
+  }%
+}
+
+
+% #1 command sequence
+% #2 is a macro containing keys
+\def\gtr@cs@storekey#1#2{%
+  \ifdefvoid{#2}{}{\cslet{#1}{#2}}%
+}
+
+% #1 command sequence
+% #2 #3 are macros containing keys
+\def\gtr@cs@storekeys#1#2#3{%
+  \ifdefvoid{#2}{%
+    \ifdefvoid{#3}{}{\cslet{#1}{#3}}%
+  }{%
+    \ifdefvoid{#3}{%
+      \cslet{#1}{#2}%
+    }{%
+      \csedef{#1}{\expandonce#2,\expandonce#3}%
+    }%
+  }%
+}
+
+
+% set keys from command sequence #1
+\newrobustcmd*{\gtr@cs@keysalsofrom}[1]{%
+  \letcs\gtr@temp{#1}%
+  \ifdefvoid{\gtr@temp}{}{\pgfkeysalsofrom{\gtr@temp}}%
+}
+
+
+% set keys from stored key #1
+\newrobustcmd*{\gtr@key@keysalsofrom}[1]{%
+  \pgfkeysifdefined{#1}{%
+    \pgfkeysgetvalue{#1}{\gtr@temp}%
+    \pgfkeysalsofrom{\gtr@temp}%
+  }{}%
+}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Key Management
 %%%%%%%%%%%%%%%%%%%%%%%
 
+
+\newcommand{\gtrsetoptionsforsubtree}[2]{%
+  \def\do##1{%
+    \gtr@keys@addvalue{/gtr/sopt/##1}{subtree={#2}}%
+  }%
+  \docsvlist{#1}%
+}
+
+
+\newcommand{\gtrsetoptionsforfamily}[2]{%
+  \def\do##1{%
+    \gtr@keys@addvalue{/gtr/sopt/##1}{family={#2}}%
+  }%
+  \docsvlist{#1}%
+}
+
+\newcommand{\gtrsetoptionsfornode}[2]{%
+  \def\do##1{%
+    \gtr@keys@addvalue{/gtr/nopt/##1}{#2}%
+  }%
+  \docsvlist{#1}%
+}
+
+
+\newcommand{\gtrignoresubtree}[1]{%
+  \def\do##1{%
+    \gtr@keys@addvalue{/gtr/sopt/##1}{ignore}%
+  }%
+  \docsvlist{#1}%
+}
+
+\newcommand{\gtrignorenode}[1]{%
+  \gtrsetoptionsfornode{#1}{ignore}%
+}
+
+
+\def\gtr@set@level@position@down#1{%
+  \csdimdef{gtr@per@#1@y}{\gtr@level@reference}%
+  \csdimdef{gtr@per@#1@dim}{\wd\csuse{gtr@per@#1@box}}%
+}
+
+\def\gtr@set@level@position@up#1{%
+  \csdimdef{gtr@per@#1@y}{-\gtr@level@reference}%
+  \csdimdef{gtr@per@#1@dim}{\wd\csuse{gtr@per@#1@box}}%
+}
+
+\def\gtr@set@level@position@left#1{%
+  \csdimdef{gtr@per@#1@x}{\gtr@level@reference}%
+  \csdimdef{gtr@per@#1@dim}{\ht\csuse{gtr@per@#1@box}+\dp\csuse{gtr@per@#1@box}}%
+}
+
+\def\gtr@set@level@position@right#1{%
+  \csdimdef{gtr@per@#1@x}{-\gtr@level@reference}%
+  \csdimdef{gtr@per@#1@dim}{\ht\csuse{gtr@per@#1@box}+\dp\csuse{gtr@per@#1@box}}%
+}
+
+
+\def\gtr@set@position@family@down#1{%
+  \csdimdef{gtr@fam@#1@pos}{\gtr@level@reference-\gtr@level@size-\csuse{gtr@fam@#1@frac}\dimexpr\gtr@level@distance}%
+}
+
+\def\gtr@set@position@family@up#1{%
+  \csdimdef{gtr@fam@#1@pos}{-\gtr@level@reference+\gtr@level@size+\csuse{gtr@fam@#1@frac}\dimexpr\gtr@level@distance}%
+}
+
+\let\gtr@set@position@family@left=\gtr@set@position@family@down
+
+\let\gtr@set@position@family@right=\gtr@set@position@family@up
+
 \newif\ifgtr@timeflow@vertical
 
 \def\gtr@init@timeflow@down{%
   \gtr@timeflow@verticaltrue%
-  \let\gtrkv@node@minwidth=\gtrkv@node@minsize%
-  \let\gtrkv@node@maxwidth=\gtrkv@node@maxsize%
-  \let\gtrkv@node@minheigth=\gtrkv@level@size%
-  \let\gtrkv@node@maxheigth=\gtrkv@level@size%
+  \let\gtrNodeMinWidth=\gtr@node@minsize%
+  \let\gtrNodeMaxWidth=\gtr@node@maxsize%
+  \let\gtrNodeMinHeight=\gtr@level@size%
+  \let\gtrNodeMaxHeight=\gtr@level@size%
 }
 
 \let\gtr@init@timeflow@up=\gtr@init@timeflow@down
 
 \def\gtr@init@timeflow@left{%
   \gtr@timeflow@verticalfalse%
-  \let\gtrkv@node@minwidth=\gtrkv@level@size%
-  \let\gtrkv@node@maxwidth=\gtrkv@level@size%
-  \let\gtrkv@node@minheigth=\gtrkv@node@minsize%
-  \let\gtrkv@node@maxheigth=\gtrkv@node@maxsize%
+  \let\gtrNodeMinWidth=\gtr@level@size%
+  \let\gtrNodeMaxWidth=\gtr@level@size%
+  \let\gtrNodeMinHeight=\gtr@node@minsize%
+  \let\gtrNodeMaxHeight=\gtr@node@maxsize%
 }
 
 \let\gtr@init@timeflow@right=\gtr@init@timeflow@left
 
+\newif\ifgtr@ignore
 
 \gtrset{%
+  id/.gstore in=\gtr@gkv@id,
+  distance/.gstore in=\gtr@gkv@distance,
+  pivot@@value/.gstore in=\gtr@gkv@pivot,
+  pivot@none/.style={pivot@@value=0},
+  pivot@child/.style={pivot@@value=1},
+  pivot@parent/.style={pivot@@value=2},
+  pivot@both/.style={pivot@@value=3},
+  pivot/.style={pivot@#1},
+  pivot/.default={both},
+  pivot shift/.gstore in=\gtr@gkv@pivotshift,
+  %
+  ignore/.is choice,
+  ignore/true/.code={\global\gtr@ignoretrue},
+  ignore/false/.code={\global\gtr@ignorefalse},
+  ignore/.default=true,
+  %
+  insert after node/.code n args={2}{%
+    \gtr@parse@init@hook{gtr@parse@afternode@hook}{gtr@per@\gtr@currentperson @id}%
+    \gtr@parse@appto@hook{gtr@parse@afternode@hook}{#1}{#2}%
+  },
+  insert after family/.code n args={2}{%
+    \gtr@parse@init@hook{gtr@parse@afterfamily@hook}{gtr@fam@\gtr@lastfamily @id}%
+    \gtr@parse@appto@hook{gtr@parse@afterfamily@hook}{#1}{#2}%
+  },
+  insert at begin family/.code n args={2}{%
+    \gtr@parse@init@hook{gtr@parse@beginfamily@hook}{gtr@fam@\gtr@currentfamily @id}%
+    \gtr@parse@appto@hook{gtr@parse@beginfamily@hook}{#1}{#2}%
+  },
+  insert at end family/.code n args={2}{%
+    \gtr@parse@init@hook{gtr@parse@endfamily@hook}{gtr@fam@\gtr@currentfamily @id}%
+    \gtr@parse@appto@hook{gtr@parse@endfamily@hook}{#1}{#2}%
+  },
+  %
+  family/.style={#1},
+  subtree/.style={#1},
+  node/.style={#1},
+  %
+  box/.code={\gtrkeysappto\gtrNodeBoxOptions{#1}},
+  box clear/.code={\def\gtrNodeBoxOptions{}},
+  %
+  node box/.style={node={box={#1}}},
+  family box/.style={family={box={#1}}},
+  subtree box/.style={subtree={box={#1}}},
+  %
+  label/.store in=\gtrkv@family@label,
+  family label/.style={family={label={#1}}},
+  subtree label/.style={subtree={label={#1}}},
+  label options/.store in=\gtrkv@family@label@options,
+  label database options/.store in=\gtrkv@database@label,
+  ignore family database/.style={family@database/.code=},
+  use family database/.style={family@database/.code={%
+    \gtrset{database/.cd,db@reset,##1}%
+    \gtrOptionsDatabase%
+    \gtrset{label={\gtrPrintDatabase}}%
+  }},
+  family database/.style={family={family@database={#1}}},
+  %
+  node processor/.code={\let\gtr@box@content@processor=#1},
+  processing/.is choice,%
+  %
+  time@flow/.store in=\gtrkv@timeflow,
+  timeflow/.is choice,
+  timeflow/down/.style={time@flow=down},
+  timeflow/up/.style={time@flow=up},
+  timeflow/left/.style={time@flow=left},
+  timeflow/right/.style={time@flow=right},
+  %
+  level distance/.store in=\gtrkv@level@distance,
+  level size/.store in=\gtrkv@level@size,
+  node size from/.code args={#1 to #2}{\def\gtrkv@node@minsize{#1}\def\gtrkv@node@maxsize{#2}},
+  node size/.code={\def\gtrkv@node@minsize{#1}\def\gtrkv@node@maxsize{#1}},%
   child distance in parent graph/.store in=\gtrkv@dist@sibling@par,%
   child distance in child graph/.store in=\gtrkv@dist@sibling@chi,%
   parent distance in parent graph/.store in=\gtrkv@dist@parent@par,%
@@ -56,29 +267,193 @@
   child distance/.style={child distance in parent graph=#1,child distance in child graph=#1},%
   parent distance/.style={parent distance in parent graph=#1,parent distance in child graph=#1},%
   %
-  level/.style=,
-}
-
-\gtrset{%
-  timeflow/.store in=\gtrkv@timeflow,
-  level distance/.store in=\gtrkv@level@distance,
-  level size/.store in=\gtrkv@level@size,
-  node sizes/.code args={#1~#2}{\def\gtrkv@node@minsize{#1}\def\gtrkv@node@maxsize{#2}},
-  node size/.style={node sizes=#1~#1},%
   proband level/.store in=\gtrkv@proband@level,
   tree offset/.store in=\gtrkv@tree@offset,
+  after parser/.code={\gappto\gtrkv@after@parser{#1}},
+  add child/.code args={#1 to #2}{\gappto\gtrkv@after@parser{\gtr@add@child@after@parser{#1}{#2}}},%
+  add parent/.code args={#1 to #2}{\gappto\gtrkv@after@parser{\gtr@add@parent@after@parser{#1}{#2}}},%
+  remove child/.code args={#1 from #2}{\gappto\gtrkv@after@parser{\gtr@remove@child@after@parser{#1}{#2}}},%
+  remove parent/.code args={#1 from #2}{\gappto\gtrkv@after@parser{\gtr@remove@parent@after@parser{#1}{#2}}},%
+  disconnect/.is choice,
+  disconnect/child/.code={%
+    \ifdefvoid{\gtr@currentperson}{}{%
+      \begingroup\edef\x{\endgroup\noexpand\gappto\noexpand\gtrkv@after@parser{%
+        \noexpand\gtr@disconnect@node@as@child{\gtr@currentperson}%
+      }}\x%
+    }%
+  },
+  disconnect/parent/.code={%
+    \ifdefvoid{\gtr@currentperson}{}{%
+      \begingroup\edef\x{\endgroup\noexpand\gappto\noexpand\gtrkv@after@parser{%
+        \noexpand\gtr@disconnect@node@as@parent{\gtr@currentperson}%
+      }}\x%
+    }%
+  },
+  disconnect/both/.code={%
+    \ifdefvoid{\gtr@currentperson}{}{%
+      \begingroup\edef\x{\endgroup\noexpand\gappto\noexpand\gtrkv@after@parser{%
+        \noexpand\gtr@disconnect@node@as@child{\gtr@currentperson}%
+        \noexpand\gtr@disconnect@node@as@parent{\gtr@currentperson}%
+      }}\x%
+    }%
+  },
+  disconnect/.default=both,
+  %
+  options for subtree/.code 2 args={\gtrsetoptionsforsubtree{#1}{#2}},
+  options for family/.code 2 args={\gtrsetoptionsforfamily{#1}{#2}},
+  options for node/.code 2 args={\gtrsetoptionsfornode{#1}{#2}},
+  %
+  ignore subtree/.code={\gtrignoresubtree{#1}},
+  ignore node/.code={\gtrignorenode{#1}},
+  ignore level/.code={%
+    \ifnum#1>0%
+      \gtrset{level #1/.style={node=ignore}}%
+      \edef\gtrtemp{\the\numexpr#1+1\relax}%
+      \gtrset{level \gtrtemp/.style=ignore}%
+    \else\ifnum#1<0%
+      \gtrset{level #1/.style={ignore,node=ignore}}%
+    \fi\fi%
+  },
+  %
+  edges/.code={\gtredgeset{#1}},
+  family edges/.style={family={edges={#1}}},
+  edges for family/.style 2 args={options for family={#1}{edges={#2}}},
+  subtree edges/.style={subtree={edges={#1}}},
+  edges for subtree/.style 2 args={options for subtree={#1}{edges={#2}}},
+  %
+  tikzpicture/.store in=\gtrkv@tikzpicture,
+  after tree/.code={\appto\gtrkv@after@tree{#1}},
+  tikzset/.code={\def\gtrkv@tikzset{\tikzset{#1}}},
+  tcbset/.code={\def\gtrkv@tcbset{\tcbset{#1}}},
+  %
+  extra edges/.code={\listadd{\gtr@extra@edges@app}{#1}},
+  extra edges prepend/.code={\listadd{\gtr@extra@edges@pre}{#1}},
+  family extra edges/.style n args={3}{family={extra edges={#1}{#2}{#3}}},
+  family extra edges prepend/.style n args={3}{family={extra edges prepend={#1}{#2}{#3}}},
+  extra edges for family/.style n args={4}{options for family={#1}{extra edges={#2}{#3}{#4}}},
+  extra edges prepend for family/.style n args={4}{options for family={#1}{extra edges prepend={#2}{#3}{#4}}},
+  extra edges for families/.style 2 args={%
+    x/.style n args={3}{extra edges for family={##1}{##2}{##3}{#2}},%
+    #1},
+  extra edges prepend for families/.style 2 args={%
+    x/.style n args={3}{extra edges prepend for family={##1}{##2}{##3}{#2}},%
+    #1},
+  %
+  %
+  phantom/.style={subtree={processing=tcolorbox,deletion content interpreter,disconnect,
+    box={empty,no shadow,no borderline,code={\ifstrempty{#1}{}{%
+      \ifgtr@timeflow@vertical\tcbset{width=#1}\else\tcbset{height=#1}\fi%
+      }}}}},
+  phantom/.default=,
+  phantom*/.style={subtree={processing=tcolorbox,deletion content interpreter,edges=none,
+    box={empty,code={\ifstrempty{#1}{}{%
+      \ifgtr@timeflow@vertical\tcbset{width=#1}\else\tcbset{height=#1}\fi%
+      }}}}},
+  phantom*/.default=,
+}
+
+\pgfkeys{/gtr/edge/.is family}
+\def\gtredgeset{\pgfqkeys{/gtr/edge}}
+
+\gtredgeset{
+  edge@mode/.store in=\gtrkv@edgemode,
+  perpendicular/.style={edge@mode=perpendicular},
+  rounded@arc/.store in=\gtrkv@edge@arc,
+  rounded/.style={edge@mode=rounded,rounded@arc={#1}},
+  rounded/.default=6pt,
+  swing@control/.store in=\gtrkv@edge@swingcontrol,
+  swing/.style={edge@mode=swing,swing@control={#1}},
+  swing/.default=12pt,
+  mesh@options/.store in=\gtrkv@edge@meshoptions,
+  mesh/.style={edge@mode=mesh,mesh@options={#1}},
+  mesh/.default=,
+  custom/.code n args={4}{%
+    \let\gtr@edge@custom@down@macro=#1%
+    \let\gtr@edge@custom@up@macro=#2%
+    \let\gtr@edge@custom@left@macro=#3%
+    \let\gtr@edge@custom@right@macro=#4%
+    \gtredgeset{edge@mode=custom}%
+  },
+  none/.style={custom={\gtr@edge@custom@none@macro}{\gtr@edge@custom@none@macro}{\gtr@edge@custom@none@macro}{\gtr@edge@custom@none@macro}},
+  foreground/.style={gtr@edge@foreground/.style={line width=1pt,draw=green!25!black,#1}},
+  background/.style={gtr@edge@background/.style={line width=1.75pt,draw=green!15!white,#1}},
+  no foreground/.style={gtr@edge@foreground/.style={draw=none,fill=none}},
+  no background/.style={gtr@edge@background/.style={draw=none,fill=none}},
+  anchoring/.is choice,
+  anchoring/periphery/.code={%
+    \def\gtrkv@edge@anchor@vert@A{north}%
+    \def\gtrkv@edge@anchor@vert@B{south}%
+    \def\gtrkv@edge@anchor@hori@A{east}%
+    \def\gtrkv@edge@anchor@hori@B{west}%
+    },
+  anchoring/center/.code={%
+    \def\gtrkv@edge@anchor@vert@A{center}%
+    \def\gtrkv@edge@anchor@vert@B{center}%
+    \def\gtrkv@edge@anchor@hori@A{center}%
+    \def\gtrkv@edge@anchor@hori@B{center}%
+  },
+  hide single leg/.is choice,
+  hide single leg/true/.code={\def\gtrkv@edge@noleg{1}},
+  hide single leg/false/.code={\def\gtrkv@edge@noleg{0}},
+  hide single leg/.default=true,
+  xshift/.store in=\gtrkv@edge@core@xshift,
+  yshift/.store in=\gtrkv@edge@core@yshift,
+}
+
+\def\gtr@adjust@position#1 #2 of #3 distance #4 shift #5 #6\@nil{%
+  \gappto\gtrkv@after@parser{\gtr@adjust{#1}{#2}{#3}{#4}{#5}}%
+}
+
+\def\gtr@adjust@node@right#1#2#3#4{\gappto\gtrkv@after@parser{\gtr@adjust{#1}{right}{#2.east}{#3}{#4}}}
+\def\gtr@adjust@node@left#1#2#3#4{\gappto\gtrkv@after@parser{\gtr@adjust{#1}{left}{#2.west}{#3}{#4}}}
+\def\gtr@adjust@node@above#1#2#3#4{\gappto\gtrkv@after@parser{\gtr@adjust{#1}{above}{#2.north}{#3}{#4}}}
+\def\gtr@adjust@node@below#1#2#3#4{\gappto\gtrkv@after@parser{\gtr@adjust{#1}{below}{#2.south}{#3}{#4}}}
+
+\def\gtr@adjust@node#1 #2 of #3 distance #4 shift #5 #6\@nil{%
+  \csname gtr@adjust@node@#2\endcsname{#1}{#3}{#4}{#5}%
+}
+
+\gtrset{
+  adjust position/.code={\gtr@adjust@position#1 shift 0mm \@nil},%
+  adjust node/.code={\gtr@adjust@node#1 shift 0mm \@nil},%
+  set position/.code args={#1 at #2}{\gappto\gtrkv@after@parser{\gtr@setposition{#1}{#2}}},%
 }
 
 \gtrset{%
-  timeflow=down,
-  level distance=5mm,
-  level size=3.5cm,
-  node size=2.5cm,
-  proband level=0,
-  tree offset=0pt,
-  child distance in parent graph=1mm,%
-  child distance in child graph=2mm,%
-  parent distance in parent graph=2mm,%
-  parent distance in child graph=1mm,%
-  further distance=3mm,%
+  turn/.is choice,
+  turn/.default=right,
+  turn/right/.style={box={rotate=90,gtrNodeDimensionsLandscape}},
+  turn/left/.style={box={rotate=270,gtrNodeDimensionsLandscape}},
+  turn/off/.style={box={rotate=0,gtrNodeDimensions}},
+  turn/upsidedown/.style={box={rotate=180,gtrNodeDimensions}},
+  %
+  male/.style={box={male}},
+  female/.style={box={female}},
+  neuter/.style={box={neuter}},
+}
+
+\gtrset{%
+  reset/.style={%
+    timeflow=down,
+    level distance=5mm,
+    level size=3.5cm,
+    node size=2.5cm,
+    proband level=0,
+    tree offset=0pt,
+    level/.style=,
+    box clear,
+    processing=fit,
+    edges={perpendicular,foreground=,background=,anchoring=periphery,hide single leg,xshift=0pt,yshift=0pt},
+    child distance in parent graph=1mm,%
+    child distance in child graph=2mm,%
+    parent distance in parent graph=2mm,%
+    parent distance in child graph=1mm,%
+    further distance=3mm,%
+    tikzpicture=,code={\def\gtrkv@tikzset{}\def\gtrkv@tcbset{}},%
+    ignore family database,
+    label options=,
+    label database options=,
+    no content interpreter,
+  },
+  reset
 }

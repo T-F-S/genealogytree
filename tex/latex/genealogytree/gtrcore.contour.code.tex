@@ -1,0 +1,397 @@
+%% The LaTeX package genealogytree - version 0.90 (2015/05/22)
+%% gtrcore.contour.code.tex: Contours
+%%
+%% -------------------------------------------------------------------------------------------
+%% Copyright (c) 2013-2015 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% -------------------------------------------------------------------------------------------
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status `author-maintained'.
+%%
+%% This work consists of all files listed in README
+%%
+\gtr@set@library@version{0.90}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Contour
+%%%%%%%%%%%%%%%%%%%%%%%
+
+% #1   east/west
+% #2   pid
+% #3   sum
+\def\gtr@cont@next#1#2#3{%
+  \ifcsname gtr@per@#2@c#1@next\endcsname%
+    \let\gtr@tmp@oldper#2%
+    \letcs\gtr@tmp@oldfam{gtr@per@#2@fam}%
+    \letcs#2{gtr@per@#2@c#1@next}%
+    \letcs\gtr@tmp@fam{gtr@per@#2@fam}%
+    \ifdefequal{\gtr@tmp@oldfam}{\gtr@tmp@fam}{%
+      \dimdef#3{#3-\csuse{gtr@per@\gtr@tmp@oldper @c#1@val}+\csuse{gtr@per@#2@c#1@val}}%
+    }{%
+      \dimdef#3{#3-\csuse{gtr@per@\gtr@tmp@oldper @c#1@val}+\csuse{gtr@fam@\gtr@tmp@fam @offset}+\csuse{gtr@per@#2@c#1@val}}%
+    }%
+  \else
+    \ifcsname gtr@per@#2@c#1@thread\endcsname%
+      \dimdef#3{#3+\csuse{gtr@per@#2@c#1@tgap}}%
+      \letcs#2{gtr@per@#2@c#1@thread}%
+    \else%
+      \let#2=\@undefined%
+    \fi%
+  \fi%
+}
+
+% #1   east/west
+% #2   pid
+% #3   sum
+\def\gtr@cont@origin#1#2#3{%
+  \letcs\gtr@tmp@fam{gtr@per@#2@fam}%
+  \dimdef#3{\csuse{gtr@fam@\gtr@tmp@fam @offset}+\csuse{gtr@per@#2@c#1@val}}%
+}
+
+
+\def\gtr@cont@sew{%
+  \let\gtr@tmp@A@west@pid@old=\gtr@tmp@A@west@pid%
+  \gtr@cont@next{west}{\gtr@tmp@A@west@pid}{\gtr@tmp@A@west@sum}%
+  \gtr@cont@next{east}{\gtr@tmp@A@east@pid}{\gtr@tmp@A@east@sum}%
+  \gtr@cont@next{west}{\gtr@tmp@B@west@pid}{\gtr@tmp@B@west@sum}%
+  \let\gtr@tmp@B@east@pid@old=\gtr@tmp@B@east@pid%
+  \gtr@cont@next{east}{\gtr@tmp@B@east@pid}{\gtr@tmp@B@east@sum}%
+  %
+  \let\gtr@sew@next=\relax%
+  \ifdefined\gtr@tmp@A@east@pid
+    % A tree present
+    \ifdefined\gtr@tmp@B@west@pid
+      % B tree present
+      \gtr@cont@set@distance{\gtr@tmp@B@west@pid}{\gtr@dist@further}%
+      \dimdef\gtr@temp{\gtr@tmp@A@east@sum-\gtr@tmp@B@west@sum+\gtr@cont@distance}%
+      \ifdim\gtr@temp>\gtr@tmp@offset\relax\let\gtr@tmp@offset=\gtr@temp\fi%
+      \let\gtr@sew@next=\gtr@cont@sew%
+    \else
+    % B tree finished
+      \cslet{gtr@per@\gtr@tmp@B@east@pid@old @ceast@thread}{\gtr@tmp@A@east@pid}%
+      \csdimdef{gtr@per@\gtr@tmp@B@east@pid@old @ceast@tgap}{\gtr@tmp@A@east@sum-\gtr@tmp@B@east@sum-\gtr@tmp@offset}%
+    \fi
+  \else
+    % A tree finished
+    \ifdefined\gtr@tmp@B@west@pid%
+      % B tree present
+      \cslet{gtr@per@\gtr@tmp@A@west@pid@old @cwest@thread}{\gtr@tmp@B@west@pid}%
+      \csdimdef{gtr@per@\gtr@tmp@A@west@pid@old @cwest@tgap}{\gtr@tmp@B@west@sum-\gtr@tmp@A@west@sum+\gtr@tmp@offset}%
+    % \else  nothing to do
+    % B tree finished
+    \fi%
+  \fi%
+  \gtr@sew@next%
+}
+
+
+% Set distance value
+% #1  node number
+% #2  default distance
+\def\gtr@cont@set@distance#1#2{%
+  \ifcsname gtr@per@#1@distance\endcsname%
+    \letcs\gtr@cont@distance{gtr@per@#1@distance}%
+  \else
+    \let\gtr@cont@distance=#2%
+  \fi%
+}
+
+
+% Merge tree (family) to existing tree
+% #1   family number
+% #2   distance
+\def\gtr@cont@merge@tree#1#2{%
+  \let\gtr@tmp@A@west@pid=\gtr@tmp@nextwest%
+  \let\gtr@tmp@A@east@pid=\gtr@tmp@nexteast%
+  \letcs\gtr@tmp@B@west@pid{gtr@fam@#1@cwest@anchor}%
+  \letcs\gtr@tmp@B@east@pid{gtr@fam@#1@ceast@anchor}%
+  %
+  \gtr@cont@origin{west}{\gtr@tmp@A@west@pid}{\gtr@tmp@A@west@sum}%
+  \gtr@cont@origin{east}{\gtr@tmp@A@east@pid}{\gtr@tmp@A@east@sum}%
+  \gtr@cont@origin{west}{\gtr@tmp@B@west@pid}{\gtr@tmp@B@west@sum}%
+  \gtr@cont@origin{east}{\gtr@tmp@B@east@pid}{\gtr@tmp@B@east@sum}%
+  %
+  \edef\gtr@tmp@nexteast{\gtr@tmp@B@east@pid}%
+  \gtr@cont@set@distance{\gtr@tmp@B@west@pid}{#2}%
+  \dimdef\gtr@tmp@offset{\gtr@tmp@A@east@sum-\gtr@tmp@B@west@sum+\gtr@cont@distance}%
+  %
+  \gtr@cont@sew%
+  %
+  \csdimdef{gtr@fam@#1@offset}{\gtr@tmp@offset}%
+  \letcs\gtr@gnode{gtr@fam@#1@g}%
+  \gtr@cont@settomid\gtr@tmp@linkpos{\gtr@gnode}%
+  \dimdef\gtr@tmp@linkpos{\gtr@tmp@offset+\gtr@tmp@linkpos}%
+}
+
+
+% Merge node (person) to existing tree
+% #1   node number
+% #2   distance
+\def\gtr@cont@merge@node#1#2{%
+  \let\gtr@tmp@A@east@pid=\gtr@tmp@nexteast%
+  \gtr@cont@origin{east}{\gtr@tmp@A@east@pid}{\gtr@tmp@A@east@sum}%
+  \gtr@cont@set@distance{#1}{#2}%
+  \dimdef\gtr@temp{\gtr@tmp@A@east@sum+\gtr@cont@distance}%
+  \csdimdef{gtr@per@#1@cwest@val}{\gtr@temp}%
+  \csdimdef{gtr@per@#1@ceast@val}{\csuse{gtr@per@#1@dim}+\gtr@temp}%
+  \edef\gtr@tmp@nexteast{#1}%
+  \gtr@cont@next{east}{\gtr@tmp@A@east@pid}{\gtr@tmp@A@east@sum}%
+  \ifdef{\gtr@tmp@A@east@pid}{%
+    \cslet{gtr@per@#1@ceast@thread}{\gtr@tmp@A@east@pid}%
+    \csdimdef{gtr@per@#1@ceast@tgap}{\gtr@tmp@A@east@sum-\csuse{gtr@per@#1@ceast@val}}%
+  }{}%
+  \gtr@cont@settomid\gtr@tmp@linkpos{#1}%
+}
+
+
+% Setup a first tree (family)
+% #1   family number
+\def\gtr@cont@first@tree#1{%
+  \letcs\gtr@tmp@nextwest{gtr@fam@#1@cwest@anchor}%
+  \letcs\gtr@tmp@nexteast{gtr@fam@#1@ceast@anchor}%
+  \letcs\gtr@gnode{gtr@fam@#1@g}%
+  \gtr@cont@settomid\gtr@tmp@linkpos{\gtr@gnode}%
+}
+
+
+% Setup a node (person)
+% #1   node number
+\def\gtr@cont@first@node#1{%
+  \edef\gtr@tmp@nextwest{#1}%
+  \edef\gtr@tmp@nexteast{#1}%
+  \csdimdef{gtr@per@#1@cwest@val}{\z@}%
+  \csletcs{gtr@per@#1@ceast@val}{gtr@per@#1@dim}%
+  \gtr@cont@settomid\gtr@tmp@linkpos{#1}%
+}
+
+
+% Merge an anchor node (person)
+% #1   node number
+% #2   distance
+\def\gtr@cont@merge@anchor#1#2{%
+  \letcs\gtr@tmp@A@east@pid{gtr@fam@\gtr@currentfamily @ceast@anchor}%
+  %
+  \gtr@cont@set@distance{#1}{#2}%
+  \dimdef\gtr@temp{\csuse{gtr@per@\gtr@tmp@A@east@pid @ceast@val}+\gtr@cont@distance}%
+  %
+  \csdimdef{gtr@per@#1@cwest@val}{\gtr@temp}%
+  \csdimdef{gtr@per@#1@ceast@val}{\gtr@temp+\csuse{gtr@per@#1@dim}}%
+  \csedef{gtr@fam@\gtr@currentfamily @ceast@anchor}{#1}%
+  \ifdef{\gtr@tmp@nexteast}{\cslet{gtr@per@#1@ceast@next}{\gtr@tmp@nexteast}}{}%
+  \gtr@cont@settomid\gtr@tmp@linkpos{#1}%
+}
+
+
+% Setup an anchor node (person)
+% #1   node number
+\def\gtr@cont@first@anchor#1{%
+  \csedef{gtr@fam@\gtr@currentfamily @cwest@anchor}{#1}%
+  \csedef{gtr@fam@\gtr@currentfamily @ceast@anchor}{#1}%
+  \ifdef{\gtr@tmp@nextwest}{\cslet{gtr@per@#1@cwest@next}{\gtr@tmp@nextwest}}{}%
+  \ifdef{\gtr@tmp@nexteast}{\cslet{gtr@per@#1@ceast@next}{\gtr@tmp@nexteast}}{}%
+  \csdimdef{gtr@per@#1@cwest@val}{\z@}%
+  \csletcs{gtr@per@#1@ceast@val}{gtr@per@#1@dim}%
+  \gtr@cont@settomid\gtr@tmp@linkpos{#1}%
+}
+
+
+% Shift contourvalues
+% #1   list of persons (macro)
+% #2   shift value
+\def\gtr@cont@shift#1#2{%
+  \def\do##1{%
+    \csdimdef{gtr@per@##1@cwest@val}{\csuse{gtr@per@##1@cwest@val}+#2}%
+    \csdimdef{gtr@per@##1@ceast@val}{\csuse{gtr@per@##1@ceast@val}+#2}%
+  }%
+  \dolistloop{#1}%
+}
+
+% Shift contourvalues
+% #1   list of persons (macro)
+% #2   shift value
+\def\gtr@cont@shift@sandclock#1#2{%
+  \def\do##1{%
+    \ifcsname gtr@per@##1@chiof\endcsname%
+      \letcs\gtr@temp@fam{gtr@per@##1@fam}%
+      \csdimdef{gtr@fam@\gtr@temp@fam @offset}{\csuse{gtr@fam@\gtr@temp@fam @offset}+#2}%
+    \else%
+      \csdimdef{gtr@per@##1@cwest@val}{\csuse{gtr@per@##1@cwest@val}+#2}%
+      \csdimdef{gtr@per@##1@ceast@val}{\csuse{gtr@per@##1@ceast@val}+#2}%
+    \fi%
+  }%
+  \dolistloop{#1}%
+}
+
+
+% Set to mid of person
+% #1   macro which gets the value
+% #2   node number
+\def\gtr@cont@settomid#1#2{%
+  \dimdef#1{(\csuse{gtr@per@#2@cwest@val}+\csuse{gtr@per@#2@ceast@val})/2}%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Positioning
+%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\def\gtr@positioning@fam@down#1#2{%
+  \csdimdef{gtr@fam@#1@x}{\csuse{gtr@fam@#2@x}+\csuse{gtr@fam@#1@offset}}%
+}
+
+\let\gtr@positioning@fam@up=\gtr@positioning@fam@down
+
+\def\gtr@positioning@fam@left#1#2{%
+  \csdimdef{gtr@fam@#1@y}{\csuse{gtr@fam@#2@y}-\csuse{gtr@fam@#1@offset}}%
+}
+
+\let\gtr@positioning@fam@right=\gtr@positioning@fam@left
+
+\def\gtr@positioning@famoff@down#1{%
+  \csdimdef{gtr@fam@#1@x}{\csuse{gtr@fam@#1@offset}}%
+}
+
+\let\gtr@positioning@famoff@up=\gtr@positioning@famoff@down
+
+\def\gtr@positioning@famoff@left#1{%
+  \csdimdef{gtr@fam@#1@y}{-\csuse{gtr@fam@#1@offset}}%
+}
+
+\let\gtr@positioning@famoff@right=\gtr@positioning@famoff@left
+
+\def\gtr@positioning@family#1{%
+  \ifcsname gtr@fam@#1@fam\endcsname%
+    \letcs\gtr@encfamily{gtr@fam@#1@fam}%
+    \gtr@positioning@fam{#1}{\gtr@encfamily}%
+  \else%
+    \ifcsname gtr@fam@#1@offset\endcsname%
+      \gtr@positioning@famoff{#1}%
+    \fi%
+  \fi%
+}
+
+\def\gtr@positioning@per@down#1#2{%
+  \csdimdef{gtr@per@#1@x}{\csuse{gtr@fam@#2@x}+\csuse{gtr@per@#1@cwest@val}}%
+}
+
+\let\gtr@positioning@per@up=\gtr@positioning@per@down
+
+\def\gtr@positioning@per@left#1#2{%
+  \csdimdef{gtr@per@#1@y}{\csuse{gtr@fam@#2@y}-\csuse{gtr@per@#1@cwest@val}}%
+}
+
+\let\gtr@positioning@per@right=\gtr@positioning@per@left
+
+\def\gtr@positioning@person#1{%
+  \letcs\gtr@encfamily{gtr@per@#1@fam}%
+  \gtr@positioning@per{#1}{\gtr@encfamily}%
+}
+
+
+\def\gtr@positioning{%
+  \letcs\gtr@positioning@fam{gtr@positioning@fam@\gtr@timeflow}%
+  \letcs\gtr@positioning@famoff{gtr@positioning@famoff@\gtr@timeflow}%
+  \letcs\gtr@positioning@per{gtr@positioning@per@\gtr@timeflow}%
+  %
+  \gtr@forall@families{\gtr@positioning@family}%
+  \gtr@forall@nodes{\gtr@positioning@person}%
+}
+
+
+\def\gtr@shift@node#1{%
+  \csdimdef{gtr@per@#1@x}{\csuse{gtr@per@#1@x}+\gtr@tmp@xshift}%
+  \csdimdef{gtr@per@#1@y}{\csuse{gtr@per@#1@y}+\gtr@tmp@yshift}%
+}
+
+\def\gtr@shift@family#1{%
+  \csdimdef{gtr@fam@#1@pos}{\csuse{gtr@fam@#1@pos}+\gtr@tmp@pshift}%
+}
+
+\def\gtr@shiftall{%
+  \gtr@forall@nodes{\gtr@shift@node}%
+  \gtr@forall@families{\gtr@shift@family}%
+}
+
+\def\gtr@dimen@correction@up#1#2#3#4{}
+\def\gtr@dimen@correction@down#1#2#3#4{\dimdef#2{#2-#4}}
+\def\gtr@dimen@correction@left#1#2#3#4{\dimdef#1{#1-#3}\dimdef#2{#2-#4}}
+\def\gtr@dimen@correction@right#1#2#3#4{\dimdef#2{#2-#4}}
+
+
+% #1: person id
+% #2: x (out)
+% #3: y (out)
+% #4: width (out)
+% #5: height (out)
+\def\gtr@getDimenForId#1#2#3#4#5{%
+  \gtr@getPerNumForId{#1}%
+  \let\gtr@tmp@pnum\gtr@tmp@num% node number for ID
+  \letcs#2{gtr@per@\gtr@tmp@pnum @x}%
+  \letcs#3{gtr@per@\gtr@tmp@pnum @y}%
+  \dimdef#4{\wd\csuse{gtr@per@\gtr@tmp@num @box}}%
+  \dimdef#5{\ht\csuse{gtr@per@\gtr@tmp@num @box}+\dp\csuse{gtr@per@\gtr@tmp@num @box}}%
+  \csuse{gtr@dimen@correction@\gtr@timeflow}{#2}{#3}{#4}{#5}%
+}
+
+\def\gtr@adjust@right#1#2{%
+  \dimdef\gtr@tmp@xshift{\gtr@xa-\gtr@xb+#1}%
+  \dimdef\gtr@tmp@yshift{\gtr@ya-\gtr@yb-\gtr@hb/2+#2}%
+}
+
+\def\gtr@adjust@left#1#2{%
+  \dimdef\gtr@tmp@xshift{\gtr@xa-\gtr@xb-\gtr@wb-#1}%
+  \dimdef\gtr@tmp@yshift{\gtr@ya-\gtr@yb-\gtr@hb/2+#2}%
+}
+
+\def\gtr@adjust@above#1#2{%
+  \dimdef\gtr@tmp@xshift{\gtr@xa-\gtr@xb-\gtr@wb/2+#2}%
+  \dimdef\gtr@tmp@yshift{\gtr@ya-\gtr@yb+#1}%
+}
+
+\def\gtr@adjust@below#1#2{%
+  \dimdef\gtr@tmp@xshift{\gtr@xa-\gtr@xb-\gtr@wb/2+#2}%
+  \dimdef\gtr@tmp@yshift{\gtr@ya-\gtr@yb-\gtr@hb-#1}%
+}
+
+% #1: node to be adjusted
+% #2: direction
+% #3: reference position
+% #4: distance
+% #5: shift
+\def\gtr@adjust#1#2#3#4#5{%
+  \tcb@gettikzxy{(#3)}{\gtr@xa}{\gtr@ya}%
+  \gtr@getDimenForId{#1}{\gtr@xb}{\gtr@yb}{\gtr@wb}{\gtr@hb}%
+  \ifcsname gtr@adjust@#2\endcsname%
+    \csuse{gtr@adjust@#2}{#4}{#5}%
+    \ifgtr@timeflow@vertical%
+      \let\gtr@tmp@pshift=\gtr@tmp@yshift%
+    \else%
+      \let\gtr@tmp@pshift=\gtr@tmp@xshift%
+    \fi%
+    \gtr@shiftall%
+  \else\gtr@error{adjust direction '#2' undefined}{%
+    You passed an unknown value '#2'}\fi%
+}
+
+% #1: node to be set
+% #2: reference position
+\def\gtr@setposition#1#2{%
+  \tcb@gettikzxy{(#2)}{\gtr@xa}{\gtr@ya}%
+  \gtr@getDimenForId{#1}{\gtr@xb}{\gtr@yb}{\gtr@wb}{\gtr@hb}%
+  \dimdef\gtr@tmp@xshift{\gtr@xa-\gtr@xb-\gtr@wb/2}%
+  \dimdef\gtr@tmp@yshift{\gtr@ya-\gtr@yb-\gtr@hb/2}%
+  \ifgtr@timeflow@vertical%
+    \let\gtr@tmp@pshift=\gtr@tmp@yshift%
+  \else%
+    \let\gtr@tmp@pshift=\gtr@tmp@xshift%
+  \fi%
+  \gtr@shiftall%
+}

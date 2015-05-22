@@ -1,0 +1,475 @@
+%% The LaTeX package genealogytree - version 0.90 (2015/05/22)
+%% gtrlib.debug.code.tex: Debugger
+%%
+%% -------------------------------------------------------------------------------------------
+%% Copyright (c) 2014-2015 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% -------------------------------------------------------------------------------------------
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status `author-maintained'.
+%%
+%% This work consists of all files listed in README
+%%
+\gtr@set@library@version{0.90}
+
+\RequirePackage{array,tabularx}
+\tcbuselibrary{breakable}
+
+\definecolorseries{gtr@debug}{rgb}{grad}[rgb]{.95,.85,.55}{3,11,17}
+\resetcolorseries[16]{gtr@debug}
+
+\def\gtr@debug@colorletfamily#1{%
+  \pgfmathsetmacro\gtr@temp@col{int(Mod(\gtr@currentfamily,16)+1)}%
+  \colorlet{#1}{gtr@debug!![\gtr@temp@col]}%
+}
+
+%-------------------
+% Parser Debugger
+%-------------------
+
+\def\gtr@debug@setleveldistance#1{%
+  \pgfmathsetmacro#1{-(\gtrkv@debug@markerleft-\gtrkv@debug@markerright)*e^(-abs(\number\gtr@c@level)/4)-\gtrkv@debug@markerright}%
+}
+
+\tcbset{%
+  gtr@debug@box/.style={enhanced,beforeafter skip=0pt,flushleft upper,
+    boxrule=0.25mm,leftrule=5mm,colframe=gtr@debug@color,
+    arc=5mm,boxsep=0pt,top=1mm,bottom=1mm},
+  debug marker left/.store in=\gtrkv@debug@markerleft,
+  debug marker right/.store in=\gtrkv@debug@markerright,
+  debug marker left=1.3cm,
+  debug marker right=0.3cm,
+}
+
+\def\gtr@debug@person@content#1#2#3#4{%
+  \gtr@debug@colorletfamily{gtr@debug@color}%
+  \begin{tcolorbox}[gtr@debug@box,sharp corners=west,
+    interior style={top color=gtr@debug@color!30!white,bottom color=gray!10!white},
+    overlay={\node[fill=gtr@debug@color!10!white,draw=black] at ([xshift=2.5mm]frame.west) {\small #1};}]
+    #2: Individual~\gtr@currentperson,
+        Family~\gtr@currentfamily,
+        Level~\number\gtr@c@level%
+        \ifblank{#3}{}{\par Options: {\ttfamily\detokenize{#3}}}%
+        \par Content: {\ttfamily\detokenize{#4}}%
+  \end{tcolorbox}%
+}
+
+\def\gtr@debug@family@begin#1#2{%
+  \gtr@debug@colorletfamily{gtr@debug@color}%
+  \begin{tcolorbox}[gtr@debug@box,rightrule=5mm,sharp corners,
+    colback=gtr@debug@color!30!white,
+    overlay={%
+      \gtr@debug@setleveldistance{\gtr@temp}%
+      \path[draw=gtr@debug@color,very thick,->] (frame.west) -- ++(\gtr@temp pt,0) -- ++(0,-0.5);
+    }]%
+    Start: #1 Family~\gtr@currentfamily, Level~\number\gtr@c@level
+    \ifblank{#2}{}{\par Options: {\ttfamily\detokenize{#2}}}%
+  \end{tcolorbox}%
+}
+
+\def\gtr@debug@family@end#1{%
+  \gtr@debug@colorletfamily{gtr@debug@color}%
+  \begin{tcolorbox}[gtr@debug@box,rightrule=5mm,sharp corners,
+    colback=gtr@debug@color!30!white,
+    overlay={%
+      \gtr@debug@setleveldistance{\gtr@temp}%
+      \path[draw=gtr@debug@color,very thick,->] (frame.west) -- ++(\gtr@temp pt,0) -- ++(0,0.5);
+    }]%
+  End: #1 Family~\gtr@currentfamily, Level~\number\gtr@c@level
+  \end{tcolorbox}%
+}
+
+\newcommand{\gtrparserdebug}[2][]{%
+  \begingroup%
+  \parskip0pt%
+  %
+  \let\gtr@org@@parse@err=\gtr@parse@err%
+  \let\gtr@org@@parse@error=\gtr@parse@error%
+  \let\gtr@org@@parse@error@token=\gtr@parse@error@token%
+  \def\gtr@parse@err{%
+    \fbox{\textbf{Parser error}}%
+    \gtr@org@@parse@err}%
+  \long\def\gtr@parse@error##1{%
+    \fbox{\textbf{Parser: undefined ##1}}%
+    \gtr@org@@parse@error{##1}}%
+  \long\def\gtr@parse@error@token{%
+    \fbox{\textbf{Parser: unfeasible token '\@gtr@token'}}%
+    \gtr@org@@parse@error@token}%
+  %
+  \def\gtr@proc@@parent@begin##1{\gtr@debug@family@begin{Parent}{##1}}%
+  \def\gtr@proc@@child@begin##1{\gtr@debug@family@begin{Child}{##1}}%
+  \def\gtr@proc@@union@begin##1{\gtr@debug@family@begin{Union}{##1}}%
+  \def\gtr@proc@@sandclock@begin##1{\gtr@debug@family@begin{Sandclock}{##1}}%
+  %
+  \def\gtr@proc@@parent@end{\gtr@debug@family@end{Parent}}%
+  \def\gtr@proc@@child@end{\gtr@debug@family@end{Child}}%
+  \def\gtr@proc@@union@end{\gtr@debug@family@end{Union}}%
+  \def\gtr@proc@@sandclock@end{\gtr@debug@family@end{Sandclock}}%
+  %
+  \long\def\gtr@proc@@parent@g@content##1##2{\gtr@debug@person@content{g}{Child}{##1}{##2}}%
+  \long\def\gtr@proc@@child@g@content##1##2{\gtr@debug@person@content{g}{Parent}{##1}{##2}}%
+  \long\def\gtr@proc@@p@content##1##2{\gtr@debug@person@content{p}{Parent}{##1}{##2}}%
+  \long\def\gtr@proc@@c@content##1##2{\gtr@debug@person@content{c}{Child}{##1}{##2}}%
+  \long\def\gtr@trav@@add@node##1##2##3{##3{##1}{##2}}%
+  %
+  \gtrset{%
+    ignore/true/.code={},
+  }
+  %
+  \def\gtr@positioning{}%
+  %
+  \colorlet{gtr@debug@color}{black!75!white}%
+  \begin{tcolorbox}[gtr@debug@box,before skip=\medskipamount,
+    sharp corners,toprule=1mm,rightrule=5mm]
+    Genealogytree Parser Debugger
+    \ifblank{#1}{}{\par Graph Options: {\ttfamily\detokenize{#1}}}%
+  \end{tcolorbox}%
+  \gtr@reset@after%
+  \gtr@parsegraph[#1]{#2}%
+  \begin{tcolorbox}[
+    gtr@debug@box,after skip=\medskipamount,sharp corners,colframe=black!75!white,
+    bottomrule=1mm,rightrule=5mm]
+    End of Genealogytree Parser Debugger
+  \end{tcolorbox}%
+  \endgroup%
+}
+
+\newcommand{\gtrparserdebuginput}[2][]{%
+  \gtrparserdebug[#1]{input{#2}}}
+
+%-------------------
+% Processor Debugger
+%-------------------
+
+\def\gtr@debug@textnone{\textsf{$\langle$none$\rangle$}}
+
+\def\gtr@debug@person@tab#1#2{%
+  #1 &%
+  \ifcsname gtr@per@\gtr@currentperson @#1\endcsname%
+    \csuse{gtr@per@\gtr@currentperson @#1}%
+  \else%
+    \gtr@debug@textnone%
+  \fi%
+  &#2\\%
+}
+
+\def\gtr@debug@person@tabopt#1#2{%
+  #1 &%
+  \letcs\gtr@temp{gtr@per@\gtr@currentperson @#1}%
+  \ifdefvoid{\gtr@temp}{\gtr@debug@textnone}{%
+  \ttfamily\expandafter\detokenize\expandafter{\gtr@temp}}%
+  &#2\\%
+}
+
+
+\def\gtr@debug@family@tab#1#2{%
+  #1 &%
+  \ifcsname gtr@fam@\gtr@currentfamily @#1\endcsname%
+    \csuse{gtr@fam@\gtr@currentfamily @#1}%
+  \else%
+    \gtr@debug@textnone%
+  \fi%
+  &#2\\%
+}
+
+\def\gtr@debug@family@tablist#1#2{%
+  #1 &%
+  \ifcsname gtr@fam@\gtr@currentfamily @#1\endcsname%
+    \def\dodo##1{, ##1}%
+    \def\do##1{##1\let\do\dodo}%
+    \dolistcsloop{gtr@fam@\gtr@currentfamily @#1}%
+  \else%
+    \gtr@debug@textnone%
+  \fi%
+  &#2\\%
+}
+
+\def\gtr@debug@family@tabopt#1#2{%
+  #1 &%
+  \letcs\gtr@temp{gtr@fam@\gtr@currentfamily @#1}%
+  \ifdefvoid{\gtr@temp}{\gtr@debug@textnone}{%
+  \ttfamily\expandafter\detokenize\expandafter{\gtr@temp}}%
+  &#2\\%
+}
+
+\def\gtr@debug@person#1{%
+  \gtr@set@currentperson{#1}%
+  \begin{tcolorbox}[enhanced,beforeafter skip=3pt,flushleft upper,
+    size=small,sharp corners,fontupper=\small,
+    colframe=gtr@debug@color,colback=gtr@debug@color!5,
+    colbacktitle=gtr@debug@color!20,
+    coltitle=black,fonttitle=\bfseries,
+    title={Person~\gtr@currentperson},
+    sidebyside,lower separated=false,sidebyside gap=1mm,
+    code={\ifcsname gtr@per@\gtr@currentperson @box\endcsname%
+      \tcbset{righthand width=\wd\csuse{gtr@per@\gtr@currentperson @box}}\fi}]
+    \begin{tabularx}{\linewidth}{@{}>{\ttfamily}r@{: }X>{\itshape}X@{}}
+      \gtr@debug@person@tabopt{id}{identifier (also node alias)}%
+      \gtr@debug@person@tab{fam}{enclosing family}%
+      \gtr@debug@person@tab{chiof}{child of family}%
+      \gtr@debug@person@tab{parof}{parent of family}%
+      \gtr@debug@person@tab{x}{$x$ anchor}%
+      \gtr@debug@person@tab{y}{$y$ anchor}%
+      \gtr@debug@person@tab{dim}{width (or height)}%
+      \gtr@debug@person@tab{cwest@val}{west contour value}%
+      \gtr@debug@person@tab{cwest@next}{west contour successor}%
+      \gtr@debug@person@tab{cwest@thread}{west contour thread}%
+      \gtr@debug@person@tab{cwest@tgap}{west contour thread gap}%
+      \gtr@debug@person@tab{ceast@val}{east contour value}%
+      \gtr@debug@person@tab{ceast@next}{east contour successor}%
+      \gtr@debug@person@tab{ceast@thread}{east contour thread}%
+      \gtr@debug@person@tab{ceast@tgap}{east contour thread gap}%
+    \end{tabularx}%
+    \tcblower
+    \ifcsname gtr@per@\gtr@currentperson @box\endcsname%
+        \copy\csuse{gtr@per@\gtr@currentperson @box}%
+      \else\gtr@debug@textnone\fi%
+  \end{tcolorbox}%
+}
+
+
+\def\gtr@debug@family#1{%
+  \gtr@set@currentfamily{#1}%
+  \gtr@debug@colorletfamily{gtr@debug@color}%
+  \begin{tcolorbox}[enhanced,breakable,beforeafter skip=6pt,flushleft upper,
+    colframe=gtr@debug@color,colback=gtr@debug@color!15,fontupper=\small,
+    colbacktitle=gtr@debug@color!30,
+    coltitle=black,fonttitle=\bfseries,
+    title={Family~\gtr@currentfamily},
+    pad at break*=1mm ]
+    \begin{tabularx}{\linewidth}{@{}>{\ttfamily}r@{: }X>{\itshape}X@{}}
+      \gtr@debug@family@tab{type}{type of family}%
+      \gtr@debug@family@tabopt{id}{identifier}%
+      \gtr@debug@family@tab{fam}{enclosing family}%
+      \gtr@debug@family@tab{offset}{$x$ (or $y$) offset relative to enclosing family}%
+      \gtr@debug@family@tab{pos}{$y$ (or $x$) absolute position}%
+      \gtr@debug@family@tab{cwest@anchor}{west contour starting node}%
+      \gtr@debug@family@tab{ceast@anchor}{east contour starting node}%
+      \gtr@debug@family@tab{g}{$g$-node of the family}%
+      \gtr@debug@family@tablist{par}{parent nodes}%
+      \gtr@debug@family@tablist{chi}{child nodes}%
+      \gtr@debug@family@tablist{patpar}{patchwork parent nodes}%
+      \gtr@debug@family@tablist{patchi}{patchwork child nodes}%
+      \gtr@debug@family@tablist{union}{further partner families}%
+      \gtr@debug@family@tab{ps}{pivot shift length (parents vs childs)}%
+      \gtr@debug@family@tab{x}{$x$ anchor}%
+      \gtr@debug@family@tab{y}{$y$ anchor}%
+      \gtr@debug@family@tab{frac}{line positioning fraction}%
+      \gtr@debug@family@tabopt{opt@family}{options for the family}%
+      \gtr@debug@family@tabopt{opt@subtree}{options for the subtree}%
+    \end{tabularx}%
+    \ifcsname gtr@fam@\gtr@currentfamily @par\endcsname%
+      \tcbsubtitle{Parents of Family~\gtr@currentfamily}%
+      \let\do\gtr@debug@person%
+      \dolistcsloop{gtr@fam@\gtr@currentfamily @par}%
+    \fi%
+    \ifcsname gtr@fam@\gtr@currentfamily @chi\endcsname%
+      \tcbsubtitle{Childs of Family~\gtr@currentfamily}%
+      \let\do\gtr@debug@person%
+      \dolistcsloop{gtr@fam@\gtr@currentfamily @chi}%
+    \fi%
+  \end{tcolorbox}%
+}
+
+\def\gtr@debug@family@loop#1{%
+  \ifnum#1<\numexpr\gtr@num@fam@last+1\relax%
+    \gtr@debug@family{#1}%
+    \expandafter\gtr@debug@family@loop\expandafter{\number\numexpr#1+1\expandafter}%
+  \fi%
+}
+
+
+\newcommand{\gtrprocessordebug}[2][]{%
+  \begingroup%
+  \gtrset{%
+    ignore/true/.code={},
+  }
+  \begin{tcolorbox}[colframe=black!75!white,colback=yellow!10,
+    beforeafter skip=\medskipamount,flushleft upper,
+    sharp corners=south]
+    \textbf{Genealogytree Processor Debugger}
+    \ifblank{#1}{}{\par Graph Options: {\ttfamily\detokenize{#1}}}%
+  \end{tcolorbox}%
+  %
+  \gtr@reset@after%
+  \gtr@parsegraph[#1]{#2}%
+  \gtr@debug@family@loop{\gtr@num@fam@first}%
+  %
+  \begin{tcolorbox}[
+    colframe=black!75!white,colback=yellow!10,
+    beforeafter skip=\medskipamount,flushleft upper,
+    sharp corners=north]
+    \textbf{End of Genealogytree Processor Debugger}
+  \end{tcolorbox}%
+  \endgroup%
+}
+
+
+\newcommand{\gtrprocessordebuginput}[2][]{%
+  \gtrprocessordebug[#1]{input{#2}}}
+
+
+%-------------------
+% Graphical Debugger
+%-------------------
+
+\def\gtr@debug@contour#1#2#3#4{%
+  \path[gtr@debug@tcb@options] \pgfextra{%
+    \edef\gtr@currentperson{#1}%
+    \tcb@gettikzxy{(p@\gtr@currentperson .#3)}{\gtr@x}{\gtr@y}%
+    \pgfpathmoveto{\pgfqpoint{\gtr@x}{\gtr@y}}%
+    \tcb@gettikzxy{(p@\gtr@currentperson .#4)}{\gtr@x}{\gtr@y}%
+    \pgfpathlineto{\pgfqpoint{\gtr@x}{\gtr@y}}%
+    \loop%
+      \ifcsdef{gtr@per@\gtr@currentperson @c#2@next}{%
+        \letcs\gtr@currentperson{gtr@per@\gtr@currentperson @c#2@next}%
+      }{%
+        \letcs\gtr@currentperson{gtr@per@\gtr@currentperson @c#2@thread}%
+      }%
+    \ifdefined\gtr@currentperson%
+      \tcb@gettikzxy{(p@\gtr@currentperson .#3)}{\gtr@x}{\gtr@y}%
+      \pgfpathlineto{\pgfqpoint{\gtr@x}{\gtr@y}}%
+      \tcb@gettikzxy{(p@\gtr@currentperson .#4)}{\gtr@x}{\gtr@y}%
+      \pgfpathlineto{\pgfqpoint{\gtr@x}{\gtr@y}}%
+    \repeat%
+  };%
+}
+
+\def\gtr@debug@contour@west@up#1{\gtr@debug@contour{#1}{west}{south west}{north west}}
+\def\gtr@debug@contour@west@down#1{\gtr@debug@contour{#1}{west}{north west}{south west}}
+\def\gtr@debug@contour@west@left#1{\gtr@debug@contour{#1}{west}{north east}{north west}}
+\def\gtr@debug@contour@west@right#1{\gtr@debug@contour{#1}{west}{north west}{north east}}
+
+\def\gtr@debug@contour@east@up#1{\gtr@debug@contour{#1}{east}{south east}{north east}}
+\def\gtr@debug@contour@east@down#1{\gtr@debug@contour{#1}{east}{north east}{south east}}
+\def\gtr@debug@contour@east@left#1{\gtr@debug@contour{#1}{east}{south east}{south west}}
+\def\gtr@debug@contour@east@right#1{\gtr@debug@contour{#1}{east}{south west}{south east}}
+
+\newif\ifgtr@debug@west
+\newif\ifgtr@debug@east
+
+\gtrset{debug/.cd,
+  family number/.store in=\gtrkv@debug@fam,
+  family id/.code={\gtr@getFamNumForId{#1}\let\gtrkv@debug@fam\gtr@tmp@num},
+  contour/.is choice,
+  contour/west/.code={\gtr@debug@westtrue\gtr@debug@eastfalse},
+  contour/east/.code={\gtr@debug@westfalse\gtr@debug@easttrue},
+  contour/both/.code={\gtr@debug@westtrue\gtr@debug@easttrue},
+  contour/none/.code={\gtr@debug@westfalse\gtr@debug@eastfalse},
+  tikz@options/.style={/tikz/gtr@debug@tcb@options/.style={#1}},
+}
+
+\def\gtr@debug@contour@par@down{%
+  \ifgtr@debug@west\gtr@debug@contour@west@up{\csuse{gtr@fam@\gtrkv@debug@fam @cwest@anchor}}\fi%
+  \ifgtr@debug@east\gtr@debug@contour@east@up{\csuse{gtr@fam@\gtrkv@debug@fam @ceast@anchor}}\fi%
+}
+
+\def\gtr@debug@contour@par@up{%
+  \ifgtr@debug@west\gtr@debug@contour@west@down{\csuse{gtr@fam@\gtrkv@debug@fam @cwest@anchor}}\fi%
+  \ifgtr@debug@east\gtr@debug@contour@east@down{\csuse{gtr@fam@\gtrkv@debug@fam @ceast@anchor}}\fi%
+}
+
+\def\gtr@debug@contour@par@left{%
+  \ifgtr@debug@west\gtr@debug@contour@west@right{\csuse{gtr@fam@\gtrkv@debug@fam @cwest@anchor}}\fi%
+  \ifgtr@debug@east\gtr@debug@contour@east@right{\csuse{gtr@fam@\gtrkv@debug@fam @ceast@anchor}}\fi%
+}
+
+\def\gtr@debug@contour@par@right{%
+  \ifgtr@debug@west\gtr@debug@contour@west@left{\csuse{gtr@fam@\gtrkv@debug@fam @cwest@anchor}}\fi%
+  \ifgtr@debug@east\gtr@debug@contour@east@left{\csuse{gtr@fam@\gtrkv@debug@fam @ceast@anchor}}\fi%
+}
+
+\def\gtr@debug@contour@chi@down{%
+  \ifgtr@debug@west\gtr@debug@contour@west@down{\csuse{gtr@fam@\gtrkv@debug@fam @cwest@anchor}}\fi%
+  \ifgtr@debug@east\gtr@debug@contour@east@down{\csuse{gtr@fam@\gtrkv@debug@fam @ceast@anchor}}\fi%
+}
+
+\def\gtr@debug@contour@chi@up{%
+  \ifgtr@debug@west\gtr@debug@contour@west@up{\csuse{gtr@fam@\gtrkv@debug@fam @cwest@anchor}}\fi%
+  \ifgtr@debug@east\gtr@debug@contour@east@up{\csuse{gtr@fam@\gtrkv@debug@fam @ceast@anchor}}\fi%
+}
+
+\def\gtr@debug@contour@chi@left{%
+  \ifgtr@debug@west\gtr@debug@contour@west@left{\csuse{gtr@fam@\gtrkv@debug@fam @cwest@anchor}}\fi%
+  \ifgtr@debug@east\gtr@debug@contour@east@left{\csuse{gtr@fam@\gtrkv@debug@fam @ceast@anchor}}\fi%
+}
+
+\def\gtr@debug@contour@chi@right{%
+  \ifgtr@debug@west\gtr@debug@contour@west@right{\csuse{gtr@fam@\gtrkv@debug@fam @cwest@anchor}}\fi%
+  \ifgtr@debug@east\gtr@debug@contour@east@right{\csuse{gtr@fam@\gtrkv@debug@fam @ceast@anchor}}\fi%
+}
+
+\def\gtr@debug@contour@san@down{%
+  \ifgtr@debug@west\gtr@debug@contour@west@up{\csuse{gtr@fam@\gtrkv@debug@fam @cwest@panchor}}\gtr@debug@contour@west@down{\csuse{gtr@fam@\gtrkv@debug@fam @cwest@canchor}}\fi%
+  \ifgtr@debug@east\gtr@debug@contour@east@up{\csuse{gtr@fam@\gtrkv@debug@fam @ceast@panchor}}\gtr@debug@contour@east@down{\csuse{gtr@fam@\gtrkv@debug@fam @ceast@canchor}}\fi%
+}
+
+\def\gtr@debug@contour@san@up{%
+  \ifgtr@debug@west\gtr@debug@contour@west@down{\csuse{gtr@fam@\gtrkv@debug@fam @cwest@panchor}}\gtr@debug@contour@west@up{\csuse{gtr@fam@\gtrkv@debug@fam @cwest@canchor}}\fi%
+  \ifgtr@debug@east\gtr@debug@contour@east@down{\csuse{gtr@fam@\gtrkv@debug@fam @ceast@panchor}}\gtr@debug@contour@east@up{\csuse{gtr@fam@\gtrkv@debug@fam @ceast@canchor}}\fi%
+}
+
+\def\gtr@debug@contour@san@left{%
+  \ifgtr@debug@west\gtr@debug@contour@west@right{\csuse{gtr@fam@\gtrkv@debug@fam @cwest@panchor}}\gtr@debug@contour@west@left{\csuse{gtr@fam@\gtrkv@debug@fam @cwest@canchor}}\fi%
+  \ifgtr@debug@east\gtr@debug@contour@east@right{\csuse{gtr@fam@\gtrkv@debug@fam @ceast@panchor}}\gtr@debug@contour@east@left{\csuse{gtr@fam@\gtrkv@debug@fam @ceast@canchor}}\fi%
+}
+
+\def\gtr@debug@contour@san@right{%
+  \ifgtr@debug@west\gtr@debug@contour@west@left{\csuse{gtr@fam@\gtrkv@debug@fam @cwest@panchor}}\gtr@debug@contour@west@right{\csuse{gtr@fam@\gtrkv@debug@fam @cwest@canchor}}\fi%
+  \ifgtr@debug@east\gtr@debug@contour@east@left{\csuse{gtr@fam@\gtrkv@debug@fam @ceast@panchor}}\gtr@debug@contour@east@right{\csuse{gtr@fam@\gtrkv@debug@fam @ceast@canchor}}\fi%
+}
+
+% no contour for union
+
+\newcommand{\gtrdebugdrawcontour}[2]{%
+  \gtrset{debug/.cd,family number=1,contour=both,tikz@options={draw,#2},#1}%
+  \csuse{gtr@debug@contour@\csuse{gtr@fam@\gtrkv@debug@fam @type}@\gtrkv@timeflow}%
+}
+
+\def\gtr@show@family@id#1{%
+  \node[fill=white,fill opacity=0.8,outer sep=0pt,inner sep=2pt] at (f@#1)
+  {\ifcsvoid{gtr@fam@#1@id}{\def\gtr@temp{???}}{\letcs\gtr@temp{gtr@fam@#1@id}}%
+    \ttfamily\expandafter\detokenize\expandafter{\gtr@temp}};
+}
+
+\def\gtr@show@family@number#1{%
+  \node[fill=white,fill opacity=0.8,outer sep=0pt,inner sep=2pt] at (f@#1)
+  {\ttfamily\expandafter\detokenize\expandafter{#1}};
+}
+
+\gtrset{
+  show/.style={box={finish={%
+    \node[fill=white,fill opacity=0.8,outer sep=0pt,inner sep=2pt] at (frame.center) {%
+      \setbox0=\hbox{\resizebox{\the\dimexpr\tcb@width-4pt}{!}{\bfseries#1}}%
+      \ifdim\dimexpr\ht0+\dp0>\dimexpr\tcb@height-4pt\relax%
+        \resizebox*{!}{\the\dimexpr\tcb@height-4pt}{\usebox0}%
+      \else%
+        \usebox0%
+      \fi%
+      };}}},
+  show@family@number/.style={after tree={%
+    \begin{scope}%
+      \ifgtr@timeflow@vertical\else\tikzset{every node/.style={rotate=90,transform shape}}\fi%
+      \gtr@forall@families{\gtr@show@family@number}%
+    \end{scope}%
+  }},
+  show@family@id/.style={after tree={%
+    \begin{scope}%
+      \ifgtr@timeflow@vertical\else\tikzset{every node/.style={rotate=90,transform shape}}\fi%
+      \gtr@forall@families{\gtr@show@family@id}%
+    \end{scope}%
+  }},
+  show number/.style={show={\ttfamily\gtr@currentperson},show@family@number},
+  show family/.style={show={\ttfamily\gtr@currentfamily},show@family@number},
+  show id/.style={show={\ttfamily\gtrnodeid},show@family@id%
+  },
+  show level/.style={show={\ttfamily\number\gtr@c@level}},
+  show type/.style={show={\ttfamily\strut\gtrnodetype}},
+}

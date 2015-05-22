@@ -1,0 +1,238 @@
+%% The LaTeX package genealogytree - version 0.90 (2015/05/22)
+%% gtrcore.symbols.code.tex: Symbols
+%%
+%% -------------------------------------------------------------------------------------------
+%% Copyright (c) 2013-2015 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% -------------------------------------------------------------------------------------------
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status `author-maintained'.
+%%
+%% This work consists of all files listed in README
+%%
+\gtr@set@library@version{0.90}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Symbols
+%%%%%%%%%%%%%%%%%%%%%%%
+
+% hide from externalization
+\let\gtr@tikzpicture\tikzpicture%
+\let\endgtr@tikzpicture\endtikzpicture%
+
+\colorlet{gtrsymbol}{black}
+
+\def\gtr@symbol@draw#1{\csname gtr@sym@#1@pic\endcsname}
+
+% Draw every time
+\newcommand{\gtrSymbolsSetDraw}[1]{%
+  \colorlet{gtrsymbol}{#1}%
+  \let\gtr@symbol@core\gtr@symbol@draw%
+}
+
+\def\gtr@symbol@copy#1{\copy\csname gtr@sym@#1@box\endcsname}
+
+% Draw once, copy the rest of the time
+\newcommand{\gtrSymbolsSetCreate}[1]{%
+  \colorlet{gtrsymbol}{#1}%
+  \let\gtr@symbol@core\gtr@symbol@copy%
+  \gtr@symbol@box@hook%
+}
+
+\newcommand{\gtrSymbolsSetCreateSelected}[2]{%
+  \colorlet{gtrsymbol}{#1}%
+  \let\gtr@symbol@core\gtr@symbol@copy%
+  \def\do##1{%
+    \begingroup\edef\x{\endgroup\noexpand\setbox\expandonce{\csname gtr@sym@##1@box\endcsname}%
+      =\noexpand\color@hbox\expandonce{\csname gtr@sym@##1@pic\endcsname}\noexpand\color@endbox}%
+    \x}%
+  \docsvlist{#2}%
+}
+
+\def\gtr@symbol@print#1{%
+  \gtrlistseparator%
+  \csuse{gtrsym#1}=\csuse{gtr@sym@#1@text}%
+}
+
+\def\gtr@symbol@do#1{\gtr@symbol@print{#1}}
+\def\gtr@symbol@dont#1{}
+\def\gtr@symbol@record#1{\global\cslet{gtr@sym@#1@print}{\gtr@symbol@do}}
+
+
+\newcommand*{\gtrSymbolsRecordReset}{%
+  \def\do##1{\cslet{gtr@sym@##1@print}{\gtr@symbol@dont}}%
+  \dolistloop{\gtr@symbol@list}%
+}
+
+\newcommand*{\gtrSymbolsFullLegend}[1][]{%
+  \begin{gtrprintlist}{}{\unskip,\ }{\unskip.}{}%
+    \def\temp@a{#1}\ifx\temp@a\@empty\else\gtrset{language=#1}\fi%
+    \def\gtr@symbol@record##1{}%
+    \forlistloop{\gtr@symbol@print}{\gtr@symbol@list}%
+  \end{gtrprintlist}%
+}
+
+\newcommand*{\gtrSymbolsLegend}[1][]{%
+  \begin{gtrprintlist}{}{\unskip,\ }{\unskip.}{}%
+    \def\temp@a{#1}\ifx\temp@a\@empty\else\gtrset{language=#1}\fi%
+    \def\gtr@symbol@record##1{}%
+    \def\do##1{\csuse{gtr@sym@##1@print}{##1}}%
+    \dolistloop{\gtr@symbol@list}%
+  \end{gtrprintlist}%
+}
+
+\def\gtr@symbol@core#1#2{%
+  \expandafter\def\csname gtrsym#1\endcsname{\gtr@symbol@record{#1}#2}%
+  \begingroup\edef\x{\endgroup\noexpand\gtrset{symlang/#1/.store in=\expandonce{\csname gtr@sym@#1@text\endcsname}}}\x%
+  \cslet{gtr@sym@#1@print}{\gtr@symbol@dont}%
+  \listeadd{\gtr@symbol@list}{#1}%
+}
+
+\def\gtr@symbol@factory#1#2#3{%
+  \expandafter\newbox\csname gtr@sym@#1@box\endcsname%
+  \expandafter\def\csname gtr@sym@#1@pic\endcsname{#2}%
+  \gtr@symbol@core{#1}{%
+    \edef\gtr@scale{\strip@pt\dimexpr#3\dimexpr\f@size pt\relax}%
+    \scalebox{\gtr@scale}{\gtr@symbol@core{#1}}}%
+  \eappto\gtr@symbol@box@hook{\noexpand\setbox\expandonce{\csname gtr@sym@#1@box\endcsname}%
+    =\noexpand\color@hbox\expandonce{\csname gtr@sym@#1@pic\endcsname}\noexpand\color@endbox}%
+}
+
+\gtr@symbol@factory{Born}{%
+  \begin{gtr@tikzpicture}[line width=4mm,color=gtrsymbol]%
+    \path[use as bounding box] (-1.1,-0.926574) rectangle (1.1,1);
+    \draw (0,0)--(18:1cm);
+    \draw (0,0)--(90:1cm);
+    \draw (0,0)--(162:1cm);
+    \draw (0,0)--(234:1cm);
+    \draw (0,0)--(306:1cm);
+  \end{gtr@tikzpicture}%
+}{0.012}
+
+\gtr@symbol@core{Bornoutofwedlock}{%
+  \textcolor{gtrsymbol}{\normalfont\sffamily(\kern-.125em{\def\gtr@symbol@record##1{}\gtrsymBorn}\kern-.125em)}%
+}
+
+\gtr@symbol@core{Stillborn}{{\def\gtr@symbol@record##1{}\gtrsymDied\gtrsymBorn}}
+
+\gtr@symbol@core{Diedonbirthday}{\textcolor{gtrsymbol}{{\def\gtr@symbol@record##1{}\gtrsymBorn\gtrsymDied}}}
+
+\gtr@symbol@factory{Baptized}{%
+  \begin{gtr@tikzpicture}[line width=4mm,xscale=0.5,baseline=-7mm,color=gtrsymbol]%
+    \path[use as bounding box] (-0.45,-0.5) rectangle (6.45,1.5);
+    \draw (0,0) .. controls (0.5,0.4) and (1.5,0.4) .. (2,0) .. controls (2.5,-0.4) and (3.5,-0.4) .. (4,0) .. controls (4.5,0.4) and (5.5,0.4) .. (6,0);
+    \draw (0,1) .. controls (0.5,1.4) and (1.5,1.4) .. (2,1) .. controls (2.5,0.6) and (3.5,0.6) .. (4,1) .. controls (4.5,1.4) and (5.5,1.4) .. (6,1);
+  \end{gtr@tikzpicture}%
+}{0.009}%
+
+\gtr@symbol@factory{Engaged}{%
+  \begin{gtr@tikzpicture}[line width=3mm,color=gtrsymbol]%
+    \path[use as bounding box] (-1.15,-1.05) rectangle (1.15,1.05);
+    \draw (0,0) circle (9mm);
+  \end{gtr@tikzpicture}%
+}{0.011}%
+
+\gtr@symbol@factory{Married}{%
+  \begin{gtr@tikzpicture}[line width=3mm,color=gtrsymbol]%
+    \path[use as bounding box] (-1.65,-1.05) rectangle (1.65,1.05);
+    \draw (-0.50,0) +(-40:9mm) arc (-40:285:9mm);
+    \draw (0.50,0) +(-220:9mm) arc (-220:105:9mm);
+  \end{gtr@tikzpicture}%
+}{0.011}%
+
+\gtr@symbol@factory{Divorced}{%
+  \begin{gtr@tikzpicture}[line width=3mm,color=gtrsymbol]%
+    \path[use as bounding box] (-2.35,-1.05) rectangle (2.35,1.05);
+    \draw (-1.2,0) circle (9mm);
+    \draw (0,-0.9)--(0,0.9);
+    \draw (1.2,0) circle (9mm);
+  \end{gtr@tikzpicture}%
+}{0.011}%
+
+\gtr@symbol@factory{Partnership}{%
+  \begin{gtr@tikzpicture}[line width=3mm,color=gtrsymbol]%
+    \path[use as bounding box] (-2.65,-1.05) rectangle (2.65,1.05);
+    \draw (-1.5,0) circle (9mm);
+    \draw (-0.5,0)--(0.5,0);
+    \draw (1.5,0) circle (9mm);
+  \end{gtr@tikzpicture}%
+}{0.011}%
+
+\gtr@symbol@factory{Died}{%
+  \begin{gtr@tikzpicture}[line width=4mm,baseline=2mm,color=gtrsymbol]%
+    \path[use as bounding box] (-0.8,0) rectangle +(1.6,2.2);
+    \draw (0,0)--(0,2.2);
+    \draw (-0.7,1.5)--+(1.4,0);
+  \end{gtr@tikzpicture}%
+}{0.012}%
+
+\gtr@symbol@factory{Killed}{%
+  \begin{gtr@tikzpicture}[line width=2mm,baseline=1mm,color=gtrsymbol]%
+    \path[use as bounding box] (-0.94,-0.08) rectangle (0.94,1.9);
+    \foreach \v in {,-}
+    {
+      \begin{scope}[xshift=\v7mm,rotate=\v40]
+      \fill (-0.1,0) [rounded corners=0.5mm] -- (-0.1,1.8) -- (0,2.5)
+          -- (0.1,1.8)[sharp corners] -- (0.1,0) -- cycle;
+      \draw (-0.4,0.4) -- (0.4,0.4);
+      \end{scope}
+    }
+  \end{gtr@tikzpicture}%
+}{0.0133}%
+
+\gtr@symbol@factory{Buried}{%
+  \begin{gtr@tikzpicture}[line width=3mm,baseline=2mm,color=gtrsymbol]%
+    \path[use as bounding box] (-0.86,-.15) rectangle (0.86,2.35);
+    \draw[draw,fill,fill opacity=0.25] (-0.3,0) -- (-0.6,1.5) -- (-0.3,2.2) -- (0.3,2.2) -- (0.6,1.5) -- (0.3,0) -- cycle;
+  \end{gtr@tikzpicture}%
+}{0.011}%
+
+\gtr@symbol@factory{Funeralurn}{%
+  \begin{gtr@tikzpicture}[line width=2mm,,color=gtrsymbol]%
+    \path[use as bounding box] (-0.78,-0.1) rectangle (0.78,1.9);
+    \path[fill,fill opacity=0.25] (-0.3,0) -- (-0.6,1.2) -- (0.6,1.2) -- (0.3,0) -- cycle;
+    \path[draw] (-0.3,0)[rounded corners=2mm] -- (-0.6,1.2)[sharp corners] -- (-0.3,1.6) --
+          (0.3,1.6)[rounded corners=2mm] -- (0.6,1.2)[sharp corners] -- (0.3,0) -- cycle;
+    \fill (0,1.7) circle (2mm);
+  \end{gtr@tikzpicture}%
+}{0.011}%
+
+\gtr@symbol@factory{Female}{%
+  \begin{gtr@tikzpicture}[line width=2mm,baseline=-13mm,color=gtrsymbol]%
+    \path[use as bounding box] (-0.9,-1.8) rectangle (0.9,0.8);
+    \draw (0,0) circle (7mm);
+    \draw (270:7mm) -- (270:18mm);
+    \draw (-0.4,-1.3)--(0.4,-1.3);
+  \end{gtr@tikzpicture}%
+}{0.011}%
+
+\gtr@symbol@factory{Male}{%
+  \begin{gtr@tikzpicture}[line width=2mm,color=gtrsymbol]%
+    \path[use as bounding box] (-0.9,-0.8) rectangle (1.33,1.28);
+    \draw (0,0) circle (7mm);
+    \draw[arrows = {-Straight Barb[]}] (45:7mm) -- (45:18mm);
+  \end{gtr@tikzpicture}%
+}{0.011}%
+
+\gtr@symbol@factory{Neuter}{%
+  \begin{gtr@tikzpicture}[line width=2mm,baseline=-13mm,color=gtrsymbol]%
+    \path[use as bounding box] (-0.9,-1.8) rectangle (0.9,0.8);
+    \draw (0,0) circle (7mm);
+    \draw (270:7mm) -- (270:18mm);
+  \end{gtr@tikzpicture}%
+}{0.011}%
+
+\gtrset{%
+  symbols record reset/.code={\gtrSymbolsRecordReset},
+  symbols record reset
+}
+
+\AtBeginDocument{%
+  \gtrSymbolsSetCreate{gtrsymbol}}

@@ -1,0 +1,939 @@
+%% The LaTeX package genealogytree - version 0.90 (2015/05/22)
+%% gtrcore.node.code.tex: Node Boxes
+%%
+%% -------------------------------------------------------------------------------------------
+%% Copyright (c) 2013-2015 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% -------------------------------------------------------------------------------------------
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status `author-maintained'.
+%%
+%% This work consists of all files listed in README
+%%
+\gtr@set@library@version{0.90}
+
+%%%%%%%%%%%%%%
+% Processors %
+
+\gtrset{%
+  setNodeDimensionsFit/.code={\tcbset{%
+    gtrNodeDimensions/.style={%
+      width=\gtrNodeMinWidth,
+      fit width plus=\dimexpr\gtrNodeMaxWidth-\gtrNodeMinWidth\relax,
+      height=\gtrNodeMinHeight,
+      fit height plus=\dimexpr\gtrNodeMaxHeight-\gtrNodeMinHeight\relax},%
+    gtrNodeDimensionsLandscape/.style={%
+      height=\gtrNodeMinWidth,
+      fit height plus=\dimexpr\gtrNodeMaxWidth-\gtrNodeMinWidth\relax,
+      width=\gtrNodeMinHeight,
+      fit width plus=\dimexpr\gtrNodeMaxHeight-\gtrNodeMinHeight\relax}}%
+  },%
+  setNodeDimensionsTColorBox/.code={\tcbset{%
+    gtrNodeDimensions/.style={%
+      width=\gtrNodeMinWidth,
+      height=\gtrNodeMinHeight,
+      height plus=\dimexpr\gtrNodeMaxHeight-\gtrNodeMinHeight\relax},%
+    gtrNodeDimensionsLandscape/.style={%
+      height=\gtrNodeMinWidth,
+      height plus=\dimexpr\gtrNodeMaxWidth-\gtrNodeMinWidth\relax,
+      width=\gtrNodeMinHeight}}%
+  },%
+  setNodeDimensionsTCBox/.code={\tcbset{%
+    gtrNodeDimensions/.style={%
+      height=\gtrNodeMinHeight,
+      height plus=\dimexpr\gtrNodeMaxHeight-\gtrNodeMinHeight\relax},%
+    gtrNodeDimensionsLandscape/.style={%
+      height=\gtrNodeMinWidth,
+      height plus=\dimexpr\gtrNodeMaxWidth-\gtrNodeMinWidth\relax}}%
+  },%
+  setNodeDimensionsTikz/.code={\tikzset{%
+    gtrNodeDimensions/.style={%
+      minimum width=\gtrNodeMinWidth,
+      minimum height=\gtrNodeMinHeight},%
+    gtrNodeDimensionsLandscape/.style={%
+      minimum width=\gtrNodeMinHeight,
+      minimum height=\gtrNodeMinWidth}}%
+  },
+}
+
+
+\gtrset{processing/fit/.style={%
+  no content interpreter,
+  node processor=\gtr@boxcontent@fit,
+  setNodeDimensionsFit
+}}
+\newcommand{\gtr@boxcontent@fit}{%
+  \edef\gtr@current@fontsize{\f@size pt}%
+  \tcboxfit[%
+    gtrNodeDimensions,
+    enhanced,clip upper,
+    hyphenationfix,nobeforeafter,boxsep=1pt,
+    fit basedim=\gtr@current@fontsize,fit skip=1.05,
+    top=0.2\tcbfitdim,bottom=0.2\tcbfitdim,
+    left=0.2\tcbfitdim,right=0.2\tcbfitdim,
+    middle=0.2\tcbfitdim,
+    fit fontsize macros,fonttitle=\normalsize,
+    code={\pgfkeysalsofrom{\gtrNodeBoxOptions}}
+    ]{\gtrBoxContent}%
+}
+
+
+\gtrset{processing/tcolorbox/.style={%
+  no content interpreter,
+  node processor=\gtr@boxcontent@tcolorbox,
+  setNodeDimensionsTColorBox
+}}
+\newcommand{\gtr@boxcontent@tcolorbox}{%
+  \begin{tcolorbox}[%
+    gtrNodeDimensions,enhanced,hyphenationfix,nobeforeafter,
+    code={\pgfkeysalsofrom{\gtrNodeBoxOptions}}
+    ]%
+  \gtrBoxContent%
+  \end{tcolorbox}%
+}
+
+
+\gtrset{processing/tcbox/.style={%
+  no content interpreter,
+  node processor=\gtr@boxcontent@tcbox,
+  setNodeDimensionsTCBox
+}}
+\newcommand{\gtr@boxcontent@tcbox}{%
+  \tcbox[%
+    enhanced,clip upper,hyphenationfix,nobeforeafter,
+    code={\pgfkeysalsofrom{\gtrNodeBoxOptions}}
+    ]{\gtrBoxContent}%
+}
+
+\gtrset{processing/tcbox*/.style={%
+  no content interpreter,
+  node processor=\gtr@boxcontent@tcboxstar,
+  setNodeDimensionsTColorBox
+}}
+\newcommand{\gtr@boxcontent@tcboxstar}{%
+  \tcbox[%
+    gtrNodeDimensions,enhanced,clip upper,hyphenationfix,nobeforeafter,
+    valign=center,tcbox width=minimum center,
+    code={\pgfkeysalsofrom{\gtrNodeBoxOptions}}
+    ]{\gtrBoxContent}%
+}
+
+\tikzset{gtr@set@boxoptions/.code={\pgfkeysalsofrom{\gtrNodeBoxOptions}}}
+\gtrset{processing/tikznode/.style={%
+  no content interpreter,
+  node processor=\gtr@boxcontent@tikznode,
+  setNodeDimensionsTikz
+}}
+\newcommand{\gtr@boxcontent@tikznode}{%
+  \tikz\node[outer sep=0pt,gtr@set@boxoptions]{\gtrBoxContent};%
+}
+
+
+\gtrset{processing/database/.style={%
+  database content interpreter,
+  node processor=\gtr@boxcontent@fit,
+  setNodeDimensionsFit,
+}}
+
+
+\gtrset{
+  content interpreter/.store in=\gtr@box@content@interpreter,
+  content interpreter code/.code={\long\def\gtr@box@content@interpreter##1{#1}},
+  content interpreter content/.style={content interpreter code={\long\def\gtrBoxContent{#1}}},
+  no content interpreter/.style={content interpreter content={##1}},
+  deletion content interpreter/.style={content interpreter content=},
+  database content interpreter/.style={content interpreter code={%
+    \gtrset{database/.cd,db@reset,##1}%
+    \gtrOptionsDatabase%
+    \let\gtrBoxContent\gtrPrintDatabase%
+  }},
+  id content interpreter/.style={content interpreter code={%
+    \gtrset{id=##1,code={\gtr@key@keysalsofrom{/gtr/nopt/\gtr@gkv@id}}}%
+    \long\def\gtrBoxContent{##1}%
+  }},
+  content interpreter id and content/.style 2 args={%
+    content interpreter code={%
+      \long\def\gtrBoxContent{#2}%
+      \begingroup\edef\x{\endgroup\noexpand\gtrset{id=#1}}\x%
+      \gtrset{code={\gtr@key@keysalsofrom{/gtr/nopt/\gtr@gkv@id}}}%
+    }%
+  },
+}
+
+
+%%%%%%%%%%%%%%%%%
+% Database Keys %
+
+\gtrset{%
+  database unknown key/.is choice,
+  database unknown key/ignore/.style={database/.unknown/.code=},
+  database unknown key/save/.style={database/.unknown/.style={%
+    save/\pgfkeyscurrentname/.initial={##1}%
+  }},
+  database unknown key/warn/.style={database/.unknown/.code={%
+    \gtr@warning{The database key '\pgfkeyscurrentname' is unknown}%
+  }},
+  database unknown key/error/.style={database/.unknown/.code={%
+    \gtr@error{The database key '\pgfkeyscurrentname' is unknown}{%
+      Perhaps you misspelled it or forgot to define a code for it.}%
+  }},
+  database unknown key=warn,
+  image prefix/.store in=\gtr@image@prefix,
+  image prefix=,
+  database/image/.code={%
+    \begingroup\edef\x{\endgroup\noexpand\def\noexpand\gtrDBimage{\expandonce{\gtr@image@prefix}\unexpanded{#1}}}%
+    \x%
+    },
+}
+
+\def\gtr@db@new@store#1{%
+  \begingroup\edef\x{\endgroup\noexpand\gtrset{database/#1/.store in=\expandonce{\csname gtrDB#1\endcsname}}}%
+  \x%
+}
+
+\gtr@db@new@store{name}
+\gtr@db@new@store{shortname}
+\gtr@db@new@store{comment}
+\gtr@db@new@store{sex}
+\gtr@db@new@store{uuid}
+\gtr@db@new@store{kekule}
+\gtr@db@new@store{relationship}
+
+\def\gtr@db@new@event@store#1{%
+  \begingroup\edef\x{\endgroup\noexpand\gtrset{%
+    database/#1+/.code n args={3}{%
+      \noexpand\gtrParseDate{#1}{\unexpanded{##1}}%
+      \noexpand\def\expandonce{\csname gtrDB#1place\endcsname}{\unexpanded{##2}}%
+      \noexpand\def\expandonce{\csname gtrDB#1mod\endcsname}{\unexpanded{##3}}},%
+    database/#1/.style 2 args={#1+={\unexpanded{##1}}{\unexpanded{##2}}{}},%
+    database/#1-/.style={#1+={\unexpanded{##1}}{}{}},%
+    }}%
+  \x%
+}
+
+\gtr@db@new@event@store{birth}%
+\gtr@db@new@event@store{baptism}%
+\gtr@db@new@event@store{engagement}%
+\gtr@db@new@event@store{marriage}%
+\gtr@db@new@event@store{divorce}%
+\gtr@db@new@event@store{death}%
+\gtr@db@new@event@store{burial}%
+
+\gtrset{%
+  database/.cd,
+  male/.style={sex=male},
+  female/.style={sex=female},
+  neuter/.style={sex=neuter},
+  db@reset/.style={name=,shortname=,sex=neuter},
+}
+
+\tcbset{%
+  male/.style={colframe=blue},
+  female/.style={colframe=red},
+  neuter/.style={},
+  if image defined/.code 2 args={\gtrifimagedefined{\tcbset{#1}}{\tcbset{#2}}},
+}
+
+\gtrset{
+  event prefix/.cd,
+  birth/.initial=\gtrsymBorn,
+  birth/out of wedlock/.initial=\gtrsymBornoutofwedlock,
+  birth/stillborn/.initial=\gtrsymStillborn,
+  birth/died/.initial=\gtrsymDiedonbirthday,
+  baptism/.initial=\gtrsymBaptized,
+  engagement/.initial=\gtrsymEngaged,
+  marriage/.initial=\gtrsymMarried,
+  marriage/other/.initial=\gtrsymPartnership,
+  divorce/.initial=\gtrsymDivorced,
+  death/.initial=\gtrsymDied,
+  death/killed/.initial=\gtrsymKilled,
+  burial/.initial=\gtrsymBuried,
+  burial/cremated/.initial=\gtrsymFuneralurn,
+}
+
+\gtrset{
+  sex@/female/.code=\gtrsymFemale,
+  sex@/f/.code=\gtrsymFemale,
+  sex@/male/.code=\gtrsymMale,
+  sex@/m/.code=\gtrsymMale,
+  sex@/neuter/.code=\gtrsymNeuter,
+  sex@/n/.code=\gtrsymNeuter,
+  sex@/.unknown/.code=\gtrsymNeuter,
+}
+
+\def\gtrPrintEventPrefix#1{%
+  \letcs\gtr@temp{gtrDB#1mod}%
+  \ifdefvoid{\gtr@temp}{%
+    \pgfkeysvalueof{/gtr/event prefix/#1}%
+  }{%
+    \pgfkeysvalueof{/gtr/event prefix/#1/\gtr@temp}%
+  }%
+}
+
+\def\gtrDBsex{neuter}
+
+\def\gtriffemale#1#2{%
+  \ifdefstring{\gtrDBsex}{female}{#1}{#2}%
+}
+
+\def\gtrifmale#1#2{%
+  \ifdefstring{\gtrDBsex}{male}{#1}{#2}%
+}
+
+\def\gtrPrintSex{\gtrset{sex@/\gtrDBsex}}
+
+
+%%%%%%%%%
+% Names %
+
+\let\pref=\textit
+\let\surn=\textsc
+\def\nick#1{``#1''}
+
+\def\gtrPrintName@full{{%
+  \hspace{0pt}%
+  \ifdefvoid{\gtrDBname}{%
+    \ifdefvoid{\gtrDBshortname}{%
+      \gtrkv@namefont\gtr@emptynametext%
+    }{%
+      \gtrkv@namefont\gtrDBshortname%
+    }%
+  }{%
+    \gtrkv@namefont\gtrDBname%
+  }%
+}}
+
+
+\def\gtrPrintName@short{{%
+  \hspace{0pt}%
+  \ifdefvoid{\gtrDBshortname}{%
+    \ifdefvoid{\gtrDBname}{%
+      \gtrkv@namefont\gtr@emptynametext%
+    }{%
+      \gtrkv@namefont\gtrDBname%
+    }%
+  }{%
+    \gtrkv@namefont\gtrDBshortname%
+  }%
+}}
+
+\gtrset{%
+  name/.is choice,
+  name/full/.code={\let\gtrPrintName\gtrPrintName@full},
+  name/short/.code={\let\gtrPrintName\gtrPrintName@short},
+  name font/.store in=\gtrkv@namefont,
+  name code/.code={\def\gtrPrintName{#1}},
+  pref code/.code={\def\pref##1{#1}},
+  surn code/.code={\def\surn##1{#1}},
+  nick code/.code={\def\nick##1{#1}},
+  empty name text/.store in=\gtr@emptynametext,
+}
+
+\gtrset{%
+  name=full,
+  name font=,
+  empty name text=??,
+}
+
+
+%%%%%%%%%%
+% Events %
+
+\def\gtrlistseparator{}
+
+\newenvironment{gtrprintlist}[4]{%
+  \def\gtrlistseparatorfinal{#4}%
+  \def\gtrlistseparator{#1\def\gtrlistseparator{#2}\def\gtrlistseparatorfinal{#3}}%
+}{\gtrlistseparatorfinal}
+
+\newenvironment{gtreventlist}{}{}
+
+\gtrset{%
+  database format/.is choice,
+  list separators/.code n args={4}{\renewenvironment{gtreventlist}{\begin{gtrprintlist}{#1}{#2}{#3}{#4}}{\end{gtrprintlist}}},
+  list separators hang/.style={list separators={\par\hangindent=#1\hangafter=1}%
+    {\par\hangindent=#1\hangafter=1}{\par}{\par}},
+  list separators hang/.default=\tcbfitdim,
+  list separators={\par}{\par}{\par}{\par},
+}
+
+\newcommand{\gtrDeclareDatabaseFormat}[3]{%
+  \csdef{gtrOptionsDatabase@#1}{#2}%
+  \csdef{gtrPrintDatabase@#1}{#3}%
+  \begingroup\edef\x{\endgroup\noexpand\gtrset{database format/#1/.code={%
+    \noexpand\letcs{\noexpand\gtrOptionsDatabase}{gtrOptionsDatabase@#1}%
+    \noexpand\letcs{\noexpand\gtrPrintDatabase}{gtrPrintDatabase@#1}%
+  }}}%
+  \x%
+}
+
+\def\gtr@list@event#1{\gtrifeventdefined{#1}{\gtrlistseparator\hspace{0pt}\gtrPrintEvent{#1}}{}}
+
+\gtrDeclareDatabaseFormat{full}{}{%
+  \gtrPrintName%
+  \begin{gtreventlist}%
+    \gtr@list@event{birth}%
+    \gtr@list@event{baptism}%
+    \gtr@list@event{engagement}%
+    \gtr@list@event{marriage}%
+    \gtr@list@event{divorce}%
+    \gtr@list@event{death}%
+    \gtr@list@event{burial}%
+  \end{gtreventlist}%
+  \gtrifcommentdefined{\gtrPrintComment}{}%
+}
+
+\def\gtr@ifmarriagedefined#1#2{%
+  \gtrifeventdefined{marriage}{#1}{%
+    \gtrifeventdefined{engagement}{#1}{%
+      \gtrifeventdefined{divorce}{#1}{#2}%
+    }%
+  }%
+}
+
+\gtrDeclareDatabaseFormat{full marriage above}{}{%
+  \gtr@ifmarriagedefined{%
+    \begin{gtreventlist}%
+      \gtr@list@event{engagement}%
+      \gtr@list@event{marriage}%
+      \gtr@list@event{divorce}%
+    \end{gtreventlist}\tcbline%
+  }{}%
+  \gtrPrintName%
+  \begin{gtreventlist}%
+    \gtr@list@event{birth}%
+    \gtr@list@event{baptism}%
+    \gtr@list@event{death}%
+    \gtr@list@event{burial}%
+  \end{gtreventlist}%
+  \gtrifcommentdefined{\gtrPrintComment}{}%
+}
+
+\gtrDeclareDatabaseFormat{full marriage below}{}{%
+  \gtrPrintName%
+  \begin{gtreventlist}%
+    \gtr@list@event{birth}%
+    \gtr@list@event{baptism}%
+    \gtr@list@event{death}%
+    \gtr@list@event{burial}%
+  \end{gtreventlist}%
+  \gtrifcommentdefined{\gtrPrintComment}{}%
+  \gtr@ifmarriagedefined{%
+    \tcbline\begin{gtreventlist}%
+      \gtr@list@event{engagement}%
+      \gtr@list@event{marriage}%
+      \gtr@list@event{divorce}%
+    \end{gtreventlist}%
+  }{}%
+}
+
+\gtrDeclareDatabaseFormat{full no marriage}{}{%
+  \gtrPrintName%
+  \begin{gtreventlist}%
+    \gtr@list@event{birth}%
+    \gtr@list@event{baptism}%
+    \gtr@list@event{death}%
+    \gtr@list@event{burial}%
+  \end{gtreventlist}%
+  \gtrifcommentdefined{\gtrPrintComment}{}%
+}
+
+\def\gtr@list@event@birth{%
+  \gtrifeventdefined{birth}{\gtrlistseparator\gtrPrintEvent{birth}}{%
+    \gtr@list@event{baptism}%
+  }%
+}
+
+\def\gtr@list@event@marriage{%
+  \gtrifeventdefined{marriage}{\gtrlistseparator\gtrPrintEvent{marriage}}{%
+    \gtrifeventdefined{engagement}{\gtrlistseparator\gtrPrintEvent{engagement}}{%
+      \gtr@list@event{divorce}%
+    }%
+  }%
+}
+
+\def\gtr@list@event@death{%
+  \gtrifeventdefined{death}{\gtrlistseparator\gtrPrintEvent{death}}{%
+    \gtr@list@event{burial}%
+  }%
+}
+
+\gtrDeclareDatabaseFormat{medium}{}{%
+  \gtrPrintName%
+  \begin{gtreventlist}%
+    \gtr@list@event@birth%
+    \gtr@list@event@marriage%
+    \gtr@list@event@death%
+  \end{gtreventlist}%
+  \gtrifcommentdefined{\gtrPrintComment}{}%
+}
+
+\gtrDeclareDatabaseFormat{medium marriage above}{}{%
+  \gtr@ifmarriagedefined{\begin{gtreventlist}\gtr@list@event@marriage\end{gtreventlist}\tcbline}{}%
+  \gtrPrintName%
+  \begin{gtreventlist}%
+    \gtr@list@event@birth%
+    \gtr@list@event@death%
+  \end{gtreventlist}%
+  \gtrifcommentdefined{\gtrPrintComment}{}%
+}
+
+\gtrDeclareDatabaseFormat{medium marriage below}{}{%
+  \gtrPrintName%
+  \begin{gtreventlist}%
+    \gtr@list@event@birth%
+    \gtr@list@event@death%
+  \end{gtreventlist}%
+  \gtrifcommentdefined{\gtrPrintComment}{}%
+  \gtr@ifmarriagedefined{\tcbline\begin{gtreventlist}\gtr@list@event@marriage\end{gtreventlist}}{}%
+}
+
+\gtrDeclareDatabaseFormat{medium no marriage}{}{%
+  \gtrPrintName%
+  \begin{gtreventlist}%
+    \gtr@list@event@birth%
+    \gtr@list@event@death%
+  \end{gtreventlist}%
+  \gtrifcommentdefined{\gtrPrintComment}{}%
+}
+
+\gtrDeclareDatabaseFormat{short}{}{%
+  \gtrPrintName%
+  \begin{gtreventlist}%
+    \gtr@list@event@birth%
+    \gtr@list@event@marriage%
+    \gtr@list@event@death%
+  \end{gtreventlist}%
+}
+
+\gtrDeclareDatabaseFormat{short marriage above}{}{%
+  \gtr@ifmarriagedefined{\begin{gtreventlist}\gtr@list@event@marriage\end{gtreventlist}\tcbline}{}%
+  \gtrPrintName%
+  \begin{gtreventlist}%
+    \gtr@list@event@birth%
+    \gtr@list@event@death%
+  \end{gtreventlist}%
+}
+
+\gtrDeclareDatabaseFormat{short marriage below}{}{%
+  \gtrPrintName%
+  \begin{gtreventlist}%
+    \gtr@list@event@birth%
+    \gtr@list@event@death%
+  \end{gtreventlist}%
+  \gtr@ifmarriagedefined{\tcbline\begin{gtreventlist}\gtr@list@event@marriage\end{gtreventlist}}{}%
+}
+
+\gtrDeclareDatabaseFormat{short no marriage}{}{%
+  \gtrPrintName%
+  \begin{gtreventlist}%
+    \gtr@list@event@birth%
+    \gtr@list@event@death%
+  \end{gtreventlist}%
+}
+
+\gtrDeclareDatabaseFormat{marriage}{}{%
+  \begin{gtreventlist}%
+    \gtr@list@event@marriage%
+  \end{gtreventlist}%
+}
+
+\gtrDeclareDatabaseFormat{name}{}{\gtrPrintName}
+
+\gtrDeclareDatabaseFormat{symbol}{}{\gtrPrintSex}
+
+\gtrDeclareDatabaseFormat{empty}{}{}
+
+\gtrset{%
+  database format=medium
+}
+
+\def\gtrPrintEvent@prefixdateplace#1{%
+  \gtrkv@event@pre\gtrPrintEventPrefix{#1}%
+  \gtrkv@event@sepdate\gtrPrintDate{#1}%
+  \gtrifplacedefined{#1}{\gtrkv@event@sepplace\gtrPrintPlace{#1}}{}%
+  \gtrkv@event@app%
+}
+
+\def\gtrPrintEvent@prefixdate#1{%
+  \gtrkv@event@pre\gtrPrintEventPrefix{#1}%
+  \gtrkv@event@sepdate\gtrPrintDate{#1}%
+  \gtrkv@event@app%
+}
+
+\def\gtrPrintEvent@date#1{%
+  \gtrkv@event@pre\gtrPrintDate{#1}%
+  \gtrkv@event@app%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+% Comment and Places %
+
+\def\gtrifcommentdefined#1#2{%
+  \ifdefvoid{\gtrDBcomment}{#2}{#1}%
+}
+
+\def\gtrifplacedefined#1#2#3{%
+  \ifcsvoid{gtrDB#1place}{#3}{#2}%
+}
+
+\def\gtrPrintPlace#1{%
+  \gtrkv@place@pre\csuse{gtrDB#1place}\gtrkv@place@app%
+}
+
+%%%%%%%%%
+% Dates %
+
+\def\gtr@parse@date@md#1#2#3\@nil{%
+  \ifblank{#3}{\csdef{#1}{0#2}}{\csdef{#1}{#2#3}}%
+}
+
+\def\gtr@parse@date@@cymd(#1)#2-#3-#4-#5\@nil{%
+  \csdef{\gtr@db@date@prefix@ cal}{#1}%
+  \csdef{\gtr@db@date@prefix@ year}{#2}%
+  \notblank{#3}{\gtr@parse@date@md{\gtr@db@date@prefix@ month}#3\@nil}{}%
+  \notblank{#4}{\gtr@parse@date@md{\gtr@db@date@prefix@ day}#4\@nil}{}%
+}
+
+\def\gtr@parse@date@cymd{%
+  \@ifnextchar({\gtr@parse@date@@cymd}{\gtr@parse@date@@cymd(AD)}%
+}
+
+\def\gtr@parse@date@begin#1{%
+  \let\gtr@db@date@prefix@\gtr@db@date@prefix%
+  \gtr@parse@date@cymd#1---\@nil%
+}
+
+\def\gtr@parse@date@end#1/{%
+  \edef\gtr@db@date@prefix@{\gtr@db@date@prefix end}%
+  \gtr@parse@date@cymd#1---\@nil%
+}
+
+\def\gtr@parse@date@range#1/#2\@nil{%
+  \ifblank{#2}{%
+    \ifblank{#1}{}{\gtr@parse@date@begin{#1}}%
+  }{%
+    \ifstrequal{#2}{/}{%
+      \ifblank{#1}{}{%
+        \csdef{\gtr@db@date@prefix endyear}{}%
+        \gtr@parse@date@begin{#1}%
+      }%
+    }{%
+      \ifblank{#1}{%
+        \csdef{\gtr@db@date@prefix year}{}%
+        \gtr@parse@date@end#2%
+      }{%
+        \gtr@parse@date@begin{#1}%
+        \gtr@parse@date@end#2%
+      }%
+    }%
+  }%
+}
+
+\def\gtr@parse@date#1#2{%
+  \csundef{#1cal}%
+  \csundef{#1day}%
+  \csundef{#1month}%
+  \csundef{#1year}%
+  \csundef{#1endcal}%
+  \csundef{#1endday}%
+  \csundef{#1endmonth}%
+  \csundef{#1endyear}%
+  \notblank{#2}{%
+    \gtr@parse@date@range#2/\@nil%
+  }{}%
+}
+
+\def\gtrParseDate#1{%
+  \edef\gtr@db@date@prefix{gtrDB#1}%
+  \gtr@parse@date{gtrDB#1}%
+}
+
+\def\gtr@strip@zero@0#1\@nil{#1}
+
+\def\gtr@strip@zero{%
+  \@ifnextchar0{\gtr@strip@zero@}{\gtr@strip@zero@0}%
+}
+
+\def\gtr@cs@strip@zero#1{%
+  \letcs\gtr@temp{#1}%
+  \expandafter\gtr@strip@zero\gtr@temp\@nil%
+}
+
+\def\gtr@cs@Roman#1{%
+  \letcs\gtr@temp{#1}%
+  \@Roman{\numexpr\gtr@temp}%
+}
+
+\def\gtr@cs@monthlong#1{%
+  \letcs\gtr@temp{#1}%
+  \pgfkeysvalueof{/gtr/month long/\gtr@temp}%
+}
+
+\def\gtr@cs@monthshort#1{%
+  {\letcs\gtr@temp{#1}%
+  \def\dot{}%
+  \pgfkeysvalueof{/gtr/month short/\gtr@temp}}%
+}
+
+\def\gtr@cs@monthshortdot#1{%
+  {\letcs\gtr@temp{#1}%
+  \def\dot{.}%
+  \pgfkeysvalueof{/gtr/month short/\gtr@temp}}%
+}
+
+\def\gtrifdatedefined#1#2#3{%
+  \ifcsdef{gtrDB#1year}{#2}{%
+    \ifcsdef{gtrDB#1endyear}{#2}{#3}%
+  }%
+}
+\let\gtrifeventdefined=\gtrifdatedefined
+
+\def\gtr@dateformat@factory#1#2{%
+  \csdef{gtrPrintDateCore@#1}##1{#2}%
+  \gtrset{date format/{#1}/.code={\letcs{\gtrPrintDateCore}{gtrPrintDateCore@#1}}}%
+}
+
+\gtr@dateformat@factory{dd.mm.yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\csuse{#1day}.}{}%
+    \csuse{#1month}.%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d.m.yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}.}{}%
+    \gtr@cs@strip@zero{#1month}.%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d.M.yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}.}{}%
+    \gtr@cs@Roman{#1month}.%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{dd/mm/yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\csuse{#1day}/}{}%
+    \csuse{#1month}/%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d/m/yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}/}{}%
+    \gtr@cs@strip@zero{#1month}/%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d/M/yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}/}{}%
+    \gtr@cs@Roman{#1month}/%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{mm/dd/yyyy}{%
+  \ifcsdef{#1month}{%
+    \csuse{#1month}/%
+    \ifcsdef{#1day}{\csuse{#1day}/}{}%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{m/d/yyyy}{%
+  \ifcsdef{#1month}{%
+    \gtr@cs@strip@zero{#1month}/%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}/}{}%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{yyyy-mm-dd}{%
+  \csuse{#1year}%
+  \ifcsdef{#1month}{%
+    -\csuse{#1month}%
+    \ifcsdef{#1day}{-\csuse{#1day}}{}%
+  }{}%
+}
+
+\gtr@dateformat@factory{yyyy}{%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d.month yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}.~}{}%
+    \gtr@cs@monthlong{#1month} %
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d month yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}~}{}%
+    \gtr@cs@monthlong{#1month} %
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{month d yyyy}{%
+  \ifcsdef{#1month}{%
+    \gtr@cs@monthlong{#1month}%
+    \ifcsdef{#1day}{ \gtr@cs@strip@zero{#1day}}{}, %
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d.mon.yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}.~}{}%
+    \gtr@cs@monthshortdot{#1month}\ %
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d/mon/yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}/}{}%
+    \gtr@cs@monthshort{#1month}/%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d mon yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day} }{}%
+    \gtr@cs@monthshort{#1month} %
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{dd-mon-yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\csuse{#1day}-}{}%
+    \gtr@cs@monthshort{#1month}-%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{dd/mon/yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\csuse{#1day}/}{}%
+    \gtr@cs@monthshort{#1month}/%
+  }{}%
+  \csuse{#1year}%
+}
+
+\def\gtr@print@date@single@calendar@all#1{%
+  \ifcsempty{#1year}{}{%
+    \letcs\gtr@temp{#1cal}%
+    \gtrset{calendar/\gtr@temp}%
+    \gtr@db@cal@pre%
+    \gtrPrintDateCore{#1}%
+    \gtr@db@cal@app%
+  }%
+}
+
+\def\gtr@print@date@single@calendar@AD#1{%
+  \ifcsempty{#1year}{}{%
+    \letcs\gtr@temp{#1cal}%
+    \ifdefstring{\gtr@temp}{AD}{%
+      \gtrPrintDateCore{#1}%
+    }{%
+      \ifdefstring{\gtr@temp}{caAD}{%
+        \gtrset{calendar/ca}%
+      }{%
+        \gtrset{calendar/\gtr@temp}%
+      }%
+      \gtr@db@cal@pre%
+      \gtrPrintDateCore{#1}%
+      \gtr@db@cal@app%
+    }%
+  }%
+}
+
+\def\gtr@print@date@single@calendar@none#1{%
+  \ifcsempty{#1year}{}{%
+    \gtrPrintDateCore{#1}%
+  }%
+}
+
+\def\gtrPrintDate#1{%
+  \ifcsdef{gtrDB#1year}{%
+    \ifcsdef{gtrDB#1endyear}{%
+      \ifcsempty{gtrDB#1endyear}{%
+        \gtrkv@range@after@A%
+        \gtr@print@date@single@calendar{gtrDB#1}%
+        \gtrkv@range@after@B%
+      }{%
+        \ifcsempty{gtrDB#1year}{%
+          \gtrkv@range@before@A%
+          \gtr@print@date@single@calendar{gtrDB#1end}%
+          \gtrkv@range@before@B%
+        }{%
+          \gtrkv@range@full@A%
+          \gtr@print@date@single@calendar{gtrDB#1}%
+          \gtrkv@range@full@B%
+          \gtr@print@date@single@calendar{gtrDB#1end}%
+          \gtrkv@range@full@C%
+        }%
+      }%
+    }{%
+      \gtr@print@date@single@calendar{gtrDB#1}%
+    }%
+  }{??}%
+}
+
+\def\gtrifimagedefined#1#2{%
+  \ifdefvoid{\gtrDBimage}{#2}{#1}%
+}
+
+\gtrset{%
+  calendar text for/.style args={#1 is #2#3}{calendar/#1/.code={\def\gtr@db@cal@pre{#2}\def\gtr@db@cal@app{#3}}},
+  calendar/.unknown/.code={\def\gtr@db@cal@pre{}\def\gtr@db@cal@app{ (\pgfkeyscurrentname)}},
+  date code/.code={\def\gtrPrintDateCore##1{#1}},
+  event code/.code={\def\gtrPrintEvent##1{#1}},
+  comment code/.code={\def\gtrPrintComment{#1}},
+  date format/.is choice,
+  calendar print/.is choice,
+  calendar print/all/.code={\let\gtr@print@date@single@calendar\gtr@print@date@single@calendar@all},
+  calendar print/none/.code={\let\gtr@print@date@single@calendar\gtr@print@date@single@calendar@none},
+  calendar print/all but AD/.code={\let\gtr@print@date@single@calendar\gtr@print@date@single@calendar@AD},
+  date range full/.code n args={3}{\def\gtrkv@range@full@A{#1}\def\gtrkv@range@full@B{#2}\def\gtrkv@range@full@C{#3}},
+  date range before/.code 2 args={\def\gtrkv@range@before@A{#1}\def\gtrkv@range@before@B{#2}},
+  date range after/.code 2 args={\def\gtrkv@range@after@A{#1}\def\gtrkv@range@after@B{#2}},
+  date range separator/.style={date range full={}{#1}{},date range before={#1}{},date range after={}{#1}},
+  place text/.code 2 args={\def\gtrkv@place@pre{#1}\def\gtrkv@place@app{#2}},
+  event text/.code n args={4}{\def\gtrkv@event@pre{#1}\def\gtrkv@event@sepdate{#2}\def\gtrkv@event@sepplace{#3}\def\gtrkv@event@app{#4}},
+  event format/.is choice,
+  event format/prefix date place/.code={\let\gtrPrintEvent=\gtrPrintEvent@prefixdateplace},
+  event format/prefix date/.code={\let\gtrPrintEvent=\gtrPrintEvent@prefixdate},
+  event format/date/.code={\let\gtrPrintEvent=\gtrPrintEvent@date},
+}
+
+\gtrset{%
+  date format=d.M.yyyy,
+  date range separator={--},
+  calendar print=all but AD,
+  event text={}{~}{ }{},
+  event format=prefix date place,
+  comment code={\hspace{0pt}{\itshape\gtrDBcomment}},
+}
