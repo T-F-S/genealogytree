@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 0.90 (2015/05/22)
+%% The LaTeX package genealogytree - version 0.91 (2015/06/22)
 %% gtrcore.drawing.code.tex: Drawing
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{0.90}
+\gtr@set@library@version{0.91}
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Drawing
@@ -25,13 +25,15 @@
 
 \tikzset{genealogytree edges scope/.style={}}
 
-\def\gtr@reset@after{%
+\def\gtr@reset@before@parser{%
   \global\def\gtrkv@after@parser{}%
   \def\gtrkv@after@tree{}%
   \def\gtr@parse@afternode@hook{}%
   \def\gtr@parse@afterfamily@hook{}%
   \def\gtr@parse@beginfamily@hook{}%
   \def\gtr@parse@endfamily@hook{}%
+  \def\gtr@kv@idprefix{}%
+  \def\gtr@kv@idsuffix{}%
   \undef\gtr@parse@afternode@hook@content%
   \undef\gtr@parse@afterfamily@hook@content%
   \undef\gtr@parse@beginfamily@hook@content%
@@ -45,7 +47,7 @@
       {\genealogytree\space can only be used inside a tikzpicture environment.
         Alternatively, use genealogypicture (see documentation).}%
   \fi%
-  \gtr@reset@after%
+  \gtr@reset@before@parser%
   \tcb@layer@pushup%
   \gtr@parsegraph[#1]{#2}%
   \gtrkv@after@parser%
@@ -67,14 +69,16 @@
       {genealogypicture cannot be used inside a tikzpicture environment.
         Alternatively, use \genealogytree\space (see documentation).}%
   \fi%
-  \gtr@reset@after%
-  \def\gtr@reset@after{}%
+  \gtr@reset@before@parser%
+  \def\gtr@reset@before@parser{}%
   \gtrset{#1}%
   \begingroup\edef\x{\endgroup\noexpand\begin{tikzpicture}[\expandonce\gtrkv@tikzpicture]%
     \noexpand\genealogytree{\expandonce\BODY}%
     \noexpand\end{tikzpicture}}%
   \x%
 }
+
+\newtcbexternalizeenvironment{exgenealogypicture}{genealogypicture}{}{}{}
 
 \newcommand{\genealogytreeinput}[2][]{\genealogytree[#1]{input{#2}}}
 

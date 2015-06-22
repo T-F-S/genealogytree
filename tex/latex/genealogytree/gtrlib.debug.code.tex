@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 0.90 (2015/05/22)
+%% The LaTeX package genealogytree - version 0.91 (2015/06/22)
 %% gtrlib.debug.code.tex: Debugger
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{0.90}
+\gtr@set@library@version{0.91}
 
 \RequirePackage{array,tabularx}
 \tcbuselibrary{breakable}
@@ -131,7 +131,7 @@
     Genealogytree Parser Debugger
     \ifblank{#1}{}{\par Graph Options: {\ttfamily\detokenize{#1}}}%
   \end{tcolorbox}%
-  \gtr@reset@after%
+  \gtr@reset@before@parser%
   \gtr@parsegraph[#1]{#2}%
   \begin{tcolorbox}[
     gtr@debug@box,after skip=\medskipamount,sharp corners,colframe=black!75!white,
@@ -298,7 +298,7 @@
     \ifblank{#1}{}{\par Graph Options: {\ttfamily\detokenize{#1}}}%
   \end{tcolorbox}%
   %
-  \gtr@reset@after%
+  \gtr@reset@before@parser%
   \gtr@parsegraph[#1]{#2}%
   \gtr@debug@family@loop{\gtr@num@fam@first}%
   %

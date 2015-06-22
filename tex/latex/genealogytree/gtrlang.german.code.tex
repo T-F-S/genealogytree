@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 0.90 (2015/05/22)
+%% The LaTeX package genealogytree - version 0.91 (2015/06/22)
 %% gtrlang.german.code.tex: German language
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,19 +17,19 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{0.90}
+\gtr@set@library@version{0.91}
 
 \gtrset{language@/german/.code={%
   \gtrset{symlang/.cd,
     Born=geboren,
-    Bornoutofwedlock=au\ss{}erehelich geboren,
+    Bornoutofwedlock=au\protect\ss{}erehelich geboren,
     Stillborn=tot geboren,
     Diedonbirthday=am Tag der Geburt gestorben,
     Baptized=getauft,
     Engaged=verlobt,
     Married=verheiratet,
     Divorced=geschieden,
-    Partnership=au\ss{}ereheliche Verbindung,
+    Partnership=au\protect\ss{}ereheliche Verbindung,
     Died=gestorben,
     Killed=gefallen,
     Buried=begraben,
@@ -42,7 +42,7 @@
     month long/.cd,
     01/.initial=Januar,
     02/.initial=Februar,
-    03/.initial=M\"arz,
+    03/.initial=M\protect\"arz,
     04/.initial=April,
     05/.initial=Mai,
     06/.initial=Juni,
@@ -55,28 +55,28 @@
   }%
   \gtrset{%
     month short/.cd,
-    01/.initial=Jan\dot,
-    02/.initial=Feb\dot,
-    03/.initial=M\"ar\dot,
-    04/.initial=Apr\dot,
+    01/.initial=Jan\protect\dot,
+    02/.initial=Feb\protect\dot,
+    03/.initial=M\protect\"ar\protect\dot,
+    04/.initial=Apr\protect\dot,
     05/.initial=Mai,
-    06/.initial=Jun\dot,
-    07/.initial=Jul\dot,
-    08/.initial=Aug\dot,
-    09/.initial=Sep\dot,
-    10/.initial=Okt\dot,
-    11/.initial=Nov\dot,
-    12/.initial=Dez\dot,
+    06/.initial=Jun\protect\dot,
+    07/.initial=Jul\protect\dot,
+    08/.initial=Aug\protect\dot,
+    09/.initial=Sep\protect\dot,
+    10/.initial=Okt\protect\dot,
+    11/.initial=Nov\protect\dot,
+    12/.initial=Dez\protect\dot,
   }%
   \gtrset{%
     calendar text for=AD is {}{ n.~Chr.},
     calendar text for=BC is {}{ v.~Chr.},
-    calendar text for=GR is {}{\textsuperscript{greg.}},
-    calendar text for=JU is {}{\textsuperscript{jul.}},
+    calendar text for=GR is {}{\protect\textsuperscript{greg.}},
+    calendar text for=JU is {}{\protect\textsuperscript{jul.}},
     calendar text for=caAD is {ca.~}{ n.~Chr.},
     calendar text for=caBC is {ca.~}{ v.~Chr.},
     calendar text for=ca is {ca.~}{},
-    date range full={}{--}{},
+    date range full={}{ bis }{},
     date range before={vor }{},
     date range after={nach }{},
     place text={in }{},
@@ -86,7 +86,7 @@
 language@/german-german/.style={language@=german},
 %
 language@/german-austrian/.style={language@=german,
-  month long/01/.initial=J\"anner,
-  month short/01/.initial=J\"an\dot,
+  month long/01/.initial=J\protect\"anner,
+  month short/01/.initial=J\protect\"an\protect\dot,
 },
 }

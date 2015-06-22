@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 0.90 (2015/05/22)
+%% The LaTeX package genealogytree - version 0.91 (2015/06/22)
 %% gtrlib.templates.code.tex: Templates
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{0.90}
+\gtr@set@library@version{0.91}
 
 % Templates
 
@@ -126,7 +126,7 @@
     level size=4.5cm,
     node size=2cm,
     name font=\bfseries,
-    surn code=##1,
+    surn code={##1},
     database@malefemale,
     box clear,
     box={enhanced,boxrule=0.3mm,
@@ -150,7 +150,7 @@
     level size=4cm,
     node size=2cm,
     name font=\bfseries,
-    surn code=##1,
+    surn code={##1},
     event format=prefix date,
     database@malefemale,
     box clear,
@@ -202,6 +202,34 @@
       gtrnodealign
     },
     edges={rounded=1mm,
+      foreground={black,line width=0.3mm},
+      background={white,line width=0.8mm}
+    },
+  },
+%
+  template/database sideways/.style={
+    timeflow=left,
+    processing=database,
+    database format=medium,
+    level distance=6mm,
+    level size=4cm,
+    node size from=3mm to 50mm,
+    surn code=\textbf{##1},
+    pref code=\textbf{##1},
+    database@malefemale,
+    list separators={\tcbline\hangindent=\tcbfitdim\hangafter=1}%
+      {\par\hangindent=\tcbfitdim\hangafter=1}{\par}{\gtrifcommentdefined{\tcbline}{}},
+    box clear,
+    box={enhanced,boxrule=0.3mm,
+      top=1mm,bottom=1mm,left=1mm,right=1mm,middle=0.7mm,boxsep=0pt,
+      fit basedim=7pt,
+      halign=flush left,
+      fontupper=\sffamily,
+      before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
+      segmentation style={solid,shorten >=1mm,shorten <=1mm},
+      \gtrDBsex,
+    },
+    edges={perpendicular,
       foreground={black,line width=0.3mm},
       background={white,line width=0.8mm}
     },

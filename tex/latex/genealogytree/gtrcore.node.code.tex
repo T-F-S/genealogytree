@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 0.90 (2015/05/22)
+%% The LaTeX package genealogytree - version 0.91 (2015/06/22)
 %% gtrcore.node.code.tex: Node Boxes
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{0.90}
+\gtr@set@library@version{0.91}
 
 %%%%%%%%%%%%%%
 % Processors %
@@ -726,6 +726,30 @@
   \csuse{#1year}%
 }
 
+\gtr@dateformat@factory{d.month yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}.~}{}%
+    \gtr@cs@monthlong{#1month} %
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{dd.mon.yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\csuse{#1day}.~}{}%
+    \gtr@cs@monthshortdot{#1month}\ %
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d.mon.yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}.~}{}%
+    \gtr@cs@monthshortdot{#1month}\ %
+  }{}%
+  \csuse{#1year}%
+}
+
 \gtr@dateformat@factory{dd/mm/yyyy}{%
   \ifcsdef{#1month}{%
     \ifcsdef{#1day}{\csuse{#1day}/}{}%
@@ -750,6 +774,278 @@
   \csuse{#1year}%
 }
 
+\gtr@dateformat@factory{dd/month/yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\csuse{#1day}/}{}%
+    \gtr@cs@monthlong{#1month}/%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d/month/yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}/}{}%
+    \gtr@cs@monthlong{#1month}/%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{dd/mon/yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\csuse{#1day}/}{}%
+    \gtr@cs@monthshort{#1month}/%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d/mon/yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}/}{}%
+    \gtr@cs@monthshort{#1month}/%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{dd mm yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\csuse{#1day}~}{}%
+    \csuse{#1month}~%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d M yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}~}{}%
+    \gtr@cs@Roman{#1month}~%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d month yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}~}{}%
+    \gtr@cs@monthlong{#1month} %
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{dd mon yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\csuse{#1day} }{}%
+    \gtr@cs@monthshort{#1month} %
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d mon yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day} }{}%
+    \gtr@cs@monthshort{#1month} %
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{dd-mm-yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\csuse{#1day}-}{}%
+    \csuse{#1month}-%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d-m-yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}-}{}%
+    \gtr@cs@strip@zero{#1month}-%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d-M-yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}-}{}%
+    \gtr@cs@Roman{#1month}-%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{dd-month-yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\csuse{#1day}-}{}%
+    \gtr@cs@monthlong{#1month}-%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d-month-yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}-}{}%
+    \gtr@cs@monthlong{#1month}-%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{dd-mon-yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\csuse{#1day}-}{}%
+    \gtr@cs@monthshort{#1month}-%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{d-mon-yyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}-}{}%
+    \gtr@cs@monthshort{#1month}-%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{ddmonyyyy}{%
+  \ifcsdef{#1month}{%
+    \ifcsdef{#1day}{\csuse{#1day}}{}%
+    \gtr@cs@monthshort{#1month}%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{yyyy.mm.dd}{%
+  \csuse{#1year}%
+  \ifcsdef{#1month}{%
+    .\csuse{#1month}%
+    \ifcsdef{#1day}{.\csuse{#1day}}{}%
+  }{}%
+}
+
+\gtr@dateformat@factory{yyyy.m.d}{%
+  \csuse{#1year}%
+  \ifcsdef{#1month}{%
+    .\gtr@cs@strip@zero{#1month}%
+    \ifcsdef{#1day}{.\gtr@cs@strip@zero{#1day}}{}%
+  }{}%
+}
+
+\gtr@dateformat@factory{yyyy.m.d.}{%
+  \csuse{#1year}.%
+  \ifcsdef{#1month}{%
+    ~\gtr@cs@strip@zero{#1month}.%
+    \ifcsdef{#1day}{~\gtr@cs@strip@zero{#1day}.}{}%
+  }{}%
+}
+
+\gtr@dateformat@factory{yyyy.M.d.}{%
+  \csuse{#1year}.%
+  \ifcsdef{#1month}{%
+    ~\gtr@cs@Roman{#1month}.%
+    \ifcsdef{#1day}{~\gtr@cs@strip@zero{#1day}.}{}%
+  }{}%
+}
+
+\gtr@dateformat@factory{yyyy.month d.}{%
+  \csuse{#1year}.%
+  \ifcsdef{#1month}{%
+    ~\gtr@cs@monthlong{#1month}%
+    \ifcsdef{#1day}{~\gtr@cs@strip@zero{#1day}.}{}%
+  }{}%
+}
+
+\gtr@dateformat@factory{yyyy.mon.d.}{%
+  \csuse{#1year}.%
+  \ifcsdef{#1month}{%
+    ~\gtr@cs@monthshortdot{#1month}%
+    \ifcsdef{#1day}{~\gtr@cs@strip@zero{#1day}.}{}%
+  }{}%
+}
+
+\gtr@dateformat@factory{yyyy/mm/dd}{%
+  \csuse{#1year}%
+  \ifcsdef{#1month}{%
+    /\csuse{#1month}%
+    \ifcsdef{#1day}{/\csuse{#1day}}{}%
+  }{}%
+}
+
+\gtr@dateformat@factory{yyyy/m/d}{%
+  \csuse{#1year}%
+  \ifcsdef{#1month}{%
+    /\gtr@cs@strip@zero{#1month}%
+    \ifcsdef{#1day}{/\gtr@cs@strip@zero{#1day}}{}%
+  }{}%
+}
+
+\gtr@dateformat@factory{yyyy mm dd}{%
+  \csuse{#1year}%
+  \ifcsdef{#1month}{%
+    ~\csuse{#1month}%
+    \ifcsdef{#1day}{~\csuse{#1day}}{}%
+  }{}%
+}
+
+\gtr@dateformat@factory{yyyy month d}{%
+  \csuse{#1year}%
+  \ifcsdef{#1month}{%
+    ~\gtr@cs@monthlong{#1month}%
+    \ifcsdef{#1day}{~\gtr@cs@strip@zero{#1day}}{}%
+  }{}%
+}
+
+\gtr@dateformat@factory{yyyy mon dd}{%
+  \csuse{#1year}%
+  \ifcsdef{#1month}{%
+    ~\gtr@cs@monthshort{#1month}%
+    \ifcsdef{#1day}{~\csuse{#1day}}{}%
+  }{}%
+}
+
+\gtr@dateformat@factory{yyyy-mm-dd}{%
+  \csuse{#1year}%
+  \ifcsdef{#1month}{%
+    -\csuse{#1month}%
+    \ifcsdef{#1day}{-\csuse{#1day}}{}%
+  }{}%
+}
+
+\gtr@dateformat@factory{yyyy-mon-dd}{%
+  \csuse{#1year}%
+  \ifcsdef{#1month}{%
+    -\gtr@cs@monthshort{#1month}%
+    \ifcsdef{#1day}{-\csuse{#1day}}{}%
+  }{}%
+}
+
+\gtr@dateformat@factory{yyyy-mon-d}{%
+  \csuse{#1year}%
+  \ifcsdef{#1month}{%
+    -\gtr@cs@monthshort{#1month}%
+    \ifcsdef{#1day}{-\gtr@cs@strip@zero{#1day}}{}%
+  }{}%
+}
+
+\gtr@dateformat@factory{yyyymmdd}{%
+  \csuse{#1year}%
+  \ifcsdef{#1month}{%
+    \csuse{#1month}%
+    \ifcsdef{#1day}{\csuse{#1day}}{}%
+  }{}%
+}
+
+\gtr@dateformat@factory{mm.dd.yyyy}{%
+  \ifcsdef{#1month}{%
+    \csuse{#1month}.%
+    \ifcsdef{#1day}{\csuse{#1day}.}{}%
+  }{}%
+  \csuse{#1year}%
+}
+
+\gtr@dateformat@factory{m.d.yyyy}{%
+  \ifcsdef{#1month}{%
+    \gtr@cs@strip@zero{#1month}.%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}.}{}%
+  }{}%
+  \csuse{#1year}%
+}
+
 \gtr@dateformat@factory{mm/dd/yyyy}{%
   \ifcsdef{#1month}{%
     \csuse{#1month}/%
@@ -766,30 +1062,18 @@
   \csuse{#1year}%
 }
 
-\gtr@dateformat@factory{yyyy-mm-dd}{%
-  \csuse{#1year}%
+\gtr@dateformat@factory{mm-dd-yyyy}{%
   \ifcsdef{#1month}{%
-    -\csuse{#1month}%
-    \ifcsdef{#1day}{-\csuse{#1day}}{}%
-  }{}%
-}
-
-\gtr@dateformat@factory{yyyy}{%
-  \csuse{#1year}%
-}
-
-\gtr@dateformat@factory{d.month yyyy}{%
-  \ifcsdef{#1month}{%
-    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}.~}{}%
-    \gtr@cs@monthlong{#1month} %
+    \csuse{#1month}-%
+    \ifcsdef{#1day}{\csuse{#1day}-}{}%
   }{}%
   \csuse{#1year}%
 }
 
-\gtr@dateformat@factory{d month yyyy}{%
+\gtr@dateformat@factory{m-d-yyyy}{%
   \ifcsdef{#1month}{%
-    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}~}{}%
-    \gtr@cs@monthlong{#1month} %
+    \gtr@cs@strip@zero{#1month}-%
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}-}{}%
   }{}%
   \csuse{#1year}%
 }
@@ -797,50 +1081,31 @@
 \gtr@dateformat@factory{month d yyyy}{%
   \ifcsdef{#1month}{%
     \gtr@cs@monthlong{#1month}%
-    \ifcsdef{#1day}{ \gtr@cs@strip@zero{#1day}}{}, %
+    \ifcsdef{#1day}{~\gtr@cs@strip@zero{#1day}}{}, %
   }{}%
   \csuse{#1year}%
 }
 
-\gtr@dateformat@factory{d.mon.yyyy}{%
+\gtr@dateformat@factory{mon.d yyyy}{%
   \ifcsdef{#1month}{%
-    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}.~}{}%
-    \gtr@cs@monthshortdot{#1month}\ %
+    \gtr@cs@monthshortdot{#1month}%
+    \ifcsdef{#1day}{~\gtr@cs@strip@zero{#1day}}{}, %
   }{}%
   \csuse{#1year}%
 }
 
-\gtr@dateformat@factory{d/mon/yyyy}{%
+\gtr@dateformat@factory{mon d yyyy}{%
   \ifcsdef{#1month}{%
-    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}/}{}%
-    \gtr@cs@monthshort{#1month}/%
+    \gtr@cs@monthshort{#1month}%
+    \ifcsdef{#1day}{~\gtr@cs@strip@zero{#1day}}{}, %
   }{}%
   \csuse{#1year}%
 }
 
-\gtr@dateformat@factory{d mon yyyy}{%
-  \ifcsdef{#1month}{%
-    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day} }{}%
-    \gtr@cs@monthshort{#1month} %
-  }{}%
+\gtr@dateformat@factory{yyyy}{%
   \csuse{#1year}%
 }
 
-\gtr@dateformat@factory{dd-mon-yyyy}{%
-  \ifcsdef{#1month}{%
-    \ifcsdef{#1day}{\csuse{#1day}-}{}%
-    \gtr@cs@monthshort{#1month}-%
-  }{}%
-  \csuse{#1year}%
-}
-
-\gtr@dateformat@factory{dd/mon/yyyy}{%
-  \ifcsdef{#1month}{%
-    \ifcsdef{#1day}{\csuse{#1day}/}{}%
-    \gtr@cs@monthshort{#1month}/%
-  }{}%
-  \csuse{#1year}%
-}
 
 \def\gtr@print@date@single@calendar@all#1{%
   \ifcsempty{#1year}{}{%
@@ -921,6 +1186,7 @@
   date range before/.code 2 args={\def\gtrkv@range@before@A{#1}\def\gtrkv@range@before@B{#2}},
   date range after/.code 2 args={\def\gtrkv@range@after@A{#1}\def\gtrkv@range@after@B{#2}},
   date range separator/.style={date range full={}{#1}{},date range before={#1}{},date range after={}{#1}},
+  date range separator/.default={--},
   place text/.code 2 args={\def\gtrkv@place@pre{#1}\def\gtrkv@place@app{#2}},
   event text/.code n args={4}{\def\gtrkv@event@pre{#1}\def\gtrkv@event@sepdate{#2}\def\gtrkv@event@sepplace{#3}\def\gtrkv@event@app{#4}},
   event format/.is choice,
@@ -931,7 +1197,7 @@
 
 \gtrset{%
   date format=d.M.yyyy,
-  date range separator={--},
+  date range separator,
   calendar print=all but AD,
   event text={}{~}{ }{},
   event format=prefix date place,

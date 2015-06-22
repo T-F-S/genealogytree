@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 0.90 (2015/05/22)
+%% The LaTeX package genealogytree - version 0.91 (2015/06/22)
 %% gtrlang.english.code.tex: English language
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{0.90}
+\gtr@set@library@version{0.91}
 
 \gtrset{language@/english/.code={%
   \gtrset{symlang/.cd,
@@ -55,28 +55,28 @@
   }%
   \gtrset{%
     month short/.cd,
-    01/.initial=Jan\dot,
-    02/.initial=Feb\dot,
-    03/.initial=Mar\dot,
-    04/.initial=Apr\dot,
+    01/.initial=Jan\protect\dot,
+    02/.initial=Feb\protect\dot,
+    03/.initial=Mar\protect\dot,
+    04/.initial=Apr\protect\dot,
     05/.initial=May,
-    06/.initial=Jun\dot,
-    07/.initial=Jul\dot,
-    08/.initial=Aug\dot,
-    09/.initial=Sep\dot,
-    10/.initial=Oct\dot,
-    11/.initial=Nov\dot,
-    12/.initial=Dec\dot,
+    06/.initial=Jun\protect\dot,
+    07/.initial=Jul\protect\dot,
+    08/.initial=Aug\protect\dot,
+    09/.initial=Sep\protect\dot,
+    10/.initial=Oct\protect\dot,
+    11/.initial=Nov\protect\dot,
+    12/.initial=Dec\protect\dot,
   }%
   \gtrset{%
     calendar text for=AD is {AD }{},
     calendar text for=BC is {}{ BC},
-    calendar text for=GR is {}{\textsuperscript{greg.}},
-    calendar text for=JU is {}{\textsuperscript{jul.}},
+    calendar text for=GR is {}{\protect\textsuperscript{greg.}},
+    calendar text for=JU is {}{\protect\textsuperscript{jul.}},
     calendar text for=caAD is {ca.~AD }{},
     calendar text for=caBC is {ca.~}{ BC},
     calendar text for=ca is {ca.~}{},
-    date range full={}{--}{},
+    date range full={}{ to }{},
     date range before={before }{},
     date range after={after }{},
     place text={in }{},

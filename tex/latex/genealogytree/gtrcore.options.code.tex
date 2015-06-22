@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 0.90 (2015/05/22)
+%% The LaTeX package genealogytree - version 0.91 (2015/06/22)
 %% gtrcore.options.code.tex: Options
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{0.90}
+\gtr@set@library@version{0.91}
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% General handling
@@ -187,7 +187,9 @@
 \newif\ifgtr@ignore
 
 \gtrset{%
-  id/.gstore in=\gtr@gkv@id,
+  id prefix/.store in=\gtr@kv@idprefix,
+  id suffix/.store in=\gtr@kv@idsuffix,
+  id/.code={\xdef\gtr@gkv@id{\expandonce\gtr@kv@idprefix\unexpanded{#1}\expandonce\gtr@kv@idsuffix}},
   distance/.gstore in=\gtr@gkv@distance,
   pivot@@value/.gstore in=\gtr@gkv@pivot,
   pivot@none/.style={pivot@@value=0},
@@ -340,16 +342,13 @@
     #1},
   %
   %
-  phantom/.style={subtree={processing=tcolorbox,deletion content interpreter,disconnect,
-    box={empty,no shadow,no borderline,code={\ifstrempty{#1}{}{%
-      \ifgtr@timeflow@vertical\tcbset{width=#1}\else\tcbset{height=#1}\fi%
-      }}}}},
-  phantom/.default=,
   phantom*/.style={subtree={processing=tcolorbox,deletion content interpreter,edges=none,
-    box={empty,code={\ifstrempty{#1}{}{%
+    box={empty,notitle,no underlay,no overlay,no shadow,no borderline,code={\ifstrempty{#1}{}{%
       \ifgtr@timeflow@vertical\tcbset{width=#1}\else\tcbset{height=#1}\fi%
       }}}}},
   phantom*/.default=,
+  phantom/.style={phantom*={#1},subtree=disconnect},
+  phantom/.default=,
 }
 
 \pgfkeys{/gtr/edge/.is family}
@@ -434,6 +433,8 @@
 
 \gtrset{%
   reset/.style={%
+    id prefix=,
+    id suffix=,
     timeflow=down,
     level distance=5mm,
     level size=3.5cm,
