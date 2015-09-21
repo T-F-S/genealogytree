@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 0.91 (2015/06/22)
+%% The LaTeX package genealogytree - version 1.00 (2015/09/21)
 %% gtrlib.templates.code.tex: Templates
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{0.91}
+\gtr@set@library@version{1.00}
 
 % Templates
 
@@ -228,6 +228,46 @@
       before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
       segmentation style={solid,shorten >=1mm,shorten <=1mm},
       \gtrDBsex,
+    },
+    edges={perpendicular,
+      foreground={black,line width=0.3mm},
+      background={white,line width=0.8mm}
+    },
+  },
+%
+  template/database relationship/.style={
+    timeflow=down,
+    processing=database,
+    database format=medium no marriage,
+    level distance=3mm,
+    level size=15mm,
+    node size=8cm,
+    parent distance=3mm,
+    child distance=1cm,
+    further distance=1cm,
+    name font=\bfseries,
+    surn code={##1},
+    date format=d.mon.yyyy,
+    database@malefemale,
+    box clear,
+    box={
+      boxrule=0.15mm,arc=1mm,boxsep=0mm,
+      top=0.5mm,bottom=0.5mm,left=1mm,right=1mm,
+      halign=flush center,
+      valign=center,
+      fit basedim=8pt,
+      fontupper=\sffamily,
+      before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
+      \gtrDBsex,
+      if image defined={%
+        code={\tcbdimto\gtr@im@width{0.77778\dimexpr\gtrkv@level@size-0.3mm\relax}},%
+        left=\gtr@im@width+1mm,
+        underlay={\begin{tcbclipinterior}%
+          \path[fill overzoom image=\gtrDBimage]
+          (interior.south west) rectangle ([xshift=\gtr@im@width]interior.north west);
+        \end{tcbclipinterior}%
+        },
+      }{},
     },
     edges={perpendicular,
       foreground={black,line width=0.3mm},

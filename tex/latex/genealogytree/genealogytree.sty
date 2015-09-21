@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 0.91 (2015/06/22)
+%% The LaTeX package genealogytree - version 1.00 (2015/09/21)
 %% genealogytree.sty: genealogy trees (graphs)
 %%
 %% -------------------------------------------------------------------------------------------
@@ -18,10 +18,10 @@
 %% This work consists of all files listed in README
 %%
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{genealogytree}[2015/06/22 version 0.91 genealogy trees]
-\def\gtr@version{0.91}
+\ProvidesPackage{genealogytree}[2015/09/21 version 1.00 genealogy trees]
+\def\gtr@version{1.00}
 
-\RequirePackage{tcolorbox}[2015/05/07]
+\RequirePackage{tcolorbox}[2015/08/12]
 \tcbuselibrary{skins,fitting,external}
 \usetikzlibrary{arrows.meta}
 \usetikzlibrary{fit}
@@ -64,13 +64,13 @@
 
 \def\gtr@set@library@version#1{%
   \def\gtr@library@version{#1}%
-  \typeout{Library (genealogytree): '\gtr@library@inload' version '\gtr@library@version'}
+  \typeout{Library (genealogytree): '\@currname' version '\gtr@library@version'}
   \gtr@check@library@version%
 }
 
 \def\gtr@check@library@version{%
   \ifx\gtr@library@version\gtr@version\else%
-  \PackageError{genealogytree}{genealogytree version '\gtr@version' loads library '\gtr@library@inload' with version '\gtr@library@version'}
+  \PackageError{genealogytree}{genealogytree version '\gtr@version' loads library '\@currname' with version '\gtr@library@version'}
   \fi%
 }
 
@@ -79,28 +79,17 @@
 
 \providecommand{\gtrpkgprefix}{}
 
-\def\gtr@input@library@in#1{%
-  \input\gtrpkgprefix#1\relax%
-}
-
-\let\gtr@input@library=\gtr@input@library@in%
-
-\def\gtr@input@library@ex#1{%
-  \let\gtr@input@library=\gtr@input@library@in%
-  \edef\gtr@at@catcode{\the\catcode`@}%
-  \catcode`\@11\relax%
-  \gtr@input@library@in{#1}%
-  \catcode`\@\gtr@at@catcode\relax%
-  \let\gtr@input@library=\gtr@input@library@ex%
-}
-
 \def\gtr@load@library#1#2{%
   \pgfkeysifdefined{/gtr/libload/#1}{}{%
     \pgfkeyssetvalue{/gtr/libload/#1}{}%
-    \def\gtr@library@inload{#2}%
+    \@pushfilename%
+    \xdef\@currname{#2}%
+    \makeatletter%
     \def\gtr@library@version{-}%
-    \gtr@input@library{#2}%
-    \gtr@check@library@version}%
+    \input\gtrpkgprefix#2\relax%
+    \gtr@check@library@version%
+    \@popfilename%
+  }%
 }
 
 \def\gtr@add@library#1#2{%
@@ -141,6 +130,5 @@
   lang.english,
 }
 
-\edef\gtr@temp{\noexpand\gtruselibrary{\gtr@optionlist}}
-\gtr@temp
-\let\gtr@input@library=\gtr@input@library@ex%
+\begingroup\edef\x{\endgroup\noexpand\gtruselibrary{\gtr@optionlist}}\x
+
