@@ -1,0 +1,86 @@
+%% The LaTeX package genealogytree - version 1.01 (2016/07/29)
+%% gtrlang.danish.code.tex: Danish language
+%%
+%% -------------------------------------------------------------------------------------------
+%% Copyright (c) 2015 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Translation by Mikkel Eide Eriksen <mikkel dot eriksen at gmail dot com>
+%% -------------------------------------------------------------------------------------------
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status `author-maintained'.
+%%
+%% This work consists of all files listed in README
+%%
+\gtr@set@library@version{1.01}
+
+\gtrset{language@/danish/.code={%
+  \gtrset{date format=d/m/yyyy}% Defaulting to day-month-year
+  \gtrset{symlang/.cd,
+    Born=f\protect\o{}dt,
+    Bornoutofwedlock=f\protect\o{}dt uden for \protect\ae{}gteskab,
+    Stillborn=d\protect\o{}df\protect\o{}dt,
+    Diedonbirthday=d\protect\o{}d p\protect\aa{} f\protect\o{}dselsdagen,
+    Baptized=d\protect\o{}bt,
+    Engaged=forlovet,
+    Married=gift,
+    Divorced=skilt,
+    Partnership=ugift partnerskab,
+    Died=d\protect\o{}d,
+    Killed=faldet,
+    Buried=begravet,
+    Funeralurn=kremeret,
+    Female=kvinde,
+    Male=mand,
+    Neuter=ukendt k\protect\o{}n
+  }%
+  \gtrset{%
+    month long/.cd,
+    01/.initial=januar,
+    02/.initial=februar,
+    03/.initial=marts,
+    04/.initial=april,
+    05/.initial=maj,
+    06/.initial=juni,
+    07/.initial=juli,
+    08/.initial=august,
+    09/.initial=september,
+    10/.initial=oktober,
+    11/.initial=november,
+    12/.initial=december,
+  }%
+  \gtrset{%
+    month short/.cd,
+    01/.initial=jan\protect\dot,
+    02/.initial=feb\protect\dot,
+    03/.initial=mar\protect\dot,
+    04/.initial=apr\protect\dot,
+    05/.initial=maj,
+    06/.initial=jun\protect\dot,
+    07/.initial=jul\protect\dot,
+    08/.initial=aug\protect\dot,
+    09/.initial=sep\protect\dot,
+    10/.initial=okt\protect\dot,
+    11/.initial=nov\protect\dot,
+    12/.initial=dec\protect\dot,
+  }%
+  \gtrset{%
+    calendar text for=AD is {}{ e.~Kr.},
+    calendar text for=BC is {}{ f.~Kr.},
+    calendar text for=GR is {}{\protect\textsuperscript{greg.}},
+    calendar text for=JU is {}{\protect\textsuperscript{jul.}},
+    calendar text for=caAD is {ca.~}{ e.~Kr.},
+    calendar text for=caBC is {ca.~}{ f.~Kr.},
+    calendar text for=ca is {ca.~}{},
+    date range full={}{ til }{},
+    date range before={f\protect\o{}r }{},
+    date range after={efter }{},
+    place text={i }{},
+  }%
+}}
