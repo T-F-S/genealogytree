@@ -7,7 +7,7 @@ A LaTeX package to create pedigree and genealogical tree diagrams.
 
 ```
 The LaTeX package genealogytree
-Copyright (c) 2013-2016 by Prof. Dr. Dr. Thomas F. Sturm
+Copyright (c) 2013-2017 by Prof. Dr. Dr. Thomas F. Sturm
 
 This work may be distributed and/or modified under the
 conditions of the LaTeX Project Public License, either version 1.3
