@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 1.02pre1 (2017/01/18)
+%% The LaTeX package genealogytree - version 1.02pre3 (2017/01/20)
 %% gtrcore.processing.code.tex: Processing
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,36 +17,49 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{1.02pre1}
+\gtr@set@library@version{1.02pre3}
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Processing - common
 %%%%%%%%%%%%%%%%%%%%%%%
 
-
-\def\gtr@proc@level@save@settings{%
-  \dimdef\gtr@rv@level@distance{\gtrkv@level@distance}%
-  \dimdef\gtr@rv@level@size{\gtrkv@level@size}%
-  \dimdef\gtr@rv@node@minsize{\gtrkv@node@minsize}%
-  \dimdef\gtr@rv@node@maxsize{\gtrkv@node@maxsize}%
-  \dimdef\gtr@rv@dist@sibling@par{\gtrkv@dist@sibling@par}%
-  \dimdef\gtr@rv@dist@sibling@chi{\gtrkv@dist@sibling@chi}%
-  \dimdef\gtr@rv@dist@parent@par{\gtrkv@dist@parent@par}%
-  \dimdef\gtr@rv@dist@parent@chi{\gtrkv@dist@parent@chi}%
-  \dimdef\gtr@rv@dist@further{\gtrkv@dist@further}%
+% register a macro to localizable for levels
+% #1: variable
+% #2: key setting
+% #3: global save
+\def\gtr@proc@register@level@local@core#1#2#3{%
+  \appto\gtr@proc@level@save@settings{\let#3#2}%
+  \appto\gtr@proc@level@load@settings{\let#2#3}%
+  \appto\gtr@proc@level@globalize@settings{\global\let#1#2}%
 }
+
+% register a macro to be localizable for levels
+% #1: variable
+% key setting: gtr@@kv@@#1
+% global save: gtr@@save@@#1
+\def\gtr@proc@register@level@local#1{%
+  \begingroup\edef\x{\endgroup\noexpand\gtr@proc@register@level@local@core{%
+    \noexpand#1%
+  }{%
+    \csname gtr@@kv@@\expandafter\@gobble\string#1\endcsname%
+  }{%
+    \csname gtr@@save@@\expandafter\@gobble\string#1\endcsname%
+  }}\x%
+}
+
+\gtr@proc@register@level@local{\gtr@level@distance}
+\gtr@proc@register@level@local{\gtr@level@size}
+\gtr@proc@register@level@local{\gtr@node@minsize}
+\gtr@proc@register@level@local{\gtr@node@maxsize}
+\gtr@proc@register@level@local{\gtr@dist@sibling@par}
+\gtr@proc@register@level@local{\gtr@dist@sibling@chi}
+\gtr@proc@register@level@local{\gtr@dist@parent@par}
+\gtr@proc@register@level@local{\gtr@dist@parent@chi}
+\gtr@proc@register@level@local{\gtr@dist@further}
 
 
 \def\gtr@proc@level@opt{%
   \begingroup%
-    \let\gtrkv@level@distance\gtr@rv@level@distance%
-    \let\gtrkv@level@size\gtr@rv@level@size%
-    \let\gtrkv@node@minsize\gtr@rv@node@minsize%
-    \let\gtrkv@node@maxsize\gtr@rv@node@maxsize%
-    \let\gtrkv@dist@sibling@par\gtr@rv@dist@sibling@par%
-    \let\gtrkv@dist@sibling@chi\gtr@rv@dist@sibling@chi%
-    \let\gtrkv@dist@parent@par\gtr@rv@dist@parent@par%
-    \let\gtrkv@dist@parent@chi\gtr@rv@dist@parent@chi%
-    \let\gtrkv@dist@further\gtr@rv@dist@further%
+    \gtr@proc@level@load@settings%
     %
     \global\let\gtr@gkv@opt@family@level\@empty%
     \global\let\gtr@gkv@opt@subtree@level\@empty%
@@ -70,15 +83,7 @@
       \global\let\gtr@gkv@opt@ignore@level\@empty%
     \fi%
     %
-    \global\let\gtr@level@distance\gtrkv@level@distance%
-    \global\let\gtr@level@size\gtrkv@level@size%
-    \global\let\gtr@node@minsize\gtrkv@node@minsize%
-    \global\let\gtr@node@maxsize\gtrkv@node@maxsize%
-    \global\let\gtr@dist@sibling@par\gtrkv@dist@sibling@par%
-    \global\let\gtr@dist@sibling@chi\gtrkv@dist@sibling@chi%
-    \global\let\gtr@dist@parent@par\gtrkv@dist@parent@par%
-    \global\let\gtr@dist@parent@chi\gtrkv@dist@parent@chi%
-    \global\let\gtr@dist@further\gtrkv@dist@further%
+    \gtr@proc@level@globalize@settings%
     %
   \endgroup%
   %

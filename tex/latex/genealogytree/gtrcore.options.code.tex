@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 1.02pre1 (2017/01/18)
+%% The LaTeX package genealogytree - version 1.02pre3 (2017/01/20)
 %% gtrcore.options.code.tex: Options
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{1.02pre1}
+\gtr@set@library@version{1.02pre3}
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% General handling
@@ -187,9 +187,9 @@
 \newif\ifgtr@ignore
 
 \gtrset{%
-  id prefix/.store in=\gtr@kv@idprefix,
-  id suffix/.store in=\gtr@kv@idsuffix,
-  id/.code={\xdef\gtr@gkv@id{\expandonce\gtr@kv@idprefix\unexpanded{#1}\expandonce\gtr@kv@idsuffix}},
+  id prefix/.store in=\gtrkv@idprefix,
+  id suffix/.store in=\gtrkv@idsuffix,
+  id/.code={\xdef\gtr@gkv@id{\expandonce\gtrkv@idprefix\unexpanded{#1}\expandonce\gtrkv@idsuffix}},
   distance/.gstore in=\gtr@gkv@distance,
   tikz/.gstore in=\gtr@gkv@tikz,
   pivot@@value/.gstore in=\gtr@gkv@pivot,
@@ -257,15 +257,15 @@
   timeflow/left/.style={time@flow=left},
   timeflow/right/.style={time@flow=right},
   %
-  level distance/.store in=\gtrkv@level@distance,
-  level size/.store in=\gtrkv@level@size,
-  node size from/.code args={#1 to #2}{\def\gtrkv@node@minsize{#1}\def\gtrkv@node@maxsize{#2}},
-  node size/.code={\def\gtrkv@node@minsize{#1}\def\gtrkv@node@maxsize{#1}},%
-  child distance in parent graph/.store in=\gtrkv@dist@sibling@par,%
-  child distance in child graph/.store in=\gtrkv@dist@sibling@chi,%
-  parent distance in parent graph/.store in=\gtrkv@dist@parent@par,%
-  parent distance in child graph/.store in=\gtrkv@dist@parent@chi,%
-  further distance/.store in=\gtrkv@dist@further,%
+  level distance/.dimstore in=\gtr@@kv@@gtr@level@distance,
+  level size/.dimstore in=\gtr@@kv@@gtr@level@size,
+  node size from/.code args={#1 to #2}{\dimdef\gtr@@kv@@gtr@node@minsize{#1}\dimdef\gtr@@kv@@gtr@node@maxsize{#2}},
+  node size/.code={\dimdef\gtr@@kv@@gtr@node@minsize{#1}\dimdef\gtr@@kv@@gtr@node@maxsize{#1}},%
+  child distance in parent graph/.dimstore in=\gtr@@kv@@gtr@dist@sibling@par,%
+  child distance in child graph/.dimstore in=\gtr@@kv@@gtr@dist@sibling@chi,%
+  parent distance in parent graph/.dimstore in=\gtr@@kv@@gtr@dist@parent@par,%
+  parent distance in child graph/.dimstore in=\gtr@@kv@@gtr@dist@parent@chi,%
+  further distance/.dimstore in=\gtr@@kv@@gtr@dist@further,%
   %
   child distance/.style={child distance in parent graph=#1,child distance in child graph=#1},%
   parent distance/.style={parent distance in parent graph=#1,parent distance in child graph=#1},%
