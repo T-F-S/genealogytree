@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 1.02pre4 (2017/01/26)
+%% The LaTeX package genealogytree - version 1.10pre1 (2017/01/27)
 %% gtrlib.templates.code.tex: Templates
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{1.02pre4}
+\gtr@set@library@version{1.10pre1}
 
 % Templates
 
@@ -218,7 +218,7 @@
     pref code=\textbf{##1},
     database@malefemale,
     list separators={\tcbline\hangindent=\tcbfitdim\hangafter=1}%
-      {\par\hangindent=\tcbfitdim\hangafter=1}{\par}{\gtrifcommentdefined{\tcbline}{}},
+      {\par\hangindent=\tcbfitdim\hangafter=1}{\par}{\gtrifcommentdefined{\tcbline}{\gtrifprofessiondefined{\tcbline}{}}},
     box clear,
     box={enhanced,boxrule=0.3mm,
       top=1mm,bottom=1mm,left=1mm,right=1mm,middle=0.7mm,boxsep=0pt,

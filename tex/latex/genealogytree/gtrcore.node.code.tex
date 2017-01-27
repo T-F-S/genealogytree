@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 1.02pre4 (2017/01/26)
+%% The LaTeX package genealogytree - version 1.10pre1 (2017/01/27)
 %% gtrcore.node.code.tex: Node Boxes
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{1.02pre4}
+\gtr@set@library@version{1.10pre1}
 
 %%%%%%%%%%%%%%
 % Processors %
@@ -201,6 +201,7 @@
 \gtr@db@new@store{name}
 \gtr@db@new@store{shortname}
 \gtr@db@new@store{comment}
+\gtr@db@new@store{profession}
 \gtr@db@new@store{sex}
 \gtr@db@new@store{uuid}
 \gtr@db@new@store{kekule}
@@ -354,6 +355,7 @@
 }{\gtrlistseparatorfinal}
 
 \newenvironment{gtreventlist}{}{}
+\newenvironment{gtrinfolist}{}{}
 
 \gtrset{%
   database format/.is choice,
@@ -362,6 +364,8 @@
     {\par\hangindent=#1\hangafter=1}{\par}{\par}},
   list separators hang/.default=\tcbfitdim,
   list separators={\par}{\par}{\par}{\par},
+  info separators/.code n args={4}{\renewenvironment{gtrinfolist}{\begin{gtrprintlist}{#1}{#2}{#3}{#4}}{\end{gtrprintlist}}},
+  info separators={\par}{. }{.}{},
 }
 
 \newcommand{\gtrDeclareDatabaseFormat}[3]{%
@@ -376,6 +380,13 @@
 
 \def\gtr@list@event#1{\gtrifeventdefined{#1}{\gtrlistseparator\hspace{0pt}\gtrPrintEvent{#1}}{}}
 
+\def\gtr@print@infolist{%
+  \begin{gtrinfolist}%
+    \gtrifprofessiondefined{\gtrlistseparator\gtrPrintProfession}{}%
+    \gtrifcommentdefined{\gtrlistseparator\gtrPrintComment}{}%
+  \end{gtrinfolist}%
+}
+
 \gtrDeclareDatabaseFormat{full}{}{%
   \gtrPrintName%
   \begin{gtreventlist}%
@@ -387,7 +398,7 @@
     \gtr@list@event{death}%
     \gtr@list@event{burial}%
   \end{gtreventlist}%
-  \gtrifcommentdefined{\gtrPrintComment}{}%
+  \gtr@print@infolist%
 }
 
 \def\gtr@ifmarriagedefined#1#2{%
@@ -413,7 +424,7 @@
     \gtr@list@event{death}%
     \gtr@list@event{burial}%
   \end{gtreventlist}%
-  \gtrifcommentdefined{\gtrPrintComment}{}%
+  \gtr@print@infolist%
 }
 
 \gtrDeclareDatabaseFormat{full marriage below}{}{%
@@ -424,7 +435,7 @@
     \gtr@list@event{death}%
     \gtr@list@event{burial}%
   \end{gtreventlist}%
-  \gtrifcommentdefined{\gtrPrintComment}{}%
+  \gtr@print@infolist%
   \gtr@ifmarriagedefined{%
     \tcbline\begin{gtreventlist}%
       \gtr@list@event{engagement}%
@@ -442,7 +453,7 @@
     \gtr@list@event{death}%
     \gtr@list@event{burial}%
   \end{gtreventlist}%
-  \gtrifcommentdefined{\gtrPrintComment}{}%
+  \gtr@print@infolist%
 }
 
 \def\gtr@list@event@birth{%
@@ -472,7 +483,7 @@
     \gtr@list@event@marriage%
     \gtr@list@event@death%
   \end{gtreventlist}%
-  \gtrifcommentdefined{\gtrPrintComment}{}%
+  \gtr@print@infolist%
 }
 
 \gtrDeclareDatabaseFormat{medium marriage above}{}{%
@@ -482,7 +493,7 @@
     \gtr@list@event@birth%
     \gtr@list@event@death%
   \end{gtreventlist}%
-  \gtrifcommentdefined{\gtrPrintComment}{}%
+  \gtr@print@infolist%
 }
 
 \gtrDeclareDatabaseFormat{medium marriage below}{}{%
@@ -491,7 +502,7 @@
     \gtr@list@event@birth%
     \gtr@list@event@death%
   \end{gtreventlist}%
-  \gtrifcommentdefined{\gtrPrintComment}{}%
+  \gtr@print@infolist%
   \gtr@ifmarriagedefined{\tcbline\begin{gtreventlist}\gtr@list@event@marriage\end{gtreventlist}}{}%
 }
 
@@ -501,7 +512,7 @@
     \gtr@list@event@birth%
     \gtr@list@event@death%
   \end{gtreventlist}%
-  \gtrifcommentdefined{\gtrPrintComment}{}%
+  \gtr@print@infolist%
 }
 
 \gtrDeclareDatabaseFormat{short}{}{%
@@ -575,10 +586,14 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%
-% Comment and Places %
+% Comment, Profession and Places %
 
 \def\gtrifcommentdefined#1#2{%
   \ifdefvoid{\gtrDBcomment}{#2}{#1}%
+}
+
+\def\gtrifprofessiondefined#1#2{%
+  \ifdefvoid{\gtrDBprofession}{#2}{#1}%
 }
 
 \def\gtrifplacedefined#1#2#3{%
@@ -1203,6 +1218,7 @@
   date code/.code={\def\gtrPrintDateCore##1{#1}},
   event code/.code={\def\gtrPrintEvent##1{#1}},
   comment code/.code={\def\gtrPrintComment{#1}},
+  profession code/.code={\def\gtrPrintProfession{#1}},
   date format/.is choice,
   calendar print/.is choice,
   calendar print/all/.code={\let\gtr@print@date@single@calendar\gtr@print@date@single@calendar@all},
@@ -1229,4 +1245,5 @@
   event text={}{~}{ }{},
   event format=prefix date place,
   comment code={\hspace{0pt}{\itshape\gtrDBcomment}},
+  profession code={\hspace{0pt}{\itshape\gtrDBprofession}},
 }
