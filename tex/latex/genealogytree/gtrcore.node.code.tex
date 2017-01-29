@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 1.10pre1 (2017/01/27)
+%% The LaTeX package genealogytree - version 1.10 (2017/01/29)
 %% gtrcore.node.code.tex: Node Boxes
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{1.10pre1}
+\gtr@set@library@version{1.10}
 
 %%%%%%%%%%%%%%
 % Processors %
@@ -689,21 +689,18 @@
 }
 
 \def\gtr@cs@monthlong#1{%
-  \letcs\gtr@temp{#1}%
-  \pgfkeysvalueof{/gtr/month long/\gtr@temp}%
+  \pgfkeysvalueof{/gtr/month long/\csuse{#1}}%
 }
 
-\def\gtr@cs@monthshort#1{%
-  {\letcs\gtr@temp{#1}%
+\def\gtr@cs@monthshort#1{{%
   \def\dot{}%
-  \pgfkeysvalueof{/gtr/month short/\gtr@temp}}%
-}
+  \pgfkeysvalueof{/gtr/month short/\csuse{#1}}%
+}}
 
-\def\gtr@cs@monthshortdot#1{%
-  {\letcs\gtr@temp{#1}%
+\def\gtr@cs@monthshortdot#1{{%
   \def\dot{.}%
-  \pgfkeysvalueof{/gtr/month short/\gtr@temp}}%
-}
+  \pgfkeysvalueof{/gtr/month short/\csuse{#1}}%
+}}
 
 \def\gtrifdatedefined#1#2#3{%
   \ifcsdef{gtrDB#1year}{#2}{%
@@ -744,7 +741,7 @@
 \gtr@dateformat@factory{d.month yyyy}{%
   \ifcsdef{#1month}{%
     \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}.~}{}%
-    \gtr@cs@monthlong{#1month} %
+    \gtr@cs@monthlong{#1month}\ %
   }{}%
   \csuse{#1year}%
 }
@@ -792,7 +789,7 @@
 \gtr@dateformat@factory{dd/mm yyyy}{%
   \ifcsdef{#1month}{%
     \ifcsdef{#1day}{\csuse{#1day}/}{}%
-    \csuse{#1month} %
+    \csuse{#1month}\ %
   }{}%
   \csuse{#1year}%
 }
@@ -864,23 +861,23 @@
 \gtr@dateformat@factory{d month yyyy}{%
   \ifcsdef{#1month}{%
     \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}~}{}%
-    \gtr@cs@monthlong{#1month} %
+    \gtr@cs@monthlong{#1month}\ %
   }{}%
   \csuse{#1year}%
 }
 
 \gtr@dateformat@factory{dd mon yyyy}{%
   \ifcsdef{#1month}{%
-    \ifcsdef{#1day}{\csuse{#1day} }{}%
-    \gtr@cs@monthshort{#1month} %
+    \ifcsdef{#1day}{\csuse{#1day}~}{}%
+    \gtr@cs@monthshort{#1month}\ %
   }{}%
   \csuse{#1year}%
 }
 
 \gtr@dateformat@factory{d mon yyyy}{%
   \ifcsdef{#1month}{%
-    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day} }{}%
-    \gtr@cs@monthshort{#1month} %
+    \ifcsdef{#1day}{\gtr@cs@strip@zero{#1day}~}{}%
+    \gtr@cs@monthshort{#1month}\ %
   }{}%
   \csuse{#1year}%
 }
@@ -1061,6 +1058,14 @@
   }{}%
 }
 
+\gtr@dateformat@factory{yyyymondd}{%
+  \csuse{#1year}%
+  \ifcsdef{#1month}{%
+    \gtr@cs@monthshort{#1month}%
+    \ifcsdef{#1day}{\csuse{#1day}}{}%
+  }{}%
+}
+
 \gtr@dateformat@factory{yyyymmdd}{%
   \csuse{#1year}%
   \ifcsdef{#1month}{%
@@ -1120,7 +1125,7 @@
 \gtr@dateformat@factory{month d yyyy}{%
   \ifcsdef{#1month}{%
     \gtr@cs@monthlong{#1month}%
-    \ifcsdef{#1day}{~\gtr@cs@strip@zero{#1day}}{}, %
+    \ifcsdef{#1day}{~\gtr@cs@strip@zero{#1day}}{},\ %
   }{}%
   \csuse{#1year}%
 }
@@ -1128,7 +1133,7 @@
 \gtr@dateformat@factory{mon.d yyyy}{%
   \ifcsdef{#1month}{%
     \gtr@cs@monthshortdot{#1month}%
-    \ifcsdef{#1day}{~\gtr@cs@strip@zero{#1day}}{}, %
+    \ifcsdef{#1day}{~\gtr@cs@strip@zero{#1day}}{},\ %
   }{}%
   \csuse{#1year}%
 }
@@ -1136,7 +1141,7 @@
 \gtr@dateformat@factory{mon d yyyy}{%
   \ifcsdef{#1month}{%
     \gtr@cs@monthshort{#1month}%
-    \ifcsdef{#1day}{~\gtr@cs@strip@zero{#1day}}{}, %
+    \ifcsdef{#1day}{~\gtr@cs@strip@zero{#1day}}{},\ %
   }{}%
   \csuse{#1year}%
 }
@@ -1238,7 +1243,6 @@
 }
 
 \gtrset{%
-  %date format=d.M.yyyy,
   set@typical@date@format=d.M.yyyy,
   date range separator,
   calendar print=all but AD,
