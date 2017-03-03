@@ -1,9 +1,9 @@
-%% The LaTeX package genealogytree - version 1.11pre1 (2017/03/03)
-%% gtrlang.danish.code.tex: Danish language
+%% The LaTeX package genealogytree - version 1.10 (2017/01/29)
+%% gtrlang.dutch.code.tex: Dutch language
 %%
 %% -------------------------------------------------------------------------------------------
 %% Copyright (c) 2013-2017 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
-%% Translation by Mikkel Eide Eriksen <mikkel dot eriksen at gmail dot com>
+%% Translation by Dirk Bosmans <onstrees at myonline be>
 %% -------------------------------------------------------------------------------------------
 %%
 %% This work may be distributed and/or modified under the
@@ -18,37 +18,37 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{1.11pre1}
+\gtr@set@library@version{1.10}
 
-\gtrset{language@/danish/.code={%
+\gtrset{language@/dutch/.code={%
   \gtrset{symlang/.cd,
-    Born=f\protect\o{}dt,
-    Bornoutofwedlock=f\protect\o{}dt uden for \protect\ae{}gteskab,
-    Stillborn=d\protect\o{}df\protect\o{}dt,
-    Diedonbirthday=d\protect\o{}d p\protect\aa{} f\protect\o{}dselsdagen,
-    Baptized=d\protect\o{}bt,
-    Engaged=forlovet,
-    Married=gift,
-    Divorced=skilt,
-    Partnership=ugift partnerskab,
-    Died=d\protect\o{}d,
-    Killed=faldet,
-    Buried=begravet,
-    Funeralurn=kremeret,
-    Female=kvinde,
-    Male=mand,
-    Neuter=ukendt k\protect\o{}n
+    Born=geboren,
+    Bornoutofwedlock=onecht,
+    Stillborn=doodgeboren,
+    Diedonbirthday=perinataal gestorven,
+    Baptized=gedoopt,
+    Engaged=verloofd,
+    Married=gehuwd,
+    Divorced=gescheiden,
+    Partnership=samenwonend,
+    Died=gestorven,
+    Killed=gesneuveld,
+    Buried=begraven,
+    Funeralurn=verast,
+    Female=vrouwelijk,
+    Male=mannelijk,
+    Neuter=geslacht niet gekend
   }%
   \gtrset{%
     month long/.cd,
-    01/.initial=januar,
-    02/.initial=februar,
-    03/.initial=marts,
+    01/.initial=januari,
+    02/.initial=februari,
+    03/.initial=maart,
     04/.initial=april,
-    05/.initial=maj,
+    05/.initial=mei,
     06/.initial=juni,
     07/.initial=juli,
-    08/.initial=august,
+    08/.initial=augustus,
     09/.initial=september,
     10/.initial=oktober,
     11/.initial=november,
@@ -60,7 +60,7 @@
     02/.initial=feb\protect\dot,
     03/.initial=mar\protect\dot,
     04/.initial=apr\protect\dot,
-    05/.initial=maj,
+    05/.initial=mei,
     06/.initial=jun\protect\dot,
     07/.initial=jul\protect\dot,
     08/.initial=aug\protect\dot,
@@ -70,17 +70,17 @@
     12/.initial=dec\protect\dot,
   }%
   \gtrset{%
-    set@typical@date@format=d.month yyyy,
-    calendar text for=AD is {}{ e.~Kr.},
-    calendar text for=BC is {}{ f.~Kr.},
+    set@typical@date@format=d month yyyy,
+    calendar text for=AD is {}{ n.~C.},
+    calendar text for=BC is {}{ v.~C.},
     calendar text for=GR is {}{\protect\textsuperscript{greg.}},
     calendar text for=JU is {}{\protect\textsuperscript{jul.}},
-    calendar text for=caAD is {ca.~}{ e.~Kr.},
-    calendar text for=caBC is {ca.~}{ f.~Kr.},
+    calendar text for=caAD is {ca.~}{ n.~C.},
+    calendar text for=caBC is {ca.~}{ v.~C.},
     calendar text for=ca is {ca.~}{},
-    date range full={}{ til }{},
-    date range before={f\protect\o{}r }{},
-    date range after={efter }{},
-    place text={i }{},
+    date range full={}{ tot }{},
+    date range before={voor }{},
+    date range after={na }{},
+    place text={te }{},
   }%
 }}
