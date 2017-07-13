@@ -224,6 +224,7 @@
 \gtr@db@new@event@store{engagement}%
 \gtr@db@new@event@store{marriage}%
 \gtr@db@new@event@store{divorce}%
+\gtr@db@new@event@store{floruit}%
 \gtr@db@new@event@store{death}%
 \gtr@db@new@event@store{burial}%
 
@@ -253,6 +254,7 @@
   marriage/.initial=\gtrsymMarried,
   marriage/other/.initial=\gtrsymPartnership,
   divorce/.initial=\gtrsymDivorced,
+  floruit/.initial=\gtrsymFloruit,
   death/.initial=\gtrsymDied,
   death/killed/.initial=\gtrsymKilled,
   burial/.initial=\gtrsymBuried,
@@ -395,6 +397,7 @@
     \gtr@list@event{engagement}%
     \gtr@list@event{marriage}%
     \gtr@list@event{divorce}%
+    \gtr@list@event{floruit}%
     \gtr@list@event{death}%
     \gtr@list@event{burial}%
   \end{gtreventlist}%
@@ -421,6 +424,7 @@
   \begin{gtreventlist}%
     \gtr@list@event{birth}%
     \gtr@list@event{baptism}%
+    \gtr@list@event{floruit}%
     \gtr@list@event{death}%
     \gtr@list@event{burial}%
   \end{gtreventlist}%
@@ -432,6 +436,7 @@
   \begin{gtreventlist}%
     \gtr@list@event{birth}%
     \gtr@list@event{baptism}%
+    \gtr@list@event{floruit}%
     \gtr@list@event{death}%
     \gtr@list@event{burial}%
   \end{gtreventlist}%
@@ -450,6 +455,7 @@
   \begin{gtreventlist}%
     \gtr@list@event{birth}%
     \gtr@list@event{baptism}%
+    \gtr@list@event{floruit}%
     \gtr@list@event{death}%
     \gtr@list@event{burial}%
   \end{gtreventlist}%
@@ -470,6 +476,11 @@
   }%
 }
 
+\def\gtr@list@event@floruit{%
+  \gtrifeventdefined{floruit}{\gtrlistseparator\gtrPrintEvent{floruit}}{%
+  }%
+}
+
 \def\gtr@list@event@death{%
   \gtrifeventdefined{death}{\gtrlistseparator\gtrPrintEvent{death}}{%
     \gtr@list@event{burial}%
@@ -481,6 +492,7 @@
   \begin{gtreventlist}%
     \gtr@list@event@birth%
     \gtr@list@event@marriage%
+    \gtr@list@event@floruit%
     \gtr@list@event@death%
   \end{gtreventlist}%
   \gtr@print@infolist%
@@ -491,6 +503,7 @@
   \gtrPrintName%
   \begin{gtreventlist}%
     \gtr@list@event@birth%
+    \gtr@list@event@floruit%
     \gtr@list@event@death%
   \end{gtreventlist}%
   \gtr@print@infolist%
@@ -500,6 +513,7 @@
   \gtrPrintName%
   \begin{gtreventlist}%
     \gtr@list@event@birth%
+    \gtr@list@event@floruit%
     \gtr@list@event@death%
   \end{gtreventlist}%
   \gtr@print@infolist%
@@ -510,6 +524,7 @@
   \gtrPrintName%
   \begin{gtreventlist}%
     \gtr@list@event@birth%
+    \gtr@list@event@floruit%
     \gtr@list@event@death%
   \end{gtreventlist}%
   \gtr@print@infolist%
@@ -520,6 +535,7 @@
   \begin{gtreventlist}%
     \gtr@list@event@birth%
     \gtr@list@event@marriage%
+    \gtr@list@event@floruit%
     \gtr@list@event@death%
   \end{gtreventlist}%
 }
@@ -529,6 +545,7 @@
   \gtrPrintName%
   \begin{gtreventlist}%
     \gtr@list@event@birth%
+    \gtr@list@event@floruit%
     \gtr@list@event@death%
   \end{gtreventlist}%
 }
@@ -537,6 +554,7 @@
   \gtrPrintName%
   \begin{gtreventlist}%
     \gtr@list@event@birth%
+    \gtr@list@event@floruit%
     \gtr@list@event@death%
   \end{gtreventlist}%
   \gtr@ifmarriagedefined{\tcbline\begin{gtreventlist}\gtr@list@event@marriage\end{gtreventlist}}{}%
@@ -546,6 +564,7 @@
   \gtrPrintName%
   \begin{gtreventlist}%
     \gtr@list@event@birth%
+    \gtr@list@event@floruit%
     \gtr@list@event@death%
   \end{gtreventlist}%
 }
