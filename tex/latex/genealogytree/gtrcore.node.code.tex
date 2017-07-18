@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 1.11pre1 (2017/03/03)
+%% The LaTeX package genealogytree - version 1.20 (2017/07/18)
 %% gtrcore.node.code.tex: Node Boxes
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{1.11pre1}
+\gtr@set@library@version{1.20}
 
 %%%%%%%%%%%%%%
 % Processors %
@@ -463,26 +463,31 @@
 }
 
 \def\gtr@list@event@birth{%
-  \gtrifeventdefined{birth}{\gtrlistseparator\gtrPrintEvent{birth}}{%
+  \gtrifeventdefined{birth}{\gtrlistseparator\hspace{0pt}\gtrPrintEvent{birth}}{%
     \gtr@list@event{baptism}%
   }%
 }
 
 \def\gtr@list@event@marriage{%
-  \gtrifeventdefined{marriage}{\gtrlistseparator\gtrPrintEvent{marriage}}{%
-    \gtrifeventdefined{engagement}{\gtrlistseparator\gtrPrintEvent{engagement}}{%
+  \gtrifeventdefined{marriage}{\gtrlistseparator\hspace{0pt}\gtrPrintEvent{marriage}}{%
+    \gtrifeventdefined{engagement}{\gtrlistseparator\hspace{0pt}\gtrPrintEvent{engagement}}{%
       \gtr@list@event{divorce}%
     }%
   }%
 }
 
 \def\gtr@list@event@floruit{%
-  \gtrifeventdefined{floruit}{\gtrlistseparator\gtrPrintEvent{floruit}}{%
-  }%
+  \gtrifeventdefined{floruit}{%
+    \gtrifeventdefined{birth}{}{%
+    \gtrifeventdefined{baptism}{}{%
+    \gtrifeventdefined{death}{}{%
+    \gtrifeventdefined{burial}{}{%
+      \gtrlistseparator\hspace{0pt}\gtrPrintEvent{floruit}}{%
+  }}}}}{}%
 }
 
 \def\gtr@list@event@death{%
-  \gtrifeventdefined{death}{\gtrlistseparator\gtrPrintEvent{death}}{%
+  \gtrifeventdefined{death}{\gtrlistseparator\hspace{0pt}\gtrPrintEvent{death}}{%
     \gtr@list@event{burial}%
   }%
 }

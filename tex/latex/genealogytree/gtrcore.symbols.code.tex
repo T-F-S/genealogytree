@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 1.11pre1 (2017/03/03)
+%% The LaTeX package genealogytree - version 1.20 (2017/07/18)
 %% gtrcore.symbols.code.tex: Symbols
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{1.11pre1}
+\gtr@set@library@version{1.20}
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Symbols
@@ -167,13 +167,18 @@
 
 \gtr@symbol@factory{Floruit}{%
   \begin{gtr@tikzpicture}[line width=4mm,rounded corners,color=gtrsymbol]%
-    \path[use as bounding box] (-1.1,-0.926574) rectangle (1.1,1);
-    \draw (0,0)--(18:1cm);
-    \draw (0,0)--(90:1cm);
-    \draw (0,0)--(162:1cm);
-    \draw (0,0)--(234:1cm);
-    \draw (0,0)--(306:1cm);
-    \draw[color=white] (0,0) circle (3mm);
+    \path[use as bounding box] (-1.05,-0.85) rectangle (1.05,1);
+    \draw (18:5mm)--(18:8mm);
+    \draw (90:5mm)--(90:8mm);
+    \draw (162:5mm)--(162:8mm);
+    \draw (234:5mm)--(234:8mm);
+    \draw (306:5mm)--(306:8mm);
+    \fill (0,0) circle (2mm);
+    \fill (18:8mm) circle (2mm);
+    \fill (90:8mm) circle (2mm);
+    \fill (162:8mm) circle (2mm);
+    \fill (234:8mm) circle (2mm);
+    \fill (306:8mm) circle (2mm);
   \end{gtr@tikzpicture}%
 }{0.012}%
 
