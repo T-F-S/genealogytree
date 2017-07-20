@@ -1,0 +1,87 @@
+%% The LaTeX package genealogytree - version 1.21pre2 (2017/07/20)
+%% gtrlang.italian.code.tex: Italian language
+%%
+%% -------------------------------------------------------------------------------------------
+%% Copyright (c) 2013-2017 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Translation by Andrea Vaccari <ing dot andrea dot vaccari at gmail com>
+%% -------------------------------------------------------------------------------------------
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status `author-maintained'.
+%%
+%% This work consists of all files listed in README
+%%
+\gtr@set@library@version{1.21pre2}
+
+\gtrset{language@/italian/.code={%
+  \gtrset{symlang/.cd,
+    Born=nato,
+    Bornoutofwedlock=nato fuori dal matrimonio,
+    Stillborn=nato morto,
+    Diedonbirthday=morto il giorno del compleanno,
+    Baptized=battezzato,
+    Engaged=fidanzato,
+    Married=sposato,
+    Divorced=divorziato,
+    Partnership=unione senza matrimonio,
+    Floruit=periodo di attivit\`a,
+    Died=morto,
+    Killed=ucciso in combattimento,
+    Buried=sepolto,
+    Funeralurn=cremato,
+    Female=femmina,
+    Male=maschio,
+    Neuter=neutro
+  }%
+  \gtrset{%
+    month long/.cd,
+    01/.initial=Gennaio,
+    02/.initial=Febbraio,
+    03/.initial=Marzo,
+    04/.initial=Aprile,
+    05/.initial=Maggio,
+    06/.initial=Giugno,
+    07/.initial=Luglio,
+    08/.initial=Agosto,
+    09/.initial=Settembre,
+    10/.initial=Ottobre,
+    11/.initial=Novembre,
+    12/.initial=Dicembre,
+  }%
+  \gtrset{%
+    month short/.cd,
+    01/.initial=Gen\protect\dot,
+    02/.initial=Feb\protect\dot,
+    03/.initial=Mar\protect\dot,
+    04/.initial=Apr\protect\dot,
+    05/.initial=Mag\protect\dot,
+    06/.initial=Giu\protect\dot,
+    07/.initial=Lug\protect\dot,
+    08/.initial=Ago\protect\dot,
+    09/.initial=Set\protect\dot,
+    10/.initial=Ott\protect\dot,
+    11/.initial=Nov\protect\dot,
+    12/.initial=Dic\protect\dot,
+  }%
+  \gtrset{%
+    set@typical@date@format=d month yyyy,
+    calendar text for=AD is {d.C. }{},
+    calendar text for=BC is {}{ a.C.},
+    calendar text for=GR is {}{\protect\textsuperscript{greg.}},
+    calendar text for=JU is {}{\protect\textsuperscript{giul.}},
+    calendar text for=caAD is {ca.~d.C. }{},
+    calendar text for=caBC is {ca.~}{ a.C.},
+    calendar text for=ca is {ca.~}{},
+    date range full={}{ al }{},
+    date range before={prima }{},
+    date range after={dopo }{},
+    place text={a }{},
+  }%
+}}
