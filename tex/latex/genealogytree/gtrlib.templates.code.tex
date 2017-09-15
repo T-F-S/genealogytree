@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 1.21pre2 (2017/07/20)
+%% The LaTeX package genealogytree - version 1.21 (2017/09/15)
 %% gtrlib.templates.code.tex: Templates
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{1.21pre2}
+\gtr@set@library@version{1.21}
 
 % Templates
 
@@ -119,6 +119,40 @@
             neuter/.style={colframe=black!75,colback=yellow!5,drop fuzzy shadow=black!30}},
   },
 %
+  database@malefemale@reduced/.style={
+    tcbset={male/.style={colframe=blue!50!black,colback=blue!50!yellow!5,arc is angular,
+              fuzzy shadow={0.1mm}{-0.1mm}{0mm}{0.012mm}{blue!25!black!30}},
+            female/.style={colframe=red!50!black,colback=red!50!yellow!5,
+              fuzzy shadow={0.1mm}{-0.1mm}{0mm}{0.012mm}{red!25!black!30}},
+            neuter/.style={colframe=black!75,colback=yellow!5,
+              fuzzy shadow={0.1mm}{-0.1mm}{0mm}{0.012mm}{black!30}}},
+  },
+%
+  database@geometry@reduced/.style={%
+    level distance=0.5mm,
+    level size=3.5mm,
+    node size=2.5mm,
+    child distance in parent graph=0.1mm,
+    child distance in child graph=0.2mm,
+    parent distance in parent graph=0.2mm,
+    parent distance in child graph=0.1mm,
+    further distance=0.3mm,
+  },
+%
+  database@edges/.style={%
+    edges={perpendicular,
+      foreground={black,line width=0.3mm},
+      background={white,line width=0.8mm}
+    }%
+  },
+%
+  database@edges@reduced/.style={%
+    edges={perpendicular,
+      foreground={black,line width=0.03mm},
+      background={white,line width=0.08mm}
+    }%
+  },
+%
   template/database pole/.style={
     processing=database,
     database format=full marriage above,
@@ -137,10 +171,92 @@
       segmentation style={solid,shorten >=1mm,shorten <=1mm},
       \gtrDBsex,
     },
-    edges={perpendicular,
-      foreground={black,line width=0.3mm},
-      background={white,line width=0.8mm}
+    database@edges
+  },
+%
+  template/database pole reduced/.style={
+    processing=database,
+    database format=full marriage above,
+    database@geometry@reduced,
+    level distance=0.6mm,
+    level size=4.5mm,
+    node size=2mm,
+    name font=\bfseries,
+    surn code={##1},
+    database@malefemale@reduced,
+    box clear,
+    box={enhanced,
+      boxrule=0.03mm,boxsep=0.1pt,arc=0.1mm,fit basedim=0.7pt,
+      halign=flush center,
+      fontupper=\sffamily,
+      before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
+      segmentation style={solid,line width=0.04pt,shorten >=0.1mm,shorten <=0.1mm},
+      \gtrDBsex,
     },
+    database@edges@reduced
+  },
+%
+  template/database poleportrait/.style={
+    processing=database,
+    database format=full marriage above,
+    level distance=6mm,
+    level size=4.5cm,
+    node size=2cm,
+    name font=\bfseries,
+    surn code={##1},
+    database@malefemale,
+    box clear,
+    box={enhanced,boxrule=0.3mm,
+      fit basedim=7pt,
+      halign=flush center,
+      fontupper=\sffamily,
+      before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
+      \gtrDBsex,
+      if image defined={%
+        width=45mm,
+        right=25mm,
+        segmentation style={solid,shorten >=25mm,shorten <=1mm},
+        underlay={\begin{tcbclipinterior}%
+          \path[preaction={fill=tcbcol@frame!10!tcbcol@back},fill zoom image=\gtrDBimage]
+          ([xshift=-24mm]interior.south east) rectangle (interior.north east);
+        \end{tcbclipinterior}},%
+      }{%
+        segmentation style={solid,shorten >=1mm,shorten <=1mm},
+      },
+    },
+    database@edges
+  },
+%
+  template/database poleportrait reduced/.style={
+    processing=database,
+    database format=full marriage above,
+    database@geometry@reduced,
+    level distance=0.6mm,
+    level size=4.5mm,
+    node size=2mm,
+    name font=\bfseries,
+    surn code={##1},
+    database@malefemale@reduced,
+    box clear,
+    box={enhanced,
+      boxrule=0.03mm,boxsep=0.1pt,arc=0.1mm,fit basedim=0.7pt,
+      halign=flush center,
+      fontupper=\sffamily,
+      before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
+      \gtrDBsex,
+      if image defined={%
+        width=4.5mm,
+        right=2.5mm,
+        segmentation style={solid,line width=0.04pt,shorten >=2.5mm,shorten <=0.1mm},
+        underlay={\begin{tcbclipinterior}%
+          \path[preaction={fill=tcbcol@frame!10!tcbcol@back},fill zoom image=\gtrDBimage]
+          ([xshift=-2.4mm]interior.south east) rectangle (interior.north east);
+        \end{tcbclipinterior}},%
+      }{%
+        segmentation style={solid,line width=0.04pt,shorten >=0.1mm,shorten <=0.1mm},
+      },
+    },
+    database@edges@reduced
   },
 %
   template/database portrait/.style={
@@ -171,10 +287,39 @@
       \end{tcbclipinterior}%
       },
     },
-    edges={perpendicular,
-      foreground={black,line width=0.3mm},
-      background={white,line width=0.8mm}
+    database@edges
+  },
+%
+  template/database portrait reduced/.style={
+    processing=database,
+    database format=short no marriage,
+    database@geometry@reduced,
+    level distance=0.6mm,
+    level size=4mm,
+    node size=2mm,
+    name font=\bfseries,
+    surn code={##1},
+    event format=prefix date,
+    database@malefemale@reduced,
+    box clear,
+    box={enhanced,
+      boxrule=0.03mm,boxsep=0.1pt,arc=0.1mm,fit basedim=0.7pt,
+      top=2.5mm+0.2\tcbfitdim,
+      halign=flush center,
+      valign=center,%
+      fontupper=\sffamily,
+      before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
+      \gtrDBsex,
+      underlay={\begin{tcbclipinterior}%
+        \gtrifimagedefined{\path[fill overzoom image=\gtrDBimage]
+          ([yshift=-2.5mm]interior.north west) rectangle (interior.north east);}{%
+          \path[fill overzoom picture=\gtrDrawSymbolicPortrait]
+          ([yshift=-2.5mm]interior.north west) rectangle (interior.north east);
+          }%
+      \end{tcbclipinterior}%
+      },
     },
+    database@edges@reduced
   },
 %
   template/database traditional/.style={
@@ -207,6 +352,37 @@
     },
   },
 %
+  template/database traditional reduced/.style={
+    timeflow=down,
+    processing=database,
+    database format=short no marriage,
+    database@geometry@reduced,
+    level distance=0.6mm,
+    level size=2mm,
+    node size=2mm,
+    event format=prefix date,
+    name font=\bfseries,
+    surn code={##1},
+    tcbset={gtrnodealign/.code={%
+      \gtrifleafchild{\tcbset{valign=top}}{%
+        \gtrifleafparent{\tcbset{valign=bottom}}{\tcbset{valign=center}}%
+      }%
+    }},
+    box clear,
+    box={blanker,
+      top=0.1mm,bottom=0.1mm,
+      fit basedim=0.7pt,
+      halign=flush center,
+      fontupper=\sffamily,
+      before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
+      gtrnodealign
+    },
+    edges={rounded=0.1mm,
+      foreground={black,line width=0.03mm},
+      background={white,line width=0.08mm}
+    },
+  },
+%
   template/database sideways/.style={
     timeflow=left,
     processing=database,
@@ -229,10 +405,104 @@
       segmentation style={solid,shorten >=1mm,shorten <=1mm},
       \gtrDBsex,
     },
-    edges={perpendicular,
-      foreground={black,line width=0.3mm},
-      background={white,line width=0.8mm}
+    database@edges
+  },
+%
+  template/database sideways reduced/.style={
+    timeflow=left,
+    processing=database,
+    database format=medium,
+    database@geometry@reduced,
+    level distance=0.6mm,
+    level size=4mm,
+    node size from=0.3mm to 5mm,
+    surn code=\textbf{##1},
+    pref code=\textbf{##1},
+    database@malefemale@reduced,
+    list separators={\tcbline\hangindent=\tcbfitdim\hangafter=1}%
+      {\par\hangindent=\tcbfitdim\hangafter=1}{\par}{\gtrifcommentdefined{\tcbline}{\gtrifprofessiondefined{\tcbline}{}}},
+    box clear,
+    box={enhanced,boxrule=0.03mm,
+      top=0.1mm,bottom=0.1mm,left=0.1mm,right=0.1mm,middle=0.07mm,boxsep=0pt,arc=0.1mm,
+      fit basedim=0.7pt,
+      halign=flush left,
+      fontupper=\sffamily,
+      before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
+      segmentation style={solid,line width=0.04pt,shorten >=0.1mm,shorten <=0.1mm},
+      \gtrDBsex,
     },
+    database@edges@reduced
+  },
+%
+  template/database sidewaysportrait/.style={
+    timeflow=left,
+    processing=database,
+    database format=medium,
+    level distance=6mm,
+    level size=60mm,
+    node size from=3mm to 50mm,
+    surn code=\textbf{##1},
+    pref code=\textbf{##1},
+    database@malefemale,
+    list separators={\tcbline\hangindent=\tcbfitdim\hangafter=1}%
+      {\par\hangindent=\tcbfitdim\hangafter=1}{\par}{\gtrifcommentdefined{\tcbline}{\gtrifprofessiondefined{\tcbline}{}}},
+    box clear,
+    box={enhanced,boxrule=0.3mm,
+      top=1mm,bottom=1mm,left=1mm,right=1mm,middle=0.7mm,boxsep=0pt,
+      fit basedim=7pt,
+      halign=flush left,
+      fontupper=\sffamily,
+      before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
+      \gtrDBsex,
+      if image defined={%
+        height from=32.5mm to 60mm,
+        right=25mm,
+        segmentation style={solid,shorten >=25mm,shorten <=1mm},
+        underlay={\begin{tcbclipinterior}%
+          \path[preaction={fill=tcbcol@frame!10!tcbcol@back},fill zoom image=\gtrDBimage]
+          ([xshift=-24mm]interior.south east) rectangle (interior.north east);
+        \end{tcbclipinterior}},%
+      }{%
+        segmentation style={solid,shorten >=1mm,shorten <=1mm},
+      },
+    },
+    database@edges
+  },
+%
+  template/database sidewaysportrait reduced/.style={
+    timeflow=left,
+    processing=database,
+    database format=medium,
+    database@geometry@reduced,
+    level distance=0.6mm,
+    level size=6mm,
+    node size from=0.3mm to 5mm,
+    surn code=\textbf{##1},
+    pref code=\textbf{##1},
+    database@malefemale@reduced,
+    list separators={\tcbline\hangindent=\tcbfitdim\hangafter=1}%
+      {\par\hangindent=\tcbfitdim\hangafter=1}{\par}{\gtrifcommentdefined{\tcbline}{\gtrifprofessiondefined{\tcbline}{}}},
+    box clear,
+    box={enhanced,boxrule=0.03mm,
+      top=0.1mm,bottom=0.1mm,left=0.1mm,right=0.1mm,middle=0.07mm,boxsep=0pt,arc=0.1mm,
+      fit basedim=0.7pt,
+      halign=flush left,
+      fontupper=\sffamily,
+      before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
+      \gtrDBsex,
+      if image defined={%
+        height from=3.25mm to 6mm,
+        right=2.5mm,
+        segmentation style={solid,line width=0.04pt,shorten >=2.5mm,shorten <=0.1mm},
+        underlay={\begin{tcbclipinterior}%
+          \path[preaction={fill=tcbcol@frame!10!tcbcol@back},fill zoom image=\gtrDBimage]
+          ([xshift=-2.4mm]interior.south east) rectangle (interior.north east);
+        \end{tcbclipinterior}},%
+      }{%
+        segmentation style={solid,line width=0.04pt,shorten >=0.1mm,shorten <=0.1mm},
+      },
+    },
+    database@edges@reduced
   },
 %
   template/database relationship/.style={
@@ -269,10 +539,7 @@
         },
       }{},
     },
-    edges={perpendicular,
-      foreground={black,line width=0.3mm},
-      background={white,line width=0.8mm}
-    },
+    database@edges
   },
 %
   ahnentafel@malefemale/.style={
