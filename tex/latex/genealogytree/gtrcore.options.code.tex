@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 1.21 (2017/09/15)
+%% The LaTeX package genealogytree - version 1.30 (2017/12/08)
 %% gtrcore.options.code.tex: Options
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{1.21}
+\gtr@set@library@version{1.30}
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% General handling
@@ -149,18 +149,38 @@
   \csdimdef{gtr@per@#1@dim}{\ht\csuse{gtr@per@#1@box}+\dp\csuse{gtr@per@#1@box}}%
 }
 
-
-\def\gtr@set@position@family@down#1{%
-  \csdimdef{gtr@fam@#1@pos}{\gtr@level@reference-\gtr@level@size-\csuse{gtr@fam@#1@frac}\dimexpr\gtr@level@distance}%
+\gtrset{%
+  reset edge level shift/.code={%
+    \def\gtr@set@position@family@down##1{%
+      \csdimdef{gtr@fam@##1@pos}{\gtr@level@reference-\gtr@level@size-\csuse{gtr@fam@##1@frac}\dimexpr\gtr@level@distance}%
+    }%
+    \def\gtr@set@position@family@up##1{%
+      \csdimdef{gtr@fam@##1@pos}{-\gtr@level@reference+\gtr@level@size+\csuse{gtr@fam@##1@frac}\dimexpr\gtr@level@distance}%
+    }%
+    \let\gtr@set@position@family@left=\gtr@set@position@family@down%
+    \let\gtr@set@position@family@right=\gtr@set@position@family@up%
+  },
+  nullify edge level shift/.code={%
+    \def\gtr@set@position@family@down##1{%
+      \csdimdef{gtr@fam@##1@pos}{\gtr@level@reference-\gtr@level@size-0.5\dimexpr\gtr@level@distance}%
+    }%
+    \def\gtr@set@position@family@up##1{%
+      \csdimdef{gtr@fam@##1@pos}{-\gtr@level@reference+\gtr@level@size+0.5\dimexpr\gtr@level@distance}%
+    }%
+    \let\gtr@set@position@family@left=\gtr@set@position@family@down%
+    \let\gtr@set@position@family@right=\gtr@set@position@family@up%
+  },
+  switch edge level shift/.code={%
+    \def\gtr@set@position@family@down##1{%
+      \csdimdef{gtr@fam@##1@pos}{\gtr@level@reference-\gtr@level@size-\gtr@level@distance+\csuse{gtr@fam@##1@frac}\dimexpr\gtr@level@distance}%
+    }%
+    \def\gtr@set@position@family@up##1{%
+      \csdimdef{gtr@fam@##1@pos}{-\gtr@level@reference+\gtr@level@size+\gtr@level@distance-\csuse{gtr@fam@##1@frac}\dimexpr\gtr@level@distance}%
+    }%
+    \let\gtr@set@position@family@left=\gtr@set@position@family@down%
+    \let\gtr@set@position@family@right=\gtr@set@position@family@up%
+  },
 }
-
-\def\gtr@set@position@family@up#1{%
-  \csdimdef{gtr@fam@#1@pos}{-\gtr@level@reference+\gtr@level@size+\csuse{gtr@fam@#1@frac}\dimexpr\gtr@level@distance}%
-}
-
-\let\gtr@set@position@family@left=\gtr@set@position@family@down
-
-\let\gtr@set@position@family@right=\gtr@set@position@family@up
 
 \newif\ifgtr@timeflow@vertical
 
@@ -342,6 +362,15 @@
     x/.style n args={3}{extra edges prepend for family={##1}{##2}{##3}{#2}},%
     #1},
   %
+  edges@shift@down/.style={family edges={yshift=#1}},
+  edges@shift@up/.style={family edges={yshift=-#1}},
+  edges@shift@left/.style={family edges={xshift=#1}},
+  edges@shift@right/.style={family edges={xshift=-#1}},
+  edges shift/.style={edges@shift@\gtr@timeflow={#1}},
+  edges up/.style={edges shift=\gtr@level@distance/3},
+  edges down/.style={edges shift=-\gtr@level@distance/3},
+  edges up by/.style args={#1 of #2}{edges shift=#1\dimexpr\gtr@level@distance/#2},
+  edges down by/.style args={#1 of #2}{edges shift=-#1\dimexpr\gtr@level@distance/#2},
   %
   phantom*/.style={subtree={processing=tcolorbox,deletion content interpreter,edges=none,
     box={empty,notitle,no underlay,no overlay,no shadow,no borderline,code={\ifstrempty{#1}{}{%
@@ -434,6 +463,7 @@
 
 \gtrset{%
   reset/.style={%
+    reset edge level shift,
     id prefix=,
     id suffix=,
     timeflow=down,
