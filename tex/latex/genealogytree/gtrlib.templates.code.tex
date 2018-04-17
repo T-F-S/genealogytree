@@ -1,8 +1,8 @@
-%% The LaTeX package genealogytree - version 1.30 (2017/12/08)
+%% The LaTeX package genealogytree - version 1.31 (2018/04/17)
 %% gtrlib.templates.code.tex: Templates
 %%
 %% -------------------------------------------------------------------------------------------
-%% Copyright (c) 2013-2017 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Copyright (c) 2013-2018 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
 %% -------------------------------------------------------------------------------------------
 %%
 %% This work may be distributed and/or modified under the
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{1.30}
+\gtr@set@library@version{1.31}
 
 % Templates
 
@@ -217,7 +217,7 @@
         right=25mm,
         segmentation style={solid,shorten >=25mm,shorten <=1mm},
         underlay={\begin{tcbclipinterior}%
-          \path[preaction={fill=tcbcol@frame!10!tcbcol@back},fill zoom image=\gtrDBimage]
+          \path[preaction={fill=tcbcol@frame!10!tcbcol@back},fill zoom DBimage]
           ([xshift=-24mm]interior.south east) rectangle (interior.north east);
         \end{tcbclipinterior}},%
       }{%
@@ -249,7 +249,7 @@
         right=2.5mm,
         segmentation style={solid,line width=0.04pt,shorten >=2.5mm,shorten <=0.1mm},
         underlay={\begin{tcbclipinterior}%
-          \path[preaction={fill=tcbcol@frame!10!tcbcol@back},fill zoom image=\gtrDBimage]
+          \path[preaction={fill=tcbcol@frame!10!tcbcol@back},fill zoom DBimage]
           ([xshift=-2.4mm]interior.south east) rectangle (interior.north east);
         \end{tcbclipinterior}},%
       }{%
@@ -279,7 +279,7 @@
       before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
       \gtrDBsex,
       underlay={\begin{tcbclipinterior}%
-        \gtrifimagedefined{\path[fill overzoom image=\gtrDBimage]
+        \gtrifimagedefined{\path[fill overzoom DBimage]
           ([yshift=-25mm]interior.north west) rectangle (interior.north east);}{%
           \path[fill overzoom picture=\gtrDrawSymbolicPortrait]
           ([yshift=-25mm]interior.north west) rectangle (interior.north east);
@@ -311,7 +311,7 @@
       before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
       \gtrDBsex,
       underlay={\begin{tcbclipinterior}%
-        \gtrifimagedefined{\path[fill overzoom image=\gtrDBimage]
+        \gtrifimagedefined{\path[fill overzoom DBimage]
           ([yshift=-2.5mm]interior.north west) rectangle (interior.north east);}{%
           \path[fill overzoom picture=\gtrDrawSymbolicPortrait]
           ([yshift=-2.5mm]interior.north west) rectangle (interior.north east);
@@ -459,7 +459,7 @@
         right=25mm,
         segmentation style={solid,shorten >=25mm,shorten <=1mm},
         underlay={\begin{tcbclipinterior}%
-          \path[preaction={fill=tcbcol@frame!10!tcbcol@back},fill zoom image=\gtrDBimage]
+          \path[preaction={fill=tcbcol@frame!10!tcbcol@back},fill zoom DBimage]
           ([xshift=-24mm]interior.south east) rectangle (interior.north east);
         \end{tcbclipinterior}},%
       }{%
@@ -495,7 +495,7 @@
         right=2.5mm,
         segmentation style={solid,line width=0.04pt,shorten >=2.5mm,shorten <=0.1mm},
         underlay={\begin{tcbclipinterior}%
-          \path[preaction={fill=tcbcol@frame!10!tcbcol@back},fill zoom image=\gtrDBimage]
+          \path[preaction={fill=tcbcol@frame!10!tcbcol@back},fill zoom DBimage]
           ([xshift=-2.4mm]interior.south east) rectangle (interior.north east);
         \end{tcbclipinterior}},%
       }{%
@@ -533,7 +533,7 @@
         code={\tcbdimto\gtr@im@width{0.77778\dimexpr\gtr@level@size-0.3mm\relax}},%
         left=\gtr@im@width+1mm,
         underlay={\begin{tcbclipinterior}%
-          \path[fill overzoom image=\gtrDBimage]
+          \path[fill overzoom DBimage]
           (interior.south west) rectangle ([xshift=\gtr@im@width]interior.north west);
         \end{tcbclipinterior}%
         },
