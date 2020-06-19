@@ -3,11 +3,11 @@ genealogytree
 
 A LaTeX package to create pedigree and genealogical tree diagrams.
 
-> http://www.ctan.org/pkg/genealogytree
+> https://www.ctan.org/pkg/genealogytree
 
 ```
 The LaTeX package genealogytree
-Copyright (c) 2013-2019 by Prof. Dr. Dr. Thomas F. Sturm
+Copyright (c) 2013-2020 by Prof. Dr. Dr. Thomas F. Sturm
 
 This work may be distributed and/or modified under the
 conditions of the LaTeX Project Public License, either version 1.3

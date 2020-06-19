@@ -1,8 +1,8 @@
-%% The LaTeX package genealogytree - version 1.32 (2019/04/08)
+%% The LaTeX package genealogytree - version 2.00 (2020/06/19)
 %% gtrcore.node.code.tex: Node Boxes
 %%
 %% -------------------------------------------------------------------------------------------
-%% Copyright (c) 2013-2019 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Copyright (c) 2013-2020 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
 %% -------------------------------------------------------------------------------------------
 %%
 %% This work may be distributed and/or modified under the
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{1.32}
+\gtr@set@library@version{2.00}
 
 %%%%%%%%%%%%%%
 % Processors %
@@ -199,15 +199,21 @@
   \x%
 }
 
-\gtr@db@new@store{name}
-\gtr@db@new@store{shortname}
+\gtr@db@new@store{age}
 \gtr@db@new@store{comment}
-\gtr@db@new@store{profession}
-\gtr@db@new@store{sex}
-\gtr@db@new@store{uuid}
-\gtr@db@new@store{kekule}
-\gtr@db@new@store{relationship}
 \gtr@db@new@store{imageopt}
+\gtr@db@new@store{kekule}
+\gtr@db@new@store{name}
+\gtr@db@new@store{profession}
+\gtr@db@new@store{relation}
+\gtr@db@new@store{relationship}
+\gtr@db@new@store{sex}
+\gtr@db@new@store{shortname}
+\gtr@db@new@store{uuid}
+
+\pgfkeys{/gtr/database/relation/.append code=\xdef\gtr@flag@node@r{#1}}
+\pgfkeys{/gtr/database/sex/.append code=\xdef\gtr@flag@node@s{#1}}
+
 
 \def\gtr@db@new@event@store#1{%
   \begingroup\edef\x{\endgroup\noexpand\gtrset{%
@@ -237,6 +243,10 @@
   neuter/.style={sex=neuter},
   viewport/.style={imageopt={viewport=#1,clip}},
   db@reset/.style={name=,shortname=,sex=neuter},
+  ancestor/.style={relation=ancestor},
+  descendant/.style={relation=descendant},
+  sibling/.style={relation=sibling},
+  unrelated/.style={relation=unrelated},
 }
 
 \tcbset{%
@@ -613,7 +623,11 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%
-% Comment, Profession and Places %
+% Age, Comment, Profession and Places %
+
+\def\gtrifagedefined#1#2{%
+  \ifdefvoid{\gtrDBage}{#2}{#1}%
+}
 
 \def\gtrifcommentdefined#1#2{%
   \ifdefvoid{\gtrDBcomment}{#2}{#1}%
@@ -1276,6 +1290,7 @@
   event code/.code={\def\gtrPrintEvent##1{#1}},
   comment code/.code={\def\gtrPrintComment{#1}},
   profession code/.code={\def\gtrPrintProfession{#1}},
+  age code/.code={\def\gtrPrintAge{#1}},
   date format/.is choice,
   calendar print/.is choice,
   calendar print/all/.code={\let\gtr@print@date@single@calendar\gtr@print@date@single@calendar@all},
@@ -1300,6 +1315,7 @@
   calendar print=all but AD,
   event text={}{~}{ }{},
   event format=prefix date place,
+  age code={[\gtrDBage]},
   comment code={\hspace{0pt}{\itshape\gtrDBcomment}},
   profession code={\hspace{0pt}{\itshape\gtrDBprofession}},
 }

@@ -1,8 +1,8 @@
-%% The LaTeX package genealogytree - version 1.32 (2019/04/08)
+%% The LaTeX package genealogytree - version 2.00 (2020/06/19)
 %% gtrcore.processing.code.tex: Processing
 %%
 %% -------------------------------------------------------------------------------------------
-%% Copyright (c) 2013-2019 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Copyright (c) 2013-2020 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
 %% -------------------------------------------------------------------------------------------
 %%
 %% This work may be distributed and/or modified under the
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{1.32}
+\gtr@set@library@version{2.00}
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Processing - common
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -72,11 +72,7 @@
     }%
     %
     \global\gtr@ignorefalse%
-    \gtrset{level=\number\gtr@c@level}%
-    \pgfkeysifdefined{/gtr/level \number\gtr@c@level/.@cmd}{%
-      \gtrset{level \number\gtr@c@level}%
-      }{%
-      }%
+    \gtrset{level=\number\gtr@c@level,level \number\gtr@c@level/.try}%
     \ifgtr@ignore%
       \global\def\gtr@gkv@opt@ignore@level{ignore}%
     \else%
@@ -119,7 +115,7 @@
 
 
 \def\gtr@proc@@set@enc@family{%
-  \ifnum\gtr@famstack@size>0%
+  \ifnum\gtr@famstack@size>0\relax%
     \gtr@famstack@peekto{\gtr@encfamily}%
     \csedef{gtr@fam@\gtr@currentfamily @fam}{\gtr@encfamily}%
   \fi%
@@ -236,7 +232,7 @@
 
 \def\gtr@proc@@parent@end{%
   \ifcsname gtr@fam@\gtr@currentfamily @g\endcsname%
-  \else\gtr@error{No g-node in parent family (\gtr@currentfamily)}{Every family need a g-node}%
+  \else\gtr@error{No g-node in parent family (\gtr@currentfamily)}{Every family needs a g-node}%
   \fi%
   \gtr@proc@pivot@reset%
   \csdef{gtr@fam@\gtr@currentfamily @frac}{0.5}%
@@ -453,7 +449,7 @@
   \gtr@add@child{\gtr@currentperson}{\gtr@currentfamily}%
   \gtr@add@gnode{\gtr@currentperson}{\gtr@currentfamily}%
   \gtr@add@family{\gtr@currentperson}{\gtr@currentfamily}%
-  \ifnum\gtr@famstack@size>0%
+  \ifnum\gtr@famstack@size>0\relax%
     \gtr@famstack@peekto{\gtr@childfamily}%
     \gtr@add@parent{\gtr@currentperson}{\gtr@childfamily}%
   \fi%
@@ -463,7 +459,7 @@
   \gtr@add@parent{\gtr@currentperson}{\gtr@currentfamily}%
   \gtr@add@gnode{\gtr@currentperson}{\gtr@currentfamily}%
   \gtr@add@family{\gtr@currentperson}{\gtr@currentfamily}%
-  \ifnum\gtr@famstack@size>0%
+  \ifnum\gtr@famstack@size>0\relax%
     \gtr@famstack@peekto{\gtr@parentfamily}%
     \gtr@add@child{\gtr@currentperson}{\gtr@parentfamily}%
   \fi%
@@ -485,12 +481,13 @@
   linked@family@options/c/.code={},
   linked@family@options/pc/.code={},
   linked@family@options/gc/.code={},
+  c@mpl@m@nt@d/.code={\gdef\gtr@flag@node@c{true}},
 }
 
 \def\gtr@linked@family@options@p{}
 \def\gtr@linked@family@options@c{}
 \def\gtr@linked@family@options@g{%
-  \ifnum\gtr@famstack@size>0%
+  \ifnum\gtr@famstack@size>0\relax%
     \gtr@famstack@peekto{\gtr@linkedfamily}%
     \gtr@cs@keysalsofrom{gtr@fam@\gtr@linkedfamily @opt@family}%
   \fi%
@@ -505,6 +502,9 @@
     \begingroup%
     \begin{pgfinterruptpicture}%
       \global\gtr@ignorefalse%
+      \gdef\gtr@flag@node@c{false}%
+      \gdef\gtr@flag@node@r{unrelated}%
+      \gdef\gtr@flag@node@s{neuter}%
       \gtrset{id=,distance=-1sp,pivot=none,tikz=,
         code={%
           \gtr@cs@keysalsofrom{gtr@fam@\gtr@currentfamily @opt@subtree}%
@@ -523,6 +523,9 @@
   }%
   \unless\ifgtr@ignore%
     \csedef{gtr@per@\gtr@currentperson @id}{\gtr@gkv@id}%
+    \csedef{gtr@per@\gtr@currentperson @flag@c}{\gtr@flag@node@c}%
+    \csedef{gtr@per@\gtr@currentperson @flag@r}{\gtr@flag@node@r}%
+    \csedef{gtr@per@\gtr@currentperson @flag@s}{\gtr@flag@node@s}%
     \ifdim\gtr@gkv@distance>-1sp\relax%
       \csedef{gtr@per@\gtr@currentperson @distance}{\gtr@gkv@distance}%
     \fi%

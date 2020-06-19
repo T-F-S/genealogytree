@@ -1,8 +1,8 @@
-%% The LaTeX package genealogytree - version 1.32 (2019/04/08)
+%% The LaTeX package genealogytree - version 2.00 (2020/06/19)
 %% gtrcore.drawing.code.tex: Drawing
 %%
 %% -------------------------------------------------------------------------------------------
-%% Copyright (c) 2013-2019 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Copyright (c) 2013-2020 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
 %% -------------------------------------------------------------------------------------------
 %%
 %% This work may be distributed and/or modified under the
@@ -17,7 +17,112 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{1.32}
+\gtr@set@library@version{2.00}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Auxiliary Tools
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\ExplSyntaxOn
+
+\cs_new:Npn \__getree_autosize_box:Nnn #1#2#3
+  {
+    \fp_set:Nn \l_tmpa_fp {#2}
+    \fp_set:Nn \l_tmpb_fp {#3}
+    \bool_if:nTF { \fp_compare_p:n { \l_tmpa_fp > 0 } && \fp_compare_p:n { \l_tmpa_fp < \maxdimen } }
+      {
+        \bool_if:nTF { \fp_compare_p:n { \l_tmpb_fp > 0 } && \fp_compare_p:n { \l_tmpb_fp < \maxdimen } }
+          {
+            \box_autosize_to_wd_and_ht_plus_dp:Nnn #1 {\fp_to_dim:N\l_tmpa_fp} {\fp_to_dim:N\l_tmpb_fp}
+          }
+          {
+            \box_resize_to_wd:Nn #1 {\fp_to_dim:N\l_tmpa_fp}
+          }
+      }
+      {
+        \bool_if:nT { \fp_compare_p:n { \l_tmpb_fp > 0 } && \fp_compare_p:n { \l_tmpb_fp < \maxdimen } }
+          {
+            \box_resize_to_ht_plus_dp:Nn #1 {\fp_to_dim:N\l_tmpb_fp}
+          }
+      }
+  }
+
+
+\cs_new:Npn \__getree_autosize_box_shrink:Nnn #1#2#3
+  {
+    \fp_set:Nn \l_tmpa_fp {#2}
+    \fp_set:Nn \l_tmpb_fp {#3}
+    \bool_if:nTF { \fp_compare_p:n { \l_tmpa_fp > 0 } && \fp_compare_p:n { \l_tmpa_fp < \maxdimen } }
+      {
+        \bool_if:nTF { \fp_compare_p:n { \l_tmpb_fp > 0 } && \fp_compare_p:n { \l_tmpb_fp < \maxdimen } }
+          {
+            \bool_if:nT { \fp_compare_p:n { \l_tmpa_fp < \box_wd:N #1 } || \fp_compare_p:n { \l_tmpb_fp < \box_ht:N #1 + \box_dp:N #1 } }
+              {
+                \box_autosize_to_wd_and_ht_plus_dp:Nnn #1 {\fp_to_dim:N\l_tmpa_fp} {\fp_to_dim:N\l_tmpb_fp}
+              }
+          }
+          {
+            \bool_if:nT { \fp_compare_p:n { \l_tmpa_fp < \box_wd:N #1 } }
+              {
+                \box_resize_to_wd:Nn #1 {\fp_to_dim:N\l_tmpa_fp}
+              }
+          }
+      }
+      {
+        \bool_if:nT { \fp_compare_p:n { \l_tmpb_fp > 0 } && \fp_compare_p:n { \l_tmpb_fp < \maxdimen } }
+          {
+            \bool_if:nT { \fp_compare_p:n { \l_tmpb_fp < \box_ht:N #1 + \box_dp:N #1 } }
+              {
+                \box_resize_to_ht_plus_dp:Nn #1 {\fp_to_dim:N\l_tmpb_fp}
+              }
+          }
+      }
+  }
+
+
+\NewDocumentCommand \gtrautosizebox { smmm }
+  {
+    \hbox_set:Nn \l_tmpa_box {#4}
+      \IfBooleanTF {#1}
+        {
+          \__getree_autosize_box_shrink:Nnn \l_tmpa_box {#2} {#3}
+        }
+        {
+          \__getree_autosize_box:Nnn \l_tmpa_box {#2} {#3}
+        }
+    \hbox_unpack_drop:N \l_tmpa_box
+  }
+
+
+\NewDocumentEnvironment { autosizetikzpicture } { O{} m m +b }
+  {
+    \hbox_set:Nn \l_tmpa_box
+      {
+        \begin{tikzpicture}[#1]
+        #4
+        \end{tikzpicture}
+      }
+    \__getree_autosize_box:Nnn \l_tmpa_box {#2} {#3}
+    \hbox_unpack_drop:N \l_tmpa_box
+  }{}
+
+
+\NewDocumentEnvironment { autosizetikzpicture* } { O{} m m +b }
+  {
+    \hbox_set:Nn \l_tmpa_box
+      {
+        \begin{tikzpicture}[#1]
+        #4
+        \end{tikzpicture}
+      }
+    \__getree_autosize_box_shrink:Nnn \l_tmpa_box {#2} {#3}
+    \hbox_unpack_drop:N \l_tmpa_box
+  }{}
+
+
+\ExplSyntaxOff
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Drawing
@@ -49,7 +154,6 @@
         Alternatively, use genealogypicture (see documentation).}%
   \fi%
   \gtr@reset@before@parser%
-  \tcb@layer@pushup%
   \gtr@parsegraph[#1]{#2}%
   \gtrkv@after@parser%
   %
@@ -461,6 +565,7 @@
     \gtrset{%
       use family database,
       database format=marriage,
+      list separators={}{, }{}{},
       code={\pgfkeysalsofrom{\gtrkv@database@label}},
     }%
     \gtr@forall@families{\gtr@draw@family}%

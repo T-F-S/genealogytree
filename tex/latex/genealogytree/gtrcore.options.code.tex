@@ -1,8 +1,8 @@
-%% The LaTeX package genealogytree - version 1.32 (2019/04/08)
+%% The LaTeX package genealogytree - version 2.00 (2020/06/19)
 %% gtrcore.options.code.tex: Options
 %%
 %% -------------------------------------------------------------------------------------------
-%% Copyright (c) 2013-2019 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Copyright (c) 2013-2020 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
 %% -------------------------------------------------------------------------------------------
 %%
 %% This work may be distributed and/or modified under the
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{1.32}
+\gtr@set@library@version{2.00}
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% General handling
@@ -242,6 +242,17 @@
     \gtr@parse@init@hook{gtr@parse@endfamily@hook}{gtr@fam@\gtr@currentfamily @id}%
     \gtr@parse@appto@hook{gtr@parse@endfamily@hook}{#1}{#2}%
   },
+  insert for childless families level limit/.store in=\gtr@childlesschild@levellimit,
+  insert for childless families/.code={%
+    \ifblank{#1}%
+      {\def\gtr@parse@childlesschild@hook{}}%
+      {\long\def\gtr@parse@childlesschild@hook{%
+        \ifnum\gtr@c@level>\gtr@childlesschild@levellimit\relax%
+          \ifcsundef{gtr@fam@\gtr@currentfamily @patchi}{\gtr@parse@graph #1x}{}%
+        \fi%
+      }}%
+  },
+  insert phantom for childless families/.style={insert for childless families={c[phantom]{}}},
   %
   family/.style={#1},
   subtree/.style={#1},
@@ -329,14 +340,15 @@
   ignore subtree/.code={\gtrignoresubtree{#1}},
   ignore node/.code={\gtrignorenode{#1}},
   ignore level/.code={%
-    \ifnum#1>0%
+    \ifnum#1>0\relax%
       \gtrset{level #1/.style={node=ignore}}%
       \edef\gtrtemp{\the\numexpr#1+1\relax}%
       \gtrset{level \gtrtemp/.style=ignore}%
-    \else\ifnum#1<0%
+    \else\ifnum#1<0\relax%
       \gtrset{level #1/.style={ignore,node=ignore}}%
     \fi\fi%
   },
+  ignore parent childs/.code={\let\gtr@parent@@c\gtr@parent@@c@ignore},
   %
   edges/.code={\gtredgeset{#1}},
   family edges/.style={family={edges={#1}}},
@@ -379,6 +391,43 @@
   phantom*/.default=,
   phantom/.style={phantom*={#1},subtree=disconnect},
   phantom/.default=,
+  complemented phantom/.style={complemented/.style={phantom}},
+  autofill parents male female*/.code={%
+    \def\gtr@complementparents@levellimit{#1}%
+    \let\gtr@parse@complementparents@hook\gtr@parse@complementparents@malefemale%
+    \let\gtr@parent@@p\gtr@parent@@p@malefemale%
+  },
+  autofill parents male female*/.default=5,
+  autofill parents male female/.style={%
+    autofill parents male female*={#1},
+    ignore level={\the\numexpr#1+1\relax},
+  },
+  autofill parents male female/.default=5,
+  autofill parents female male*/.code={%
+    \def\gtr@complementparents@levellimit{#1}%
+    \let\gtr@parse@complementparents@hook\gtr@parse@complementparents@femalemale%
+    \let\gtr@parent@@p\gtr@parent@@p@femalemale%
+  },
+  autofill parents female male/.style={%
+    autofill parents female male*={#1},
+    ignore level={\the\numexpr#1+1\relax},
+  },
+  autofill parents female male/.default=5,
+  autofill parents unspecific*/.code={%
+    \def\gtr@complementparents@levellimit{#1}%
+    \let\gtr@parse@complementparents@hook\gtr@parse@complementparents@unspecific%
+    \let\gtr@parent@@p\gtr@parent@@p@unspecific%
+  },
+  autofill parents unspecific*/.default=5,
+  autofill parents unspecific/.code={%
+    autofill parents unspecific*={#1},
+    ignore level={\the\numexpr#1+1\relax},
+  },
+  autofill parents unspecific/.default=5,
+  autofill parents none/.code={%
+    \def\gtr@parse@complementparents@hook{}%
+    \let\gtr@parent@@p\gtr@parent@@p@normal%
+  },
 }
 
 \pgfkeys{/gtr/edge/.is family}
@@ -473,6 +522,7 @@
     proband level=0,
     tree offset=0pt,
     level/.style=,
+    complemented/.style=,
     box clear,
     processing=fit,
     edges={perpendicular,foreground=,background=,anchoring=periphery,hide single leg,xshift=0pt,yshift=0pt},
@@ -486,6 +536,9 @@
     label options=,
     label database options=,
     no content interpreter,
+    insert for childless families=,
+    insert for childless families level limit=-2147483647,
+    autofill parents none,
   },
   reset
 }

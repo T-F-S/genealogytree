@@ -1,8 +1,8 @@
-%% The LaTeX package genealogytree - version 1.32 (2019/04/08)
+%% The LaTeX package genealogytree - version 2.00 (2020/06/19)
 %% gtrcore.parser.code.tex: Parser
 %%
 %% -------------------------------------------------------------------------------------------
-%% Copyright (c) 2013-2019 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Copyright (c) 2013-2020 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
 %% -------------------------------------------------------------------------------------------
 %%
 %% This work may be distributed and/or modified under the
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{1.32}
+\gtr@set@library@version{2.00}
 
 %% (local) stack implementation
 \def\gtrnewstack#1{%
@@ -209,11 +209,16 @@
   \fi%
 }
 
+
 \def\gtr@pparse@c{\@ifnextchar[{\gtr@parent@@c}{\gtr@parent@@c[]}}
 \long\def\gtr@parent@@c[#1]#2{%
   \gtr@trav@@c[#1]{#2}%
   \gtr@parse@graphwithhandle{\gtr@handle@continue@parent}%
 }
+\long\def\gtr@parent@@c@ignore[#1]#2{%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@parent}%
+}
+
 
 \def\gtr@pparse@p{%
   \@ifnextchar a{\gtr@pparse@parent@}{\gtr@pparse@p@}}
@@ -223,10 +228,37 @@
   \gtr@parse@graphwithhandle{\gtr@handle@continue@parent}%
 }
 \def\gtr@pparse@p@{\@ifnextchar[{\gtr@parent@@p}{\gtr@parent@@p[]}}
-\long\def\gtr@parent@@p[#1]#2{%
+
+
+\long\def\gtr@parent@@p@normal[#1]#2{%
   \gtr@trav@@p[#1]{#2}%
   \gtr@parse@graphwithhandle{\gtr@handle@continue@parent}%
 }
+\long\def\gtr@parent@@p@malefemale[#1]#2{%
+  \ifnum\gtr@c@level<\gtr@complementparents@levellimit\relax%
+    \gtr@trav@@complementedparent{g[#1]{#2}p[c@mpl@m@nt@d,complemented]{male}p[c@mpl@m@nt@d,complemented]{female}}%
+  \else%
+    \gtr@trav@@p[#1]{#2}%
+  \fi%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@parent}%
+}
+\long\def\gtr@parent@@p@femalemale[#1]#2{%
+  \ifnum\gtr@c@level<\gtr@complementparents@levellimit\relax%
+    \gtr@trav@@complementedparent{g[#1]{#2}p[c@mpl@m@nt@d,complemented]{female}p[c@mpl@m@nt@d,complemented]{male}}%
+  \else%
+    \gtr@trav@@p[#1]{#2}%
+  \fi%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@parent}%
+}
+\long\def\gtr@parent@@p@unspecific[#1]#2{%
+  \ifnum\gtr@c@level<\gtr@complementparents@levellimit\relax%
+    \gtr@trav@@complementedparent{g[#1]{#2}p[c@mpl@m@nt@d,complemented]{}p[c@mpl@m@nt@d,complemented]{}}%
+  \else%
+    \gtr@trav@@p[#1]{#2}%
+  \fi%
+  \gtr@parse@graphwithhandle{\gtr@handle@continue@parent}%
+}
+
 
 \def\gtr@pparse@g{\@ifnextchar[{\gtr@parent@@g}{\gtr@parent@@g[]}}
 \long\def\gtr@parent@@g[#1]#2{%
@@ -387,7 +419,7 @@
 
 \def\gtr@previous@family{%
   \let\gtr@lastfamily=\gtr@currentfamily%
-  \ifnum\gtr@famstack@size>0%
+  \ifnum\gtr@famstack@size>0\relax%
      \gtr@famstack@popto{\gtr@currentfamily}%
   \else%
      \let\gtr@currentfamily=\@undefined%
@@ -448,6 +480,24 @@
     \gtr@parse@beginfamily@hook%
     \gtr@parse@graphwithhandle{\gtr@handle@continue@parent}#2x%
     \gtr@parse@endfamily@hook%
+    \gtr@parse@complementparents@hook%
+    \gtr@proc@@parent@end%
+  \fi%
+  \gtr@previous@family%
+  \gtr@down@level@pop%
+  \gtr@parse@afterfamily@hook%
+}
+
+\long\def\gtr@trav@@complementedparent#1{%
+  \gtr@up@level@push%
+  \gtr@next@family%
+  \gtr@proc@@parent@begin{}%
+  \ifgtr@ignore%
+    \advance\gtr@c@family -1\relax%
+  \else%
+    \gtr@parse@beginfamily@hook%
+    \gtr@parse@graph #1x%
+    \gtr@parse@endfamily@hook%
     \gtr@proc@@parent@end%
   \fi%
   \gtr@previous@family%
@@ -465,6 +515,7 @@
     \gtr@parse@beginfamily@hook%
     \gtr@parse@graphwithhandle{\gtr@handle@continue@child}#2x%
     \gtr@parse@endfamily@hook%
+    \gtr@parse@childlesschild@hook%
     \gtr@proc@@child@end%
   \fi%
   \gtr@previous@family%
@@ -512,6 +563,27 @@
     #3%
   \fi%
 }
+% \long\def\gtr@trav@@add@node@malefemale#1#2#3{%
+  % \gdef\gtr@gtrav@mark{m}%
+  % \gtr@proc@add@node{#1}{#2}%
+  % \ifgtr@ignore%
+    % \advance\gtr@c@pid -1\relax%
+  % \else%
+    % \csedef{gtr@per@\gtr@currentperson @mark}{\gtr@gtrav@mark}%
+    % #3%
+  % \fi%
+% }
+% \long\def\gtr@trav@@add@node@femalemale#1#2#3{%
+  % \gdef\gtr@gtrav@mark{f}%
+  % \gtr@proc@add@node{#1}{#2}%
+  % \ifgtr@ignore%
+    % \advance\gtr@c@pid -1\relax%
+  % \else%
+    % \csedef{gtr@per@\gtr@currentperson @mark}{\gtr@gtrav@mark}%
+    % #3%
+  % \fi%
+% }
+
 
 \long\def\gtr@trav@@parent@g[#1]#2{%
   \gtr@down@level@push%
@@ -595,6 +667,7 @@
   \gtr@parse@afternode@hook%
 }
 
+
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Hooks
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -614,6 +687,121 @@
       \noexpand\gtr@parse@graph\expandonce{#3}x}{}%
   }}\x%
 }
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Parent Autofill
+%%%%%%%%%%%%%%%%%%%%%%%
+
+% precondition: list with exact 2 parents
+\def\gtr@parse@toggle@parents{%
+  \letcs\gtr@currentparentlist{gtr@fam@\gtr@currentfamily @par}%
+  \def\dodo##1{%
+    \def\gtr@tempB{##1}%
+  }%
+  \def\do##1{%
+    \def\gtr@tempA{##1}%
+    \let\do\dodo%
+  }%
+  \dolistloop{\gtr@currentparentlist}%
+  \csundef{gtr@fam@\gtr@currentfamily @par}%
+  \listcseadd{gtr@fam@\gtr@currentfamily @par}{\gtr@tempB}%
+  \listcseadd{gtr@fam@\gtr@currentfamily @par}{\gtr@tempA}%
+  \letcs\gtr@currentparentlist{gtr@fam@\gtr@currentfamily @par}%
+}
+
+\def\gtr@parse@complementparents@malefemale{%
+  \ifnum\gtr@c@level>\gtr@complementparents@levellimit\relax%
+  \else%
+    \ifcsdef{gtr@fam@\gtr@currentfamily @par}%
+    {%
+      \def\dodo##1{%
+        \let\gtr@parse@do@complementparents\@secondoftwo%
+      }%
+      \def\do##1{%
+        \let\gtr@parse@do@complementparents\@firstoftwo%
+        \letcs\gtr@temp{gtr@per@##1@flag@s}%
+        \let\do\dodo%
+      }%
+      \dolistcsloop{gtr@fam@\gtr@currentfamily @par}%
+      \gtr@parse@do@complementparents%
+      {%
+        \ifdefstring{\gtr@temp}{female}%
+        {
+          \gtr@parse@graph p[c@mpl@m@nt@d,complemented]{male}x
+          \gtr@parse@toggle@parents%
+        }%
+        {
+          \gtr@parse@graph p[c@mpl@m@nt@d,complemented]{female}x
+        }%
+      }{%
+        \ifdefstring{\gtr@temp}{female}{\gtr@parse@toggle@parents}{}%
+      }%
+    }%
+    {%
+      \gtr@parse@graph p[c@mpl@m@nt@d,complemented]{male}p[c@mpl@m@nt@d,complemented]{female}x
+    }%
+  \fi%
+}
+
+\def\gtr@parse@complementparents@femalemale{%
+  \ifnum\gtr@c@level>\gtr@complementparents@levellimit\relax%
+  \else%
+    \ifcsdef{gtr@fam@\gtr@currentfamily @par}%
+    {%
+      \def\dodo##1{%
+        \let\gtr@parse@do@complementparents\@secondoftwo%
+      }%
+      \def\do##1{%
+        \let\gtr@parse@do@complementparents\@firstoftwo%
+        \letcs\gtr@temp{gtr@per@##1@flag@s}%
+        \let\do\dodo%
+      }%
+      \dolistcsloop{gtr@fam@\gtr@currentfamily @par}%
+      \gtr@parse@do@complementparents%
+      {%
+        \ifdefstring{\gtr@temp}{male}%
+        {
+          \gtr@parse@graph p[c@mpl@m@nt@d,complemented]{female}x
+          \gtr@parse@toggle@parents%
+        }%
+        {
+          \gtr@parse@graph p[c@mpl@m@nt@d,complemented]{male}x
+        }%
+      }{%
+        \ifdefstring{\gtr@temp}{male}{\gtr@parse@toggle@parents}{}%
+      }%
+    }%
+    {%
+      \gtr@parse@graph p[c@mpl@m@nt@d,complemented]{female}p[c@mpl@m@nt@d,complemented]{male}x
+    }%
+  \fi%
+}
+
+\def\gtr@parse@complementparents@unspecific{%
+  \ifnum\gtr@c@level>\gtr@complementparents@levellimit\relax%
+  \else%
+    \ifcsdef{gtr@fam@\gtr@currentfamily @par}%
+    {%
+      \def\dodo##1{%
+        \let\gtr@parse@do@complementparents\@secondoftwo%
+      }%
+      \def\do##1{%
+        \let\gtr@parse@do@complementparents\@firstoftwo%
+        \let\do\dodo%
+      }%
+      \dolistcsloop{gtr@fam@\gtr@currentfamily @par}%
+      \gtr@parse@do@complementparents%
+      {%
+        \gtr@parse@graph p[c@mpl@m@nt@d,complemented]{}x
+      }{}%
+    }%
+    {%
+      \gtr@parse@graph p[c@mpl@m@nt@d,complemented]{}p[c@mpl@m@nt@d,complemented]{}x
+    }%
+  \fi%
+}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Information
