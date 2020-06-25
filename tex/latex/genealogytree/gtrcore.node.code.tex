@@ -605,7 +605,7 @@
 
 \def\gtrPrintEvent@prefixdateplace#1{%
   \gtrkv@event@pre\gtrPrintEventPrefix{#1}%
-  \gtrkv@event@sepdate\gtrPrintDate{#1}%
+  \gtrifdatedefined{#1}{\gtrkv@event@sepdate\gtrPrintDate{#1}}{}%
   \gtrifplacedefined{#1}{\gtrkv@event@sepplace\gtrPrintPlace{#1}}{}%
   \gtrkv@event@app%
 }
@@ -621,9 +621,8 @@
   \gtrkv@event@app%
 }
 
-
-%%%%%%%%%%%%%%%%%%%%%%
-% Age, Comment, Profession and Places %
+%%%%%%%%%%%%%%%%%%%%%%%%%
+% Check for definitions %
 
 \def\gtrifagedefined#1#2{%
   \ifdefvoid{\gtrDBage}{#2}{#1}%
@@ -640,6 +639,23 @@
 \def\gtrifplacedefined#1#2#3{%
   \ifcsvoid{gtrDB#1place}{#3}{#2}%
 }
+
+\def\gtrifdatedefined#1#2#3{%
+  \ifcsdef{gtrDB#1year}{#2}{%
+    \ifcsdef{gtrDB#1endyear}{#2}{#3}%
+  }%
+}
+
+\def\gtrifdateorplacedefined#1#2#3{%
+  \gtrifdatedefined{#1}{#2}{
+    \gtrifplacedefined{#1}{#2}{#3}
+  }
+}
+
+\let\gtrifeventdefined=\gtrifdateorplacedefined
+
+%%%%%%%%%%
+% Places %
 
 \def\gtrPrintPlace#1{%
   \gtrkv@place@pre\csuse{gtrDB#1place}\gtrkv@place@app%
@@ -742,13 +758,6 @@
   \def\dot{.}%
   \pgfkeysvalueof{/gtr/month short/\csuse{#1}}%
 }}
-
-\def\gtrifdatedefined#1#2#3{%
-  \ifcsdef{gtrDB#1year}{#2}{%
-    \ifcsdef{gtrDB#1endyear}{#2}{#3}%
-  }%
-}
-\let\gtrifeventdefined=\gtrifdatedefined
 
 \def\gtr@dateformat@factory#1#2{%
   \csdef{gtrPrintDateCore@#1}##1{#2}%
