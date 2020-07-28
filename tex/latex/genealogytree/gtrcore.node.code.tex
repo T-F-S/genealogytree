@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 2.00 (2020/06/19)
+%% The LaTeX package genealogytree - version 2.01 (2020/07/28)
 %% gtrcore.node.code.tex: Node Boxes
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{2.00}
+\gtr@set@library@version{2.01}
 
 %%%%%%%%%%%%%%
 % Processors %
@@ -253,7 +253,7 @@
   male/.style={colframe=blue},
   female/.style={colframe=red},
   neuter/.style={},
-  if image defined/.code 2 args={\gtrifimagedefined{\tcbset{#1}}{\tcbset{#2}}},
+  if image defined/.code n args={2}{\gtrifimagedefined{\tcbset{#1}}{\tcbset{#2}}},
 }
 
 \gtrset{
@@ -1297,11 +1297,11 @@
   calendar print/none/.code={\let\gtr@print@date@single@calendar\gtr@print@date@single@calendar@none},
   calendar print/all but AD/.code={\let\gtr@print@date@single@calendar\gtr@print@date@single@calendar@AD},
   date range full/.code n args={3}{\def\gtrkv@range@full@A{#1}\def\gtrkv@range@full@B{#2}\def\gtrkv@range@full@C{#3}},
-  date range before/.code 2 args={\def\gtrkv@range@before@A{#1}\def\gtrkv@range@before@B{#2}},
-  date range after/.code 2 args={\def\gtrkv@range@after@A{#1}\def\gtrkv@range@after@B{#2}},
+  date range before/.code n args={2}{\def\gtrkv@range@before@A{#1}\def\gtrkv@range@before@B{#2}},
+  date range after/.code n args={2}{\def\gtrkv@range@after@A{#1}\def\gtrkv@range@after@B{#2}},
   date range separator/.style={date range full={}{#1}{},date range before={#1}{},date range after={}{#1}},
   date range separator/.default={--},
-  place text/.code 2 args={\def\gtrkv@place@pre{#1}\def\gtrkv@place@app{#2}},
+  place text/.code n args={2}{\def\gtrkv@place@pre{#1}\def\gtrkv@place@app{#2}},
   event text/.code n args={4}{\def\gtrkv@event@pre{#1}\def\gtrkv@event@sepdate{#2}\def\gtrkv@event@sepplace{#3}\def\gtrkv@event@app{#4}},
   event format/.is choice,
   event format/prefix date place/.code={\let\gtrPrintEvent=\gtrPrintEvent@prefixdateplace},

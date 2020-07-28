@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 2.00 (2020/06/19)
+%% The LaTeX package genealogytree - version 2.01 (2020/07/28)
 %% gtrcore.drawing.code.tex: Drawing
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{2.00}
+\gtr@set@library@version{2.01}
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Auxiliary Tools
@@ -502,36 +502,40 @@
 
 %%%%%%%%%%%%%%%%%%
 
-\def\gtr@draw@family@extra(#1#2#3){%
-  \begin{scope}[genealogytree extra edges scope]%
-  \csundef{gtr@fam@\gtr@currentfamily @par}%
-  \def\do##1{%
-    \gtr@getPerNumForId{##1}%
-    \ifdefempty{\gtr@tmp@num}{}{%
-      \listcseadd{gtr@fam@\gtr@currentfamily @par}{\gtr@tmp@num}}%
-  }%
-  \docsvlist{#1}%
-  \csundef{gtr@fam@\gtr@currentfamily @chi}%
-  \def\do##1{%
-    \gtr@getPerNumForId{##1}%
-    \ifdefempty{\gtr@tmp@num}{}{%
-      \listcseadd{gtr@fam@\gtr@currentfamily @chi}{\gtr@tmp@num}}%
-  }%
-  \docsvlist{#2}%
-  \gtrset{edges={#3}}%
-  %
-  \gtr@predraw@family{\gtr@currentfamily}%
-  \dimdef\gtr@dat@draw@x{\gtr@dat@draw@x+\gtrkv@edge@core@xshift}%
-  \dimdef\gtr@dat@draw@y{\gtr@dat@draw@y+\gtrkv@edge@core@yshift}%
-  \coordinate (dat@draw) at (\gtr@dat@draw@x,\gtr@dat@draw@y) {};
-  \ifnum\numexpr\gtr@legnum>\gtrkv@edge@noleg\relax%
-    \tikzset{gtr@link/.style={/gtr/edge/gtr@edge@background}}%,
-    \csuse{gtr@edge@\gtrkv@edgemode @\gtr@timeflow}%
-    \tikzset{gtr@link/.style={/gtr/edge/gtr@edge@foreground}}%,
-    \csuse{gtr@edge@\gtrkv@edgemode @\gtr@timeflow}%
-  \fi%
-  \end{scope}%
+\ExplSyntaxOn
+\def\gtr@draw@family@extra(#1#2#3){
+  \begin{scope}[genealogytree~extra~edges~scope]
+  \csundef{gtr@fam@\gtr@currentfamily @par}
+  \clist_set:Nn \l_tmpa_clist { #1 }
+  \clist_map_inline:Nn \l_tmpa_clist
+    {
+      \gtr@getPerNumForId{##1}
+      \ifdefempty{\gtr@tmp@num}{}{
+        \listcseadd{gtr@fam@\gtr@currentfamily @par}{\gtr@tmp@num}}
+    }
+  \csundef{gtr@fam@\gtr@currentfamily @chi}
+  \clist_set:Nn \l_tmpa_clist { #2 }
+  \clist_map_inline:Nn \l_tmpa_clist
+    {
+      \gtr@getPerNumForId{##1}
+      \ifdefempty{\gtr@tmp@num}{}{
+        \listcseadd{gtr@fam@\gtr@currentfamily @chi}{\gtr@tmp@num}}
+    }
+  \gtrset{edges={#3}}
+  \gtr@predraw@family{\gtr@currentfamily}
+  \dimdef\gtr@dat@draw@x{\gtr@dat@draw@x+\gtrkv@edge@core@xshift}
+  \dimdef\gtr@dat@draw@y{\gtr@dat@draw@y+\gtrkv@edge@core@yshift}
+  \coordinate~(dat@draw)~at~(\gtr@dat@draw@x,\gtr@dat@draw@y)~{};
+  \ifnum\numexpr\gtr@legnum>\gtrkv@edge@noleg\relax
+    \tikzset{gtr@link/.style={/gtr/edge/gtr@edge@background}}
+    \csuse{gtr@edge@\gtrkv@edgemode @\gtr@timeflow}
+    \tikzset{gtr@link/.style={/gtr/edge/gtr@edge@foreground}}
+    \csuse{gtr@edge@\gtrkv@edgemode @\gtr@timeflow}
+  \fi
+  \end{scope}
 }
+\ExplSyntaxOff
+
 
 \def\gtr@draw@family#1{%
   \begingroup%

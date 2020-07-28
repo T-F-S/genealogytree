@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 2.00 (2020/06/19)
+%% The LaTeX package genealogytree - version 2.01 (2020/07/28)
 %% gtrcore.options.code.tex: Options
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{2.00}
+\gtr@set@library@version{2.01}
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% General handling
@@ -94,39 +94,80 @@
 %%%%%%%%%%%%%%%%%%%%%%%
 
 
-\newcommand{\gtrsetoptionsforsubtree}[2]{%
-  \def\do##1{%
-    \gtr@keys@addvalue{/gtr/sopt/##1}{subtree={#2}}%
-  }%
-  \docsvlist{#1}%
+\ExplSyntaxOn
+
+
+\cs_new:Npn \getree_set_options_for_subtree:nn #1#2
+  {
+    \clist_set:Nn \l_tmpa_clist { #1 }
+    \clist_map_inline:Nn \l_tmpa_clist
+      {
+        \gtr@keys@addvalue{/gtr/sopt/##1}{#2}
+      }
+  }
+
+
+\cs_new:Npn \getree_set_options_for_family:nn #1#2
+  {
+    \clist_set:Nn \l_tmpa_clist { #1 }
+    \clist_map_inline:Nn \l_tmpa_clist
+      {
+        \gtr@keys@addvalue{/gtr/sopt/##1}{family={#2}}
+      }
+  }
+
+
+\cs_new:Npn \getree_set_options_for_node:nn #1#2
+  {
+    \clist_set:Nn \l_tmpa_clist { #1 }
+    \clist_map_inline:Nn \l_tmpa_clist
+      {
+        \gtr@keys@addvalue{/gtr/nopt/##1}{#2}
+      }
+  }
+
+
+\NewDocumentCommand{\gtrsetoptionsforsubtree}{ m +m }
+  {
+    \getree_set_options_for_subtree:nn {#1}{#2}
+  }
+
+
+\NewDocumentCommand{\gtrsetoptionsforfamily}{ m +m }
+  {
+    \getree_set_options_for_family:nn {#1}{#2}
+  }
+
+
+\NewDocumentCommand{\gtrsetoptionsfornode}{ m +m }
+  {
+    \getree_set_options_for_node:nn {#1}{#2}
+  }
+
+
+\NewDocumentCommand{\gtrignoresubtree}{ m }
+  {
+    \getree_set_options_for_subtree:nn{#1}{ignore}
+  }
+
+
+\NewDocumentCommand{\gtrignorenode}{ m }
+  {
+    \getree_set_options_for_node:nn{#1}{ignore}
+  }
+
+
+\gtrset{
+  options~for~subtree/.code~n~args={2}{\getree_set_options_for_subtree:nn{#1}{#2}},
+  options~for~family/.code~n~args={2}{\getree_set_options_for_family:nn{#1}{#2}},
+  options~for~node/.code~n~args={2}{\getree_set_options_for_node:nn{#1}{#2}},
+  %
+  ignore~subtree/.code={\getree_set_options_for_subtree:nn{#1}{ignore}},
+  ignore~node/.code={\getree_set_options_for_node:nn{#1}{ignore}},
 }
 
+\ExplSyntaxOff
 
-\newcommand{\gtrsetoptionsforfamily}[2]{%
-  \def\do##1{%
-    \gtr@keys@addvalue{/gtr/sopt/##1}{family={#2}}%
-  }%
-  \docsvlist{#1}%
-}
-
-\newcommand{\gtrsetoptionsfornode}[2]{%
-  \def\do##1{%
-    \gtr@keys@addvalue{/gtr/nopt/##1}{#2}%
-  }%
-  \docsvlist{#1}%
-}
-
-
-\newcommand{\gtrignoresubtree}[1]{%
-  \def\do##1{%
-    \gtr@keys@addvalue{/gtr/sopt/##1}{ignore}%
-  }%
-  \docsvlist{#1}%
-}
-
-\newcommand{\gtrignorenode}[1]{%
-  \gtrsetoptionsfornode{#1}{ignore}%
-}
 
 
 \def\gtr@set@level@position@down#1{%
@@ -333,12 +374,6 @@
   },
   disconnect/.default=both,
   %
-  options for subtree/.code 2 args={\gtrsetoptionsforsubtree{#1}{#2}},
-  options for family/.code 2 args={\gtrsetoptionsforfamily{#1}{#2}},
-  options for node/.code 2 args={\gtrsetoptionsfornode{#1}{#2}},
-  %
-  ignore subtree/.code={\gtrignoresubtree{#1}},
-  ignore node/.code={\gtrignorenode{#1}},
   ignore level/.code={%
     \ifnum#1>0\relax%
       \gtrset{level #1/.style={node=ignore}}%

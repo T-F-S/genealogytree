@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 2.00 (2020/06/19)
+%% The LaTeX package genealogytree - version 2.01 (2020/07/28)
 %% genealogytree.sty: genealogy trees (graphs)
 %%
 %% -------------------------------------------------------------------------------------------
@@ -18,8 +18,8 @@
 %% This work consists of all files listed in README
 %%
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{genealogytree}[2020/06/19 version 2.00 genealogy trees]
-\def\gtr@version{2.00}
+\ProvidesPackage{genealogytree}[2020/07/28 version 2.01 genealogy trees]
+\def\gtr@version{2.01}
 
 \RequirePackage{expl3}[2020/02/25]
 \RequirePackage{xparse}
@@ -39,7 +39,13 @@
 
 \def\gtr@load@language@nil#1-#2\@nil{\gtruselibrary{lang.#1}}
 \def\gtr@load@language#1{\gtr@load@language@nil#1-\@nil}%
-\def\gtrloadlanguage#1{\forcsvlist{\gtr@load@language}{#1}}
+\ExplSyntaxOn
+\NewDocumentCommand{\gtrloadlanguage}{ m }
+  {
+    \clist_set:Nn \l_tmpa_clist { #1 }
+    \clist_map_function:NN \l_tmpa_clist \gtr@load@language
+  }
+\ExplSyntaxOff
 
 \gtrset{
   code/.code={#1},

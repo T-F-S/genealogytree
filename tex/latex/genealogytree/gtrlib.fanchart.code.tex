@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 2.00 (2020/06/19)
+%% The LaTeX package genealogytree - version 2.01 (2020/07/28)
 %% gtrlib.fanchart.code.tex: Fancharts
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{2.00}
+\gtr@set@library@version{2.01}
 
 \ExplSyntaxOn
 
@@ -83,9 +83,9 @@
 
      \tl_set:Nn \l_tmpa_tl {\fp_to_dim:n{ sqrt(2)*\l__getree_fanchart_inner_fp }}
     \use:x
-    {
-      \exp_not:N\pgfkeys{/gtr/level~0/.append~code={\exp_not:N\pgfkeysalso{node~size=\l_tmpa_tl,level~size=\l_tmpa_tl}}}
-    }
+      {
+        \exp_not:N\pgfkeys{/gtr/level~0/.append~code={\exp_not:N\pgfkeysalso{node~size=\l_tmpa_tl,level~size=\l_tmpa_tl}}}
+      }
     \int_step_inline:nnn {1} { \c_getree_fanchart_maximum_rings_tl-1 }
       {
         \fp_set:Nn \l__getree_fanchart_outer_fp { \fparray_item:Nn\g__getree_fanchart_radii_fparry{##1+1} }

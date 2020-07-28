@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 2.00 (2020/06/19)
+%% The LaTeX package genealogytree - version 2.01 (2020/07/28)
 %% gtrcore.symbols.code.tex: Symbols
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{2.00}
+\gtr@set@library@version{2.01}
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Symbols
@@ -46,15 +46,22 @@
   \gtr@symbol@box@hook%
 }
 
-\newcommand{\gtrSymbolsSetCreateSelected}[2]{%
-  \colorlet{gtrsymbol}{#1}%
-  \let\gtr@symbol@core\gtr@symbol@copy%
-  \def\do##1{%
-    \begingroup\edef\x{\endgroup\noexpand\setbox\expandonce{\csname gtr@sym@##1@box\endcsname}%
-      =\noexpand\color@hbox\expandonce{\csname gtr@sym@##1@pic\endcsname}\noexpand\color@endbox}%
-    \x}%
-  \docsvlist{#2}%
-}
+\ExplSyntaxOn
+\NewDocumentCommand{\gtrSymbolsSetCreateSelected}{ m m }
+  {
+    \colorlet{gtrsymbol}{#1}
+    \let\gtr@symbol@core\gtr@symbol@copy
+    \clist_set:Nn \l_tmpa_clist { #2 }
+    \clist_map_inline:Nn \l_tmpa_clist
+      {
+        \use:x
+          {
+            \exp_not:N\setbox \exp_not:c{gtr@sym@##1@box} = \exp_not:N\hbox:n{ \exp_not:c{gtr@sym@##1@pic} }
+          }
+      }
+  }
+\ExplSyntaxOff
+
 
 \def\gtr@symbol@print#1{%
   \gtrlistseparator%
