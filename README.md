@@ -22,3 +22,6 @@ This work has the LPPL maintenance status `author-maintained'.
 
 This work consists of all files listed in doc/latex/genealogytree/README.
 ```
+
+The [Wiki](https://github.com/T-F-S/genealogytree/wiki) contains links to [Auxiliary Tools](https://github.com/T-F-S/genealogytree/wiki/Auxiliary-Tools)
+for genealogytree.
