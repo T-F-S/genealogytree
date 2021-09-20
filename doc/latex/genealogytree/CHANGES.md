@@ -38,7 +38,7 @@ and this project adheres to
 ## [2.01] - 2020-07-28
 
 ### Added
-- New *LaTeXÜ macros added corresponding to existing macros:
+- New *LaTeX* macros added corresponding to existing macros:
     - `\getree_set_options_for_subtree:nn`
     - `\getree_set_options_for_family:nn`
     - `\getree_set_options_for_node:nn`
