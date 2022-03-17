@@ -17,6 +17,39 @@ and this project adheres to
 
 
 
+## [2.2.0] - 2022-03-17
+
+### Added
+- Option `complemented family`
+- Color `gtr_Male_Frame`
+- Color `gtr_Male_Background`
+- Color `gtr_Female_Frame`
+- Color `gtr_Female_Background`
+- Color `gtr_Neuter_Frame`
+- Color `gtr_Neuter_Background`
+- Template `template=display 16:9 3`
+- Template `template=display 16:9 4`
+- Template `template=display 16:9 5`
+- Template `template=display 16:10 3`
+- Template `template=display 16:10 4`
+- Template `template=display 16:10 5`
+- Template `template=a4paper 3`
+- Template `template=a4paper 4`
+- Template `template=a3paper 5`
+- Template `template=letterpaper 3`
+- Template `template=letterpaper 4`
+- Option `template horizontal border`
+- Option `template vertical border`
+
+### Changed
+- Implementation of templates `ahnentafel 3`, `ahnentafel 4`, `ahnentafel 5` adapted
+
+### Fixed
+- Documentation example *Edge Varieties for Families with Unions* in 14.2.2
+  had a wrong summary number and 3 wrong pictures
+
+
+
 ## [2.1.0] - 2021-09-20
 
 ### Added
@@ -46,7 +79,7 @@ and this project adheres to
   to the documentation (issue #36)
 
 ### Changed
-- Implementation changed to avoid problems with spurious blanks 
+- Implementation changed to avoid problems with spurious blanks
   and resulting errors for
     - Option `tcb/if image defined`
     - Option `date range before`
@@ -227,7 +260,7 @@ and this project adheres to
 - `tcolorbox` needs to be version 4.20 (2019/03/02) or newer.
 
 ### Fixed
-- The templates library used some internal color names of `tcolorbox`. 
+- The templates library used some internal color names of `tcolorbox`.
   They are adapted now to the new official names (issue #30).
 
 
@@ -267,7 +300,7 @@ and this project adheres to
 ## [1.21] - 2017-09-15
 
 ### Added
-- Italian translation `language=italian` provided by Andrea Vaccari 
+- Italian translation `language=italian` provided by Andrea Vaccari
 - Template `database pole reduced`
 - Template `database poleportrait`
 - Template `database poleportrait reduced`

@@ -1,8 +1,8 @@
-%% The LaTeX package genealogytree - version 2.1.0 (2021/09/20)
+%% The LaTeX package genealogytree - version 2.2.0 (2022/03/17)
 %% gtrlib.templates.code.tex: Templates
 %%
 %% -------------------------------------------------------------------------------------------
-%% Copyright (c) 2013-2021 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Copyright (c) 2013-2022 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
 %% -------------------------------------------------------------------------------------------
 %%
 %% This work may be distributed and/or modified under the
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{2.1.0}
+\gtr@set@library@version{2.2.0}
 
 % Templates
 
@@ -114,17 +114,17 @@
   },
 %
   database@malefemale/.style={
-    tcbset={male/.style={colframe=blue!50!black,colback=blue!50!yellow!5,arc is angular,drop fuzzy shadow=blue!25!black!30},
-            female/.style={colframe=red!50!black,colback=red!50!yellow!5,drop fuzzy shadow=red!25!black!30},
-            neuter/.style={colframe=black!75,colback=yellow!5,drop fuzzy shadow=black!30}},
+    tcbset={male/.style={colframe=gtr_Male_Frame,colback=gtr_Male_Background,arc is angular,drop fuzzy shadow=blue!25!black!30},
+            female/.style={colframe=gtr_Female_Frame,colback=gtr_Female_Background,drop fuzzy shadow=red!25!black!30},
+            neuter/.style={colframe=gtr_Neuter_Frame,colback=gtr_Neuter_Background,drop fuzzy shadow=black!30}},
   },
 %
   database@malefemale@reduced/.style={
-    tcbset={male/.style={colframe=blue!50!black,colback=blue!50!yellow!5,arc is angular,
+    tcbset={male/.style={colframe=gtr_Male_Frame,colback=gtr_Male_Background,arc is angular,
               fuzzy shadow={0.1mm}{-0.1mm}{0mm}{0.012mm}{blue!25!black!30}},
-            female/.style={colframe=red!50!black,colback=red!50!yellow!5,
+            female/.style={colframe=gtr_Female_Frame,colback=gtr_Female_Background,
               fuzzy shadow={0.1mm}{-0.1mm}{0mm}{0.012mm}{red!25!black!30}},
-            neuter/.style={colframe=black!75,colback=yellow!5,
+            neuter/.style={colframe=gtr_Neuter_Frame,colback=gtr_Neuter_Background,
               fuzzy shadow={0.1mm}{-0.1mm}{0mm}{0.012mm}{black!30}}},
   },
 %
@@ -543,12 +543,12 @@
   },
 %
   ahnentafel@malefemale/.style={
-    tcbset={male/.style={colframe=blue!50!black,colback=blue!50!yellow!5,arc is angular},
-            female/.style={colframe=red!50!black,colback=red!50!yellow!5},
-            neuter/.style={colframe=black!75,colback=yellow!5}},
+    tcbset={male/.style={colframe=gtr_Male_Frame,colback=gtr_Male_Background,arc is angular},
+            female/.style={colframe=gtr_Female_Frame,colback=gtr_Female_Background},
+            neuter/.style={colframe=gtr_Neuter_Frame,colback=gtr_Neuter_Background}},
   },
 %
-  template/ahnentafel 3/.style={
+  template/ahnentafel 3/.style={%
     timeflow=left,
     processing=database,
     database format=medium,
@@ -561,33 +561,34 @@
     ahnentafel@malefemale,
     box={\gtrDBsex,before upper={\parskip=0.1\tcbfitdim},halign=flush left,},
     edges={mesh,anchoring=center,no background,foreground={line width=10mm,green!50!black!50}},
-    level/.code={\ifnum\numexpr##1>2\relax%
-      \gtrset{%
+    level/.code={%
+      \ifcase##1\relax\gtrset{% 0
+        level size=42mm,
+        node size=50mm,
+        node box={fit basedim=10pt}
+      }%
+      \or\gtrset{% 1
+        level size=37mm,
+        node size=50mm,
+        parent distance=4mm,
+        further distance=2mm,
+        node box={fit basedim=9pt}
+      }%
+      \or\gtrset{% 2
+        level distance=3mm,
+        level size=36mm,
+        node size=40mm,
+        parent distance=2mm,
+        further distance=1mm,
+        node box={boxrule=0.4mm,arc=0.8mm,fit basedim=9pt}
+      }%
+      \else\gtrset{% 3+
         parent distance=1mm,
         further distance=0.5mm,
         node box={boxrule=0.3mm,arc=0.6mm,valign=center,fit basedim=9pt},
         family edges={foreground={line width=8mm,green!50!black!50}},
       }%
-    \fi},
-    level 2/.style={
-      level distance=3mm,
-      level size=36mm,
-      node size=40mm,
-      parent distance=2mm,
-      further distance=1mm,
-      node box={boxrule=0.4mm,arc=0.8mm,fit basedim=9pt}
-    },
-    level 1/.style={
-      level size=37mm,
-      node size=50mm,
-      parent distance=4mm,
-      further distance=2mm,
-      node box={fit basedim=9pt}
-    },
-    level 0/.style={
-      level size=42mm,
-      node size=50mm,
-      node box={fit basedim=10pt}
+      \fi%
     },
   },
 %
@@ -604,42 +605,43 @@
     ahnentafel@malefemale,
     box={\gtrDBsex,before upper={\parskip=0.1\tcbfitdim},halign=flush left,},
     edges={mesh,anchoring=center,no background,foreground={line width=10mm,green!50!black!50}},
-    level/.code={\ifnum\numexpr##1>3\relax%
-      \gtrset{%
+    level/.code={%
+      \ifcase##1\relax\gtrset{% 0
+        level size=42mm,
+        node size=50mm,
+        node box={fit basedim=10pt}
+      }%
+      \or\gtrset{% 1
+        level distance=-25mm,
+        level size=37mm,
+        node size=50mm,
+        parent distance=58mm,
+        further distance=2mm,
+        node box={fit basedim=9pt}
+      }%
+      \or\gtrset{% 2
+        level distance=3mm,
+        level size=36mm,
+        node size=40mm,
+        parent distance=2mm,
+        further distance=1mm,
+        node box={boxrule=0.4mm,arc=0.8mm,fit basedim=9pt}
+      }%
+      \or\gtrset{% 3
+        level size=38mm,
+        node size=26mm,
+        parent distance=1mm,
+        further distance=0.5mm,
+        node box={boxrule=0.3mm,arc=0.6mm,valign=center,fit basedim=8pt},
+        family edges={foreground={line width=8mm,green!50!black!50}},
+      }%
+      \else\gtrset{% 4+
         parent distance=0.25mm,
         further distance=0.25mm,
         node box={boxrule=0.2mm,arc=0.4mm,valign=center,fit basedim=8pt},
         family edges={foreground={line width=7mm,green!50!black!50}},
       }%
-    \fi},
-    level 3/.style={
-      level size=38mm,
-      node size=26mm,
-      parent distance=1mm,
-      further distance=0.5mm,
-      node box={boxrule=0.3mm,arc=0.6mm,valign=center,fit basedim=8pt},
-      family edges={foreground={line width=8mm,green!50!black!50}},
-    },
-    level 2/.style={
-      level distance=3mm,
-      level size=36mm,
-      node size=40mm,
-      parent distance=2mm,
-      further distance=1mm,
-      node box={boxrule=0.4mm,arc=0.8mm,fit basedim=9pt}
-    },
-    level 1/.style={
-      level distance=-25mm,
-      level size=37mm,
-      node size=50mm,
-      parent distance=58mm,
-      further distance=2mm,
-      node box={fit basedim=9pt}
-    },
-    level 0/.style={
-      level size=42mm,
-      node size=50mm,
-      node box={fit basedim=10pt}
+      \fi%
     },
   },
 %
@@ -656,57 +658,481 @@
     ahnentafel@malefemale,
     box={\gtrDBsex,before upper={\parskip=0.1\tcbfitdim},halign=flush left,},
     edges={mesh,anchoring=center,no background,foreground={line width=5mm,green!50!black!50}},
-    level/.code={\ifnum\numexpr##1>4\relax%
-      \gtrset{%
+    level/.code={%
+      \ifcase##1\relax\gtrset{% 0
+        level size=40mm,
+        node size=50mm,
+        node box={fit basedim=10pt},
+        family edges={foreground={line width=10mm,green!50!black!50}},
+      }%
+      \or\gtrset{% 1
+        level distance=-25mm,
+        level size=35mm,
+        node size=50mm,
+        parent distance=58mm,
+        further distance=2mm,
+        node box={fit basedim=9pt},
+        family edges={foreground={line width=10mm,green!50!black!50}},
+      }%
+      \or\gtrset{% 2
+        level distance=3mm,
+        level size=30mm,
+        node size=40mm,
+        parent distance=2mm,
+        further distance=1mm,
+        node box={boxrule=0.4mm,arc=0.8mm,fit basedim=8pt},
+        family edges={foreground={line width=10mm,green!50!black!50}},
+      }%
+      \or\gtrset{% 3
+        level size=30mm,
+        node size=26mm,
+        parent distance=1mm,
+        further distance=0.5mm,
+        node box={boxrule=0.3mm,arc=0.6mm,fit basedim=7pt},
+        family edges={foreground={line width=8mm,green!50!black!50}},
+      }%
+      \or\gtrset{% 4
+        level size=34mm,
+        node size=16mm,
+        parent distance=0.25mm,
+        further distance=0.25mm,
+        node={list separators={\par}{, }{.\par}{\par}},
+        node box={boxrule=0.2mm,arc=0.4mm,valign=center,fit basedim=7pt},
+        family edges={foreground={line width=7mm,green!50!black!50}},
+      }%
+      \else\gtrset{% 5+
         node={database format=short,list separators={, }{, }{.}{}},
         node box={size=fbox,boxsep=0.5mm,boxrule=0.1mm,arc=0.2mm,
           valign=center,fit basedim=6pt},
         family edges={foreground={line width=5mm,green!50!black!50}},
       }%
-    \fi},
-    level 4/.style={
-      level size=34mm,
-      node size=16mm,
-      parent distance=0.25mm,
-      further distance=0.25mm,
-      node={list separators={\par}{, }{.\par}{\par}},
-      node box={boxrule=0.2mm,arc=0.4mm,valign=center,fit basedim=7pt},
-      family edges={foreground={line width=7mm,green!50!black!50}},
-    },
-    level 3/.style={
-      level size=30mm,
-      node size=26mm,
-      parent distance=1mm,
-      further distance=0.5mm,
-      node box={boxrule=0.3mm,arc=0.6mm,fit basedim=7pt},
-      family edges={foreground={line width=8mm,green!50!black!50}},
-    },
-    level 2/.style={
-      level distance=3mm,
-      level size=30mm,
-      node size=40mm,
-      parent distance=2mm,
-      further distance=1mm,
-      node box={boxrule=0.4mm,arc=0.8mm,fit basedim=8pt},
-      family edges={foreground={line width=10mm,green!50!black!50}},
-    },
-    level 1/.style={
-      level distance=-25mm,
-      level size=35mm,
-      node size=50mm,
-      parent distance=58mm,
-      further distance=2mm,
-      node box={fit basedim=9pt},
-      family edges={foreground={line width=10mm,green!50!black!50}},
-    },
-    level 0/.style={
-      level size=40mm,
-      node size=50mm,
-      node box={fit basedim=10pt},
-      family edges={foreground={line width=10mm,green!50!black!50}},
+      \fi%
     },
   },
 %
+  template horizontal border/.style = {},
+  template vertical border/.style = {},
+  template@fixedsize@common/.style = {%
+    processing=database,
+    database format=full marriage below,
+    name font=\bfseries,
+    surn code={##1},
+    tcbset={%
+      male/.style={colframe=gtr_Male_Frame,colback=gtr_Male_Background,arc is angular},
+      female/.style={colframe=gtr_Female_Frame,colback=gtr_Female_Background},
+      neuter/.style={colframe=gtr_Neuter_Frame,gtr_Neuter_Background}%
+    },%
+    box clear,
+    complemented/.style={%
+      box={colframe=gray!50,colback=white},
+    },
+    empty name text={},
+  },
+%
+  template@fixedsize@common@3/.style = {%
+    template@fixedsize@common,
+    autofill parents male female* = 3,
+    box={enhanced,top=0mm,bottom=0mm,middle=0.15mm,
+      boxrule=0.15mm,boxsep=0.25mm,arc=0.5mm,fit basedim=9pt,
+      halign=flush center,
+      fontupper=\sffamily,
+      before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
+      segmentation style={solid,line width=0.06mm,shorten >=0.4mm,shorten <=0.4mm},
+      \gtrDBsex,
+    },
+    edges={rounded=3pt,
+      foreground={black,line width=0.3mm},
+      background={white,line width=0.9mm}
+      },
+    complemented family/.style={%
+      edges={rounded=3pt,
+        foreground={gray!50,line width=0.3mm},
+        background={white,line width=0.9mm}
+        },
+    },
+    level/.code={%
+      \ifcase##1\relax\gtrset{% 0
+        level size=\gtr@tmpl@height@z,
+        node size=\gtr@tmpl@width@z,
+      }%
+      \or\gtrset{% 1
+        level size=\gtr@tmpl@height@i,
+        node size=\gtr@tmpl@width@i,
+      }%
+      \or\gtrset{% 2
+        level size=\gtr@tmpl@height@ii,
+        node size=\gtr@tmpl@width@ii,
+      }%
+      \or\gtrset{% 3
+        level size=\gtr@tmpl@height@iii,
+        node size=\gtr@tmpl@width@iii,
+        node box={fit basedim=8pt},
+      }%
+      \or\gtrset{% 4
+        node=ignore,
+      }%
+      \else\gtrset{% 5+
+        ignore,
+      }%
+      \fi%
+    },
+  },
+%
+  template@fixedsize@common@4/.style = {%
+    template@fixedsize@common,
+    autofill parents male female* = 4,
+    box={enhanced,top=0mm,bottom=0mm,middle=0.15mm,
+      boxrule=0.15mm,boxsep=0.25mm,arc=0.5mm,fit basedim=6.5pt,
+      halign=flush center,
+      fontupper=\sffamily,
+      before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
+      segmentation style={solid,line width=0.06mm,shorten >=0.4mm,shorten <=0.4mm},
+      \gtrDBsex,
+    },
+    edges={rounded=3pt,
+      foreground={black,line width=0.3mm},
+      background={white,line width=0.9mm}
+      },
+    complemented family/.style={%
+      edges={rounded=3pt,
+        foreground={gray!50,line width=0.3mm},
+        background={white,line width=0.9mm}
+        },
+    },
+    level/.code={%
+      \ifcase##1\relax\gtrset{% 0
+        level size=\gtr@tmpl@height@z,
+        node size=\gtr@tmpl@width@z,
+      }%
+      \or\gtrset{% 1
+        level size=\gtr@tmpl@height@i,
+        node size=\gtr@tmpl@width@i,
+      }%
+      \or\gtrset{% 2
+        level size=\gtr@tmpl@height@ii,
+        node size=\gtr@tmpl@width@ii,
+      }%
+      \or\gtrset{% 3
+        level size=\gtr@tmpl@height@iii,
+        node size=\gtr@tmpl@width@iii,
+      }%
+      \or\gtrset{% 4
+        level size=\gtr@tmpl@height@iv,
+        node size=\gtr@tmpl@width@iv,
+        node box={fit basedim=6pt},
+      }%
+      \or\gtrset{% 5
+        node=ignore,
+      }%
+      \else\gtrset{% 6+
+        ignore,
+      }%
+      \fi%
+    },
+  },
+%
+  template/display 16:9 3/.style={
+    template@fixedsize@common@3,
+    template@horizontal@border/.code={%
+      \edef\gtr@tmpl@xscale   {\fpeval{(312mm-2*(##1))/308mm}}%
+      \edef\gtr@tmpl@width@z  {\fpeval{70mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@i  {\fpeval{70mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@ii {\fpeval{70mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@iii{\fpeval{38.5mm*\gtr@tmpl@xscale}pt}%
+    },
+    template@vertical@border/.code={%
+      \edef\gtr@tmpl@yscale    {\fpeval{(171mm-2*(##1))/167mm}}%
+      \edef\gtr@tmpl@height@z  {\fpeval{36mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@i  {\fpeval{36mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@ii {\fpeval{36mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@iii{\fpeval{59mm*\gtr@tmpl@yscale}pt}%
+    },
+    template horizontal border/.style={template@horizontal@border={##1}},
+    template vertical border/.style={template@vertical@border={##1}},
+    template horizontal border=2mm,
+    template vertical border=2mm,
+    level distance=3mm,
+    parent distance in parent graph=1.142857mm,
+    further distance=1.142857mm,
+  },
+%
+  template/display 16:10 3/.style={
+    template=display 16:9 3,
+    template vertical border/.style={template@vertical@border=(##1-10mm)},
+    template vertical border=2mm,
+  },
+%
+  template/display 16:9 4/.style={%
+    template@fixedsize@common@4,
+    template@horizontal@border/.code={%
+      \edef\gtr@tmpl@xscale   {\fpeval{(308mm-2*(##1))/304mm}}%
+      \edef\gtr@tmpl@width@z  {\fpeval{48mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@i  {\fpeval{48mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@ii {\fpeval{48mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@iii{\fpeval{30mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@iv {\fpeval{19mm*\gtr@tmpl@xscale}pt}%
+    },
+    template@vertical@border/.code={%
+      \edef\gtr@tmpl@yscale    {\fpeval{(168mm-2*(##1))/164mm}}%
+      \edef\gtr@tmpl@height@z  {\fpeval{25mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@i  {\fpeval{25mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@ii {\fpeval{25mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@iii{\fpeval{40mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@iv {\fpeval{49mm*\gtr@tmpl@yscale}pt}%
+    },
+    template horizontal border/.style={template@horizontal@border={##1}},
+    template vertical border/.style={template@vertical@border={##1}},
+    template horizontal border=2mm,
+    template vertical border=2mm,
+    level distance=3mm,
+    parent distance in parent graph=0.8mm,
+    further distance=0.8mm,
+  },
+%
+  template/display 16:10 4/.style={
+    template=display 16:9 4,
+    template vertical border/.style={template@vertical@border=(##1-10mm)},
+    template vertical border=2mm,
+  },
+%
+  template/display 16:9 5/.style={%
+    template@fixedsize@common,
+    template@horizontal@border/.code={%
+      \edef\gtr@tmpl@xscale   {\fpeval{(304.8mm-2*(##1))/300.8mm}}%
+      \edef\gtr@tmpl@width@z  {\fpeval{40mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@i  {\fpeval{40mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@ii {\fpeval{40mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@iii{\fpeval{20mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@iv {\fpeval{15mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@v  {\fpeval{9.4mm*\gtr@tmpl@xscale}pt}%
+    },
+    template@vertical@border/.code={%
+      \edef\gtr@tmpl@yscale    {\fpeval{(167.5mm-2*(##1))/163.5mm}}%
+      \edef\gtr@tmpl@height@z  {\fpeval{15mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@i  {\fpeval{15mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@ii {\fpeval{15mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@iii{\fpeval{30mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@iv {\fpeval{40mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@v  {\fpeval{48.5mm*\gtr@tmpl@yscale}pt}%
+    },
+    template horizontal border/.style={template@horizontal@border={##1}},
+    template vertical border/.style={template@vertical@border={##1}},
+    template horizontal border=2mm,
+    template vertical border=2mm,
+    level distance=2.5mm,
+    parent distance in parent graph=0.490323mm,
+    further distance=0.490323mm,
+    autofill parents male female* = 5,
+    box={enhanced,top=0mm,bottom=0mm,middle=0.1mm,
+      boxrule=0.1mm,boxsep=0.2mm,arc=0.4mm,fit basedim=5pt,
+      halign=flush center,
+      fontupper=\sffamily,
+      before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
+      segmentation style={solid,line width=0.05mm,shorten >=0.3mm,shorten <=0.3mm},
+      \gtrDBsex,
+    },
+    edges={rounded=3pt,
+      foreground={black,line width=0.2mm},
+      background={white,line width=0.6mm}
+      },
+    complemented family/.style={%
+      edges={rounded=3pt,
+        foreground={gray!50,line width=0.2mm},
+        background={white,line width=0.6mm}
+        },
+    },
+    level/.code={%
+      \ifcase##1\relax\gtrset{% 0
+        level size=\gtr@tmpl@height@z,
+        node size=\gtr@tmpl@width@z,
+      }%
+      \or\gtrset{% 1
+        level size=\gtr@tmpl@height@i,
+        node size=\gtr@tmpl@width@i,
+      }%
+      \or\gtrset{% 2
+        level size=\gtr@tmpl@height@ii,
+        node size=\gtr@tmpl@width@ii,
+      }%
+      \or\gtrset{% 3
+        level size=\gtr@tmpl@height@iii,
+        node size=\gtr@tmpl@width@iii,
+      }%
+      \or\gtrset{% 4
+        level size=\gtr@tmpl@height@iv,
+        node size=\gtr@tmpl@width@iv,
+      }%
+      \or\gtrset{% 5
+        level size=\gtr@tmpl@height@v,
+        node size=\gtr@tmpl@width@v,
+        node box={fit basedim=3.5pt},
+      }%
+      \or\gtrset{% 6
+        node=ignore,
+      }%
+      \else\gtrset{% 7+
+        ignore,
+      }%
+      \fi%
+    },
+  },
+%
+  template/display 16:10 5/.style={
+    template=display 16:9 5,
+    template vertical border/.style={template@vertical@border=(##1-10mm)},
+    template vertical border=2mm,
+  },
+%
+  template/a4paper 3/.style={
+    template@fixedsize@common@3,
+    template@horizontal@border/.code={%
+      \edef\gtr@tmpl@xscale   {\fpeval{(290mm-2*(##1))/276mm}}%
+      \edef\gtr@tmpl@width@z  {\fpeval{65mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@i  {\fpeval{65mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@ii {\fpeval{60mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@iii{\fpeval{34.5mm*\gtr@tmpl@xscale}pt}%
+    },
+    template@vertical@border/.code={%
+      \edef\gtr@tmpl@yscale    {\fpeval{(201mm-2*(##1))/187mm}}%
+      \edef\gtr@tmpl@height@z  {\fpeval{38mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@i  {\fpeval{38mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@ii {\fpeval{41mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@iii{\fpeval{70mm*\gtr@tmpl@yscale}pt}%
+    },
+    template horizontal border/.style={template@horizontal@border={##1}},
+    template vertical border/.style={template@vertical@border={##1}},
+    template horizontal border=7mm,
+    template vertical border=7mm,
+    level distance=3mm,
+    parent distance in parent graph=1mm,
+    further distance=1mm,
+  },
+%
+  template/letterpaper 3/.style={
+    template=a4paper 3,
+    template horizontal border/.style={template@horizontal@border=(##1+8.8mm)},
+    template vertical border/.style={template@vertical@border=(##1-2.95mm)},
+    template horizontal border=0.25in,
+    template vertical border=0.25in,
+  },
+%
+  template/a4paper 4/.style={
+    template@fixedsize@common@4,
+    template@horizontal@border/.code={%
+      \edef\gtr@tmpl@xscale   {\fpeval{(286mm-2*(##1))/272mm}}%
+      \edef\gtr@tmpl@width@z  {\fpeval{48mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@i  {\fpeval{48mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@ii {\fpeval{48mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@iii{\fpeval{30mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@iv {\fpeval{17mm*\gtr@tmpl@xscale}pt}%
+    },
+    template@vertical@border/.code={%
+      \edef\gtr@tmpl@yscale    {\fpeval{(198mm-2*(##1))/184mm}}%
+      \edef\gtr@tmpl@height@z  {\fpeval{27mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@i  {\fpeval{27mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@ii {\fpeval{27mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@iii{\fpeval{43mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@iv {\fpeval{60mm*\gtr@tmpl@yscale}pt}%
+    },
+    template horizontal border/.style={template@horizontal@border={##1}},
+    template vertical border/.style={template@vertical@border={##1}},
+    template horizontal border=7mm,
+    template vertical border=7mm,
+    level distance=3mm,
+    parent distance in parent graph=0.733333mm,
+    further distance=0.733333mm,
+  },
+%
+  template/letterpaper 4/.style={
+    template=a4paper 4,
+    template horizontal border/.style={template@horizontal@border=(##1+8.8mm)},
+    template vertical border/.style={template@vertical@border=(##1-2.95mm)},
+    template horizontal border=0.25in,
+    template vertical border=0.25in,
+  },
+%
+  template/a3paper 5/.style={
+    template@fixedsize@common,
+    template@horizontal@border/.code={%
+      \edef\gtr@tmpl@xscale   {\fpeval{(398mm-2*(##1))/384mm}}%
+      \edef\gtr@tmpl@width@z  {\fpeval{50mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@i  {\fpeval{50mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@ii {\fpeval{50mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@iii{\fpeval{30mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@iv {\fpeval{20mm*\gtr@tmpl@xscale}pt}%
+      \edef\gtr@tmpl@width@v  {\fpeval{12mm*\gtr@tmpl@xscale}pt}%
+    },
+    template@vertical@border/.code={%
+      \edef\gtr@tmpl@yscale    {\fpeval{(282mm-2*(##1))/268mm}}%
+      \edef\gtr@tmpl@height@z  {\fpeval{30mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@i  {\fpeval{30mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@ii {\fpeval{30mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@iii{\fpeval{50mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@iv {\fpeval{58mm*\gtr@tmpl@yscale}pt}%
+      \edef\gtr@tmpl@height@v  {\fpeval{70mm*\gtr@tmpl@yscale}pt}%
+    },
+    template horizontal border/.style={template@horizontal@border={##1}},
+    template vertical border/.style={template@vertical@border={##1}},
+    template horizontal border=7mm,
+    template vertical border=7mm,
+    level distance=3mm,
+    parent distance in parent graph=0.709677mm,
+    further distance=0.709677mm,
+    autofill parents male female* = 5,
+    box={enhanced,top=0mm,bottom=0mm,middle=0.15mm,
+      boxrule=0.15mm,boxsep=0.25mm,arc=0.5mm,fit basedim=6.5pt,
+      halign=flush center,
+      fontupper=\sffamily,
+      before upper={\parskip 0.15\tcbfitdim plus 0pt minus 0pt},
+      segmentation style={solid,line width=0.06mm,shorten >=0.4mm,shorten <=0.4mm},
+      \gtrDBsex,
+    },
+    edges={rounded=3pt,
+      foreground={black,line width=0.3mm},
+      background={white,line width=0.9mm}
+      },
+    complemented family/.style={%
+      edges={rounded=3pt,
+        foreground={gray!50,line width=0.3mm},
+        background={white,line width=0.9mm}
+        },
+    },
+    level/.code={%
+      \ifcase##1\relax\gtrset{% 0
+        level size=\gtr@tmpl@height@z,
+        node size=\gtr@tmpl@width@z,
+      }%
+      \or\gtrset{% 1
+        level size=\gtr@tmpl@height@i,
+        node size=\gtr@tmpl@width@i,
+      }%
+      \or\gtrset{% 2
+        level size=\gtr@tmpl@height@ii,
+        node size=\gtr@tmpl@width@ii,
+      }%
+      \or\gtrset{% 3
+        level size=\gtr@tmpl@height@iii,
+        node size=\gtr@tmpl@width@iii,
+      }%
+      \or\gtrset{% 4
+        level size=\gtr@tmpl@height@iv,
+        node size=\gtr@tmpl@width@iv,
+        node box={fit basedim=6pt},
+      }%
+      \or\gtrset{% 5
+        level size=\gtr@tmpl@height@v,
+        node size=\gtr@tmpl@width@v,
+        node box={fit basedim=5pt},
+      }%
+      \or\gtrset{% 6
+        node=ignore,
+      }%
+      \else\gtrset{% 7+
+        ignore,
+      }%
+      \fi%
+    },
+  },
 }
 
 
@@ -752,3 +1178,10 @@
 \definecolor{gtr_Blue_6}{rgb}{0.858824,0.898039,0.945098}
 
 \definecolor{gtr_Bright_Red}{rgb}{1.000000,0.294118,0.062745}
+
+\colorlet{gtr_Male_Frame}{blue!50!black}
+\colorlet{gtr_Male_Background}{blue!50!yellow!5}
+\colorlet{gtr_Female_Frame}{red!50!black}
+\colorlet{gtr_Female_Background}{red!50!yellow!5}
+\colorlet{gtr_Neuter_Frame}{black!75}
+\colorlet{gtr_Neuter_Background}{yellow!5}

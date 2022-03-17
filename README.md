@@ -1,6 +1,6 @@
-# The LaTeX package genealogytree - version 2.1.0 (2021/09/20)
+# The LaTeX package genealogytree - version 2.2.0 (2022/03/17)
 
-> Copyright (c) 2013-2021 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+> Copyright (c) 2013-2022 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
 
 > This work may be distributed and/or modified under the
 > conditions of the LaTeX Project Public License, either version 1.3
