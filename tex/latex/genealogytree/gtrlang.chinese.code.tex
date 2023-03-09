@@ -1,0 +1,94 @@
+%% The LaTeX package genealogytree - version 2.3.0 (2023/03/09)
+%% gtrlang.chinese.code.tex: Chinese language-Simplified
+%%
+%% -------------------------------------------------------------------------------------------
+%% Copyright (c) 2013-2023 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Translation by Chen Yanzheng <snbcyz at mail dot ustc dot edu dot cn>
+%% -------------------------------------------------------------------------------------------
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2005/12/01 or later.
+%%
+%% This work has the LPPL maintenance status `author-maintained'.
+%%
+%% This work consists of all files listed in README
+%%
+\gtr@set@library@version{2.3.0}
+
+\gtrset{language@/chinese/.code={%
+  \gtrset{symlang/.cd,
+    Born={出生},
+    Bornoutofwedlock={�?�婚生},
+    Stillborn={死产},
+    Diedonbirthday={出生当日死亡},
+    Baptized={�?�洗},
+    Engaged={订婚},
+    Married={结婚},
+    Divorced={离婚},
+    Partnership={未婚伴侣},
+    Floruit={在世时期},
+    Died={死亡},
+    Killed={阵亡},
+    Buried={下葬},
+    Funeralurn={�?�化},
+    Female={女性},
+    Male={男性},
+    Neuter={性别�?详/中性}
+  }%
+  \gtrset{%
+    month long/.cd,
+    01/.initial=1月,
+    02/.initial=2月,
+    03/.initial=3月,
+    04/.initial=4月,
+    05/.initial=5月,
+    06/.initial=6月,
+    07/.initial=7月,
+    08/.initial=8月,
+    09/.initial=9月,
+    10/.initial=10月,
+    11/.initial=11月,
+    12/.initial=12月,
+  }%
+  \gtrset{%
+    month short/.cd,
+    01/.initial=1\protect\dot,
+    02/.initial=2\protect\dot,
+    03/.initial=3\protect\dot,
+    04/.initial=4\protect\dot,
+    05/.initial=5\protect\dot,
+    06/.initial=6\protect\dot,
+    07/.initial=7\protect\dot,
+    08/.initial=8\protect\dot,
+    09/.initial=9\protect\dot,
+    10/.initial=10\protect\dot,
+    11/.initial=11\protect\dot,
+    12/.initial=12\protect\dot,
+  }%
+  \gtrset{%
+    set@typical@date@format=yyyy-mm-dd,
+    calendar text for=AD is {公元}{},
+    calendar text for=BC is {公元�?}{},
+    calendar text for=GR is {格里高利历}{},
+    calendar text for=JU is {儒略历}{},
+    calendar text for=caAD is {约公元}{},
+    calendar text for=caBC is {约公元�?}{},
+    calendar text for=ca is {约}{},
+    date range full={自}{至}{},
+    date range before={}{以�?},
+    date range after={}{以�?�},
+    place text={于}{},
+  }%
+}}
+%SPECIAL NOTE:\usepackage{CJK}
+%\begin{document}
+%\begin{CJK*}{UTF8}{gbsn} 
+%gbsn IS THE FONT
+%CONTENT
+%\end{CJK*}
+%\end{document}

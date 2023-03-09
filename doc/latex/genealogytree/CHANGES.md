@@ -17,6 +17,23 @@ and this project adheres to
 
 
 
+## [2.3.0] - 2023-03-09
+
+### Added
+- Catalan translation provided by Josep Tebé i Cetó
+- Chinese translation provided by Chen Yanzheng
+- Value `catalan` for option `language`
+- Value `chinese` for option `language`
+
+### Fixed
+- Option `autofill parents unspecific` was broken (issue #41)
+- Internal documentation macro adapted to newer interal tcolorbox syntax
+- Options `fill zoom DBimage` and `fill overzoom DBimage` adapted to be
+    compatible to the tikzfill package (expansion problem). 
+    `\gtrincludeDBimage` also changed accordingly.
+
+
+
 ## [2.2.0] - 2022-03-17
 
 ### Added
@@ -425,7 +442,7 @@ and this project adheres to
 - Pre publication development.
 
 
-
-[v2.1.0] https://github.com/T-F-S/genealogytree/compare/v2.01...2.1.0
+[v2.2.0] https://github.com/T-F-S/genealogytree/compare/v2.1.0...v2.2.0
+[v2.1.0] https://github.com/T-F-S/genealogytree/compare/v2.01...v2.1.0
 [v2.01] https://github.com/T-F-S/genealogytree/compare/v2.00...v2.01
 

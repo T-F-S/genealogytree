@@ -1,8 +1,8 @@
-%% The LaTeX package genealogytree - version 2.2.0 (2022/03/17)
+%% The LaTeX package genealogytree - version 2.3.0 (2023/03/09)
 %% genealogytree.sty: genealogy trees (graphs)
 %%
 %% -------------------------------------------------------------------------------------------
-%% Copyright (c) 2013-2022 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Copyright (c) 2013-2023 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
 %% -------------------------------------------------------------------------------------------
 %%
 %% This work may be distributed and/or modified under the
@@ -18,8 +18,8 @@
 %% This work consists of all files listed in README
 %%
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{genealogytree}[2022/03/17 version 2.2.0 genealogy trees]
-\def\gtr@version{2.2.0}
+\ProvidesPackage{genealogytree}[2023/03/09 version 2.3.0 genealogy trees]
+\def\gtr@version{2.3.0}
 
 \RequirePackage{expl3}[2020/02/25]
 \RequirePackage{xparse,xfp}
@@ -134,6 +134,8 @@
 \gtr@add@library{core.options}{gtrcore.options.code.tex}
 \gtr@add@library{core.symbols}{gtrcore.symbols.code.tex}
 
+\gtr@add@library{lang.catalan}{gtrlang.catalan.code.tex}
+\gtr@add@library{lang.chinese}{gtrlang.chinese.code.tex}
 \gtr@add@library{lang.danish}{gtrlang.danish.code.tex}
 \gtr@add@library{lang.dutch}{gtrlang.dutch.code.tex}
 \gtr@add@library{lang.english}{gtrlang.english.code.tex}
