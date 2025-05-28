@@ -17,6 +17,24 @@ and this project adheres to
 
 
 
+## [2.3.1] - xxxx-xx-xx
+
+### Added
+### Changed
+- Usage of expl3 scratch variables like `\l_tmpa_tl` replaced by package variables like `\l__getree_tmpa_tl`
+- Tutorial example 'Conversion during Externalization' adapted to current tcolorbox
+- Documentation example for `/gtr/edge/custom` made more fail-safe (issue #49)
+- Documentation typos (issue #52)
+
+### Deprecated
+### Removed
+### Fixed
+- Italian translation corrected by Andrea Vaccari
+
+### Security
+
+
+
 ## [2.3.0] - 2023-03-09
 
 ### Added

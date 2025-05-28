@@ -1,8 +1,8 @@
-%% The LaTeX package genealogytree - version 2.3.0 (2023/03/09)
+%% The LaTeX package genealogytree - version 2.3.1pre1 (2025/05/28)
 %% gtrcore.drawing.code.tex: Drawing
 %%
 %% -------------------------------------------------------------------------------------------
-%% Copyright (c) 2013-2023 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Copyright (c) 2013-2025 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
 %% -------------------------------------------------------------------------------------------
 %%
 %% This work may be distributed and/or modified under the
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{2.3.0}
+\gtr@set@library@version{2.3.1pre1}
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Auxiliary Tools
@@ -27,16 +27,16 @@
 
 \cs_new:Npn \__getree_autosize_box:Nnn #1#2#3
   {
-    \fp_set:Nn \l_tmpa_fp {#2}
+    \fp_set:Nn \l__getree_tmpa_fp {#2}
     \fp_set:Nn \l_tmpb_fp {#3}
-    \bool_if:nTF { \fp_compare_p:n { \l_tmpa_fp > 0 } && \fp_compare_p:n { \l_tmpa_fp < \maxdimen } }
+    \bool_if:nTF { \fp_compare_p:n { \l__getree_tmpa_fp > 0 } && \fp_compare_p:n { \l__getree_tmpa_fp < \maxdimen } }
       {
         \bool_if:nTF { \fp_compare_p:n { \l_tmpb_fp > 0 } && \fp_compare_p:n { \l_tmpb_fp < \maxdimen } }
           {
-            \box_autosize_to_wd_and_ht_plus_dp:Nnn #1 {\fp_to_dim:N\l_tmpa_fp} {\fp_to_dim:N\l_tmpb_fp}
+            \box_autosize_to_wd_and_ht_plus_dp:Nnn #1 {\fp_to_dim:N\l__getree_tmpa_fp} {\fp_to_dim:N\l_tmpb_fp}
           }
           {
-            \box_resize_to_wd:Nn #1 {\fp_to_dim:N\l_tmpa_fp}
+            \box_resize_to_wd:Nn #1 {\fp_to_dim:N\l__getree_tmpa_fp}
           }
       }
       {
@@ -50,21 +50,21 @@
 
 \cs_new:Npn \__getree_autosize_box_shrink:Nnn #1#2#3
   {
-    \fp_set:Nn \l_tmpa_fp {#2}
+    \fp_set:Nn \l__getree_tmpa_fp {#2}
     \fp_set:Nn \l_tmpb_fp {#3}
-    \bool_if:nTF { \fp_compare_p:n { \l_tmpa_fp > 0 } && \fp_compare_p:n { \l_tmpa_fp < \maxdimen } }
+    \bool_if:nTF { \fp_compare_p:n { \l__getree_tmpa_fp > 0 } && \fp_compare_p:n { \l__getree_tmpa_fp < \maxdimen } }
       {
         \bool_if:nTF { \fp_compare_p:n { \l_tmpb_fp > 0 } && \fp_compare_p:n { \l_tmpb_fp < \maxdimen } }
           {
-            \bool_if:nT { \fp_compare_p:n { \l_tmpa_fp < \box_wd:N #1 } || \fp_compare_p:n { \l_tmpb_fp < \box_ht:N #1 + \box_dp:N #1 } }
+            \bool_if:nT { \fp_compare_p:n { \l__getree_tmpa_fp < \box_wd:N #1 } || \fp_compare_p:n { \l_tmpb_fp < \box_ht:N #1 + \box_dp:N #1 } }
               {
-                \box_autosize_to_wd_and_ht_plus_dp:Nnn #1 {\fp_to_dim:N\l_tmpa_fp} {\fp_to_dim:N\l_tmpb_fp}
+                \box_autosize_to_wd_and_ht_plus_dp:Nnn #1 {\fp_to_dim:N\l__getree_tmpa_fp} {\fp_to_dim:N\l_tmpb_fp}
               }
           }
           {
-            \bool_if:nT { \fp_compare_p:n { \l_tmpa_fp < \box_wd:N #1 } }
+            \bool_if:nT { \fp_compare_p:n { \l__getree_tmpa_fp < \box_wd:N #1 } }
               {
-                \box_resize_to_wd:Nn #1 {\fp_to_dim:N\l_tmpa_fp}
+                \box_resize_to_wd:Nn #1 {\fp_to_dim:N\l__getree_tmpa_fp}
               }
           }
       }
@@ -82,41 +82,41 @@
 
 \NewDocumentCommand \gtrautosizebox { smmm }
   {
-    \hbox_set:Nn \l_tmpa_box {#4}
+    \hbox_set:Nn \l__getree_tmpa_box {#4}
       \IfBooleanTF {#1}
         {
-          \__getree_autosize_box_shrink:Nnn \l_tmpa_box {#2} {#3}
+          \__getree_autosize_box_shrink:Nnn \l__getree_tmpa_box {#2} {#3}
         }
         {
-          \__getree_autosize_box:Nnn \l_tmpa_box {#2} {#3}
+          \__getree_autosize_box:Nnn \l__getree_tmpa_box {#2} {#3}
         }
-    \hbox_unpack_drop:N \l_tmpa_box
+    \hbox_unpack_drop:N \l__getree_tmpa_box
   }
 
 
 \NewDocumentEnvironment { autosizetikzpicture } { O{} m m +b }
   {
-    \hbox_set:Nn \l_tmpa_box
+    \hbox_set:Nn \l__getree_tmpa_box
       {
         \begin{tikzpicture}[#1]
         #4
         \end{tikzpicture}
       }
-    \__getree_autosize_box:Nnn \l_tmpa_box {#2} {#3}
-    \hbox_unpack_drop:N \l_tmpa_box
+    \__getree_autosize_box:Nnn \l__getree_tmpa_box {#2} {#3}
+    \hbox_unpack_drop:N \l__getree_tmpa_box
   }{}
 
 
 \NewDocumentEnvironment { autosizetikzpicture* } { O{} m m +b }
   {
-    \hbox_set:Nn \l_tmpa_box
+    \hbox_set:Nn \l__getree_tmpa_box
       {
         \begin{tikzpicture}[#1]
         #4
         \end{tikzpicture}
       }
-    \__getree_autosize_box_shrink:Nnn \l_tmpa_box {#2} {#3}
-    \hbox_unpack_drop:N \l_tmpa_box
+    \__getree_autosize_box_shrink:Nnn \l__getree_tmpa_box {#2} {#3}
+    \hbox_unpack_drop:N \l__getree_tmpa_box
   }{}
 
 
@@ -506,16 +506,16 @@
 \def\gtr@draw@family@extra(#1#2#3){
   \begin{scope}[genealogytree~extra~edges~scope]
   \csundef{gtr@fam@\gtr@currentfamily @par}
-  \clist_set:Nn \l_tmpa_clist { #1 }
-  \clist_map_inline:Nn \l_tmpa_clist
+  \clist_set:Nn \l__getree_tmpa_clist { #1 }
+  \clist_map_inline:Nn \l__getree_tmpa_clist
     {
       \gtr@getPerNumForId{##1}
       \ifdefempty{\gtr@tmp@num}{}{
         \listcseadd{gtr@fam@\gtr@currentfamily @par}{\gtr@tmp@num}}
     }
   \csundef{gtr@fam@\gtr@currentfamily @chi}
-  \clist_set:Nn \l_tmpa_clist { #2 }
-  \clist_map_inline:Nn \l_tmpa_clist
+  \clist_set:Nn \l__getree_tmpa_clist { #2 }
+  \clist_map_inline:Nn \l__getree_tmpa_clist
     {
       \gtr@getPerNumForId{##1}
       \ifdefempty{\gtr@tmp@num}{}{

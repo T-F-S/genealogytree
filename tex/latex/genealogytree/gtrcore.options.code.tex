@@ -1,8 +1,8 @@
-%% The LaTeX package genealogytree - version 2.3.0 (2023/03/09)
+%% The LaTeX package genealogytree - version 2.3.1pre1 (2025/05/28)
 %% gtrcore.options.code.tex: Options
 %%
 %% -------------------------------------------------------------------------------------------
-%% Copyright (c) 2013-2023 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Copyright (c) 2013-2025 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
 %% -------------------------------------------------------------------------------------------
 %%
 %% This work may be distributed and/or modified under the
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{2.3.0}
+\gtr@set@library@version{2.3.1pre1}
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% General handling
@@ -99,8 +99,8 @@
 
 \cs_new:Npn \getree_set_options_for_subtree:nn #1#2
   {
-    \clist_set:Nn \l_tmpa_clist { #1 }
-    \clist_map_inline:Nn \l_tmpa_clist
+    \clist_set:Nn \l__getree_tmpa_clist { #1 }
+    \clist_map_inline:Nn \l__getree_tmpa_clist
       {
         \gtr@keys@addvalue{/gtr/sopt/##1}{subtree={#2}}
       }
@@ -109,8 +109,8 @@
 
 \cs_new:Npn \getree_set_options_for_family:nn #1#2
   {
-    \clist_set:Nn \l_tmpa_clist { #1 }
-    \clist_map_inline:Nn \l_tmpa_clist
+    \clist_set:Nn \l__getree_tmpa_clist { #1 }
+    \clist_map_inline:Nn \l__getree_tmpa_clist
       {
         \gtr@keys@addvalue{/gtr/sopt/##1}{family={#2}}
       }
@@ -119,8 +119,8 @@
 
 \cs_new:Npn \getree_set_options_for_node:nn #1#2
   {
-    \clist_set:Nn \l_tmpa_clist { #1 }
-    \clist_map_inline:Nn \l_tmpa_clist
+    \clist_set:Nn \l__getree_tmpa_clist { #1 }
+    \clist_map_inline:Nn \l__getree_tmpa_clist
       {
         \gtr@keys@addvalue{/gtr/nopt/##1}{#2}
       }
@@ -147,8 +147,8 @@
 
 \NewDocumentCommand{\gtrignoresubtree}{ m }
   {
-    \clist_set:Nn \l_tmpa_clist { #1 }
-    \clist_map_inline:Nn \l_tmpa_clist
+    \clist_set:Nn \l__getree_tmpa_clist { #1 }
+    \clist_map_inline:Nn \l__getree_tmpa_clist
       {
         \gtr@keys@addvalue{/gtr/sopt/##1}{ignore}
       }
