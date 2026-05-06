@@ -1,8 +1,8 @@
-%% The LaTeX package genealogytree - version 2.3.1pre1 (2025/05/28)
+%% The LaTeX package genealogytree - version 2.4.0 (2026/05/06)
 %% gtrcore.symbols.code.tex: Symbols
 %%
 %% -------------------------------------------------------------------------------------------
-%% Copyright (c) 2013-2025 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Copyright (c) 2013-2026 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
 %% -------------------------------------------------------------------------------------------
 %%
 %% This work may be distributed and/or modified under the
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{2.3.1pre1}
+\gtr@set@library@version{2.4.0}
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Symbols
@@ -39,25 +39,24 @@
 
 \def\gtr@symbol@copy#1{\copy\csname gtr@sym@#1@box\endcsname}
 
-% Draw once, copy the rest of the time
-\newcommand{\gtrSymbolsSetCreate}[1]{%
-  \colorlet{gtrsymbol}{#1}%
-  \let\gtr@symbol@core\gtr@symbol@copy%
-  \gtr@symbol@box@hook%
-}
 
 \ExplSyntaxOn
-\NewDocumentCommand{\gtrSymbolsSetCreateSelected}{ m m }
+
+% Draw once, copy the rest of the time
+\NewDocumentCommand \gtrSymbolsSetCreate { m }
   {
-    \colorlet{gtrsymbol}{#1}
-    \let\gtr@symbol@core\gtr@symbol@copy
-    \clist_set:Nn \l__getree_tmpa_clist { #2 }
-    \clist_map_inline:Nn \l__getree_tmpa_clist
+    \colorlet{ gtrsymbol } {#1}
+    \cs_set_eq:NN \gtr@symbol@core \gtr@symbol@copy
+    \gtr@symbol@box@hook
+  }
+
+\NewDocumentCommand \gtrSymbolsSetCreateSelected { m m }
+  {
+    \colorlet{ gtrsymbol } {#1}
+    \cs_set_eq:NN \gtr@symbol@core \gtr@symbol@copy
+    \clist_map_inline:nn { #2 }
       {
-        \use:x
-          {
-            \exp_not:N\setbox \exp_not:c{gtr@sym@##1@box} = \exp_not:N\hbox:n{ \exp_not:c{gtr@sym@##1@pic} }
-          }
+        \exp_args:Nnc \hbox_set:cn { gtr@sym@##1@box } { gtr@sym@##1@pic }
       }
   }
 \ExplSyntaxOff

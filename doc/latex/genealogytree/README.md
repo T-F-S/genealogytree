@@ -1,19 +1,20 @@
-# The LaTeX package genealogytree - version 2.3.0 (2023/03/09)
+# The LaTeX package genealogytree - version 2.4.0 (2026/05/06)
 
-> Copyright (c) 2013-2023 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+[![CTAN](https://img.shields.io/ctan/v/genealogytree.svg)](https://www.ctan.org/pkg/genealogytree)
+
+> Copyright (c) 2013-2026 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
 
 > This work may be distributed and/or modified under the
 > conditions of the LaTeX Project Public License, either version 1.3
 > of this license or (at your option) any later version.
 > The latest version of this license is in
 >   http://www.latex-project.org/lppl.txt
-> and version 1.3 or later is part of all distributions of LaTeX
-> version 2005/12/01 or later.
+> and version 1.3c or later is part of all distributions of LaTeX
+> version 2008 or later.
 
 > This work has the LPPL maintenance status `author-maintained`.
 
 > This work consists of all files listed in README.md
-
 
 Pedigree and genealogical tree diagrams are proven tools to visualize genetic
 and relational connections between individuals. The naming for mathematical tree
@@ -29,7 +30,7 @@ customized to e.g. prioritize certain paths.
 ## Contents of the package
 
 -  `README.md`                      this file
--  `CHANGES.md`                     log of changes (history)
+-  `CHANGELOG.md`                   log of changes (history)
 -  `genealogytree.sty`              LaTeX package file (style file)
 -  `*.code.tex`                     LaTeX package file (library of genealogytree)
 -  `genealogytree.pdf`              Documentation for genealogytree

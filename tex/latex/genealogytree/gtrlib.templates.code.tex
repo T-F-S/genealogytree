@@ -1,8 +1,8 @@
-%% The LaTeX package genealogytree - version 2.3.1pre1 (2025/05/28)
+%% The LaTeX package genealogytree - version 2.4.0 (2026/05/06)
 %% gtrlib.templates.code.tex: Templates
 %%
 %% -------------------------------------------------------------------------------------------
-%% Copyright (c) 2013-2025 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Copyright (c) 2013-2026 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
 %% -------------------------------------------------------------------------------------------
 %%
 %% This work may be distributed and/or modified under the
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{2.3.1pre1}
+\gtr@set@library@version{2.4.0}
 
 % Templates
 
@@ -1161,6 +1161,86 @@
  \path[fill=tcbcolframe!75!tcbcolback] (1.5,0) arc
    [start angle=0, end angle=180, x radius=15mm, y radius=12mm] -- cycle;
 }
+
+
+\ExplSyntaxOn
+
+\NewDocumentCommand \gtr@template@medical@interpreter { +m }
+  {
+    \long\def\gtrBoxContent{}
+    \tl_if_blank:nF { #1 }
+      {
+        \box_clear_new:N \l__getree_template_medical_box
+        \hbox_set:Nn \l__getree_template_medical_box
+          {
+            \kvtcb@fontupper
+            \begin{ tabular } { @ {} c @ {} }
+            #1
+            \end{ tabular }
+          }
+        \exp_args:Ne \gtrset
+          {
+            distance = \dim_eval:n { \box_wd:N \l__getree_template_medical_box +2.5mm }
+          }
+        \gtrset
+          {
+            box =
+              {
+                underlay =
+                  {
+                    \node [ left,tcbcolupper,outer~sep=0mm,inner~sep=0.5mm ] at (frame.west)
+                      {
+                        \box_use_drop:N \l__getree_template_medical_box
+                      } ;
+                  }
+              },
+          }
+      }
+  }
+
+\ExplSyntaxOff
+
+
+\gtrset{
+  template/medical/.style={
+    processing=tcbox*,
+    timeflow=down,
+    level distance=5mm,
+    level size=8mm,
+    node size=8mm,
+    box clear,
+    box={%
+      enhanced,
+      size=fbox,
+      boxsep=0.15mm,
+      boxrule=0.5mm,
+      arc=1mm,
+      valign=center,
+      colback=white,
+      colframe=black,
+      colupper=gtr_Bright_Red,
+      fontupper=\sffamily\footnotesize,
+    },
+    edges={foreground=black,background=white},
+    male/.style={box={arc is curved,arc=1mm,colframe=gtr_Male_Frame,colback=gtr_Male_Background}},
+    female/.style={box={arc is curved,circular arc,colframe=gtr_Female_Frame,colback=gtr_Female_Background}},
+    neuter/.style={box={arc is angular,arc=3.5mm,colframe=gtr_Neuter_Frame,colback=gtr_Neuter_Background}},
+    carrier/.style={box={%
+      underlay={%
+        \begin{tcbclipframe}
+          \path [fill=tcbcolframe] (frame.south west) rectangle (frame.north);
+        \end{tcbclipframe}%
+      }}},
+    affected/.style={box={colback=tcbcolframe}},
+    deceased/.style={box={%
+      underlay={%
+        \path[draw=tcbcolframe,line width=\kvtcb@right@rule]
+          ([xshift=-0.5mm,yshift=-0.5mm]frame.south west) -- ([xshift=0.5mm,yshift=0.5mm]frame.north east);
+      }}},
+    content interpreter=\gtr@template@medical@interpreter,
+  },
+}
+
 
 % Colors
 

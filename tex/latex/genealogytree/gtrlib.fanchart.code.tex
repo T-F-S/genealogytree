@@ -1,8 +1,8 @@
-%% The LaTeX package genealogytree - version 2.3.1pre1 (2025/05/28)
+%% The LaTeX package genealogytree - version 2.4.0 (2026/05/06)
 %% gtrlib.fanchart.code.tex: Fancharts
 %%
 %% -------------------------------------------------------------------------------------------
-%% Copyright (c) 2013-2025 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Copyright (c) 2013-2026 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
 %% -------------------------------------------------------------------------------------------
 %%
 %% This work may be distributed and/or modified under the
@@ -17,52 +17,55 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{2.3.1pre1}
+\gtr@set@library@version{2.4.0}
 
 \ExplSyntaxOn
-
-\tl_new:N \l_getree_fanchart_minor_angle_tl
-\tl_new:N \l_getree_fanchart_major_angle_tl
 
 \tl_new:N \l_getree_fanchart_angle_a_tl
 \tl_new:N \l_getree_fanchart_angle_b_tl
 \tl_new:N \l_getree_fanchart_id_tl
-\tl_new:N \l_getree_fanchart_radius_a_tl
-\tl_new:N \l_getree_fanchart_radius_b_tl
 \tl_new:N \l_getree_fanchart_level_tl
-\tl_new:N \l_getree_fanchart_ratio_tl
+\tl_new:N \l_getree_fanchart_line_width_tl
+\tl_new:N \l_getree_fanchart_major_angle_tl
+\tl_new:N \l_getree_fanchart_minor_angle_tl
 \tl_new:N \l_getree_fanchart_offset_a_tl
 \tl_new:N \l_getree_fanchart_offset_b_tl
-\tl_new:N \l_getree_fanchart_line_width_tl
+\tl_new:N \l_getree_fanchart_radius_a_tl
+\tl_new:N \l_getree_fanchart_radius_b_tl
+\tl_new:N \l_getree_fanchart_ratio_tl
+
+\tl_const:Nn \c_getree_fanchart_maximum_rings_tl { 24 }
 
 \bool_new:N \l__getree_fanchart_reset_bounds_bool
 
+\tl_new:N \l__getree_fanchart_draw_root_code_tl
+\tl_new:N \l__getree_fanchart_draw_segment_code_tl
+\tl_new:N \l__getree_fanchart_landscape_level_tl
+\tl_new:N \l__getree_fanchart_marker_definition_code_tl
 \tl_new:N \l__getree_fanchart_recursive_action_tl
+\tl_new:N \l__getree_fanchart_segment_definition_code_tl
 \tl_new:N \l__getree_fanchart_tmpa_tl
 \tl_new:N \l__getree_fanchart_tmpb_tl
-\tl_new:N \l__getree_fanchart_landscape_level_tl
 
 \fp_new:N \l__getree_fanchart_angle_fp
-\fp_new:N \l__getree_fanchart_radius_fp
+\fp_new:N \l__getree_fanchart_boundary_scale_fp
+\fp_new:N \l__getree_fanchart_boundary_width_fp
+\fp_new:N \l__getree_fanchart_bounds_border_fp
+\fp_new:N \l__getree_fanchart_bounds_xmax_fp
+\fp_new:N \l__getree_fanchart_bounds_xmin_fp
+\fp_new:N \l__getree_fanchart_bounds_ymax_fp
+\fp_new:N \l__getree_fanchart_bounds_ymin_fp
 \fp_new:N \l__getree_fanchart_inner_fp
 \fp_new:N \l__getree_fanchart_inner_off_fp
 \fp_new:N \l__getree_fanchart_outer_fp
 \fp_new:N \l__getree_fanchart_outer_off_fp
-\fp_new:N \l__getree_fanchart_boundary_width_fp
-\fp_new:N \l__getree_fanchart_boundary_scale_fp
+\fp_new:N \l__getree_fanchart_radius_fp
 
-\fp_new:N \l__getree_fanchart_bounds_border_fp
-\fp_new:N \l__getree_fanchart_bounds_xmin_fp
-\fp_new:N \l__getree_fanchart_bounds_xmax_fp
-\fp_new:N \l__getree_fanchart_bounds_ymin_fp
-\fp_new:N \l__getree_fanchart_bounds_ymax_fp
 
-\tl_const:Nn \c_getree_fanchart_maximum_rings_tl {24}
-
-\fparray_new:Nn \g__getree_fanchart_radii_fparry     {\c_getree_fanchart_maximum_rings_tl+1}
-\fparray_new:Nn \g__getree_fanchart_distances_fparry {\c_getree_fanchart_maximum_rings_tl}
-\fparray_new:Nn \g__getree_fanchart_inner_fparry {\c_getree_fanchart_maximum_rings_tl}
-\fparray_new:Nn \g__getree_fanchart_outer_fparry {\c_getree_fanchart_maximum_rings_tl}
+\fparray_new:Nn \g__getree_fanchart_radii_fparray     { \c_getree_fanchart_maximum_rings_tl + 1 }
+\fparray_new:Nn \g__getree_fanchart_distances_fparray { \c_getree_fanchart_maximum_rings_tl }
+\fparray_new:Nn \g__getree_fanchart_inner_fparray     { \c_getree_fanchart_maximum_rings_tl }
+\fparray_new:Nn \g__getree_fanchart_outer_fparray     { \c_getree_fanchart_maximum_rings_tl }
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -70,68 +73,94 @@
 %%%%%%%%%%%%%%%%%%%%%%%
 
 
-\cs_new:Npn \__getree_fanchart_segment_computation:
+\cs_new_protected:Npn \__getree_fanchart_segment_computation:
   {
-    \fp_compare:nNnF {\l_getree_fanchart_major_angle_tl} > {\l_getree_fanchart_minor_angle_tl}
+    \fp_compare:nNnF { \l_getree_fanchart_major_angle_tl } > { \l_getree_fanchart_minor_angle_tl }
       {
         \tl_set_eq:NN \l__getree_tmpa_tl \l_getree_fanchart_major_angle_tl
         \tl_set_eq:NN \l_getree_fanchart_major_angle_tl \l_getree_fanchart_minor_angle_tl
         \tl_set_eq:NN \l_getree_fanchart_minor_angle_tl \l__getree_tmpa_tl
       }
-    \fp_set:Nn \l__getree_fanchart_angle_fp { (\l_getree_fanchart_major_angle_tl-\l_getree_fanchart_minor_angle_tl)/2 }
-    \fp_set:Nn \l__getree_fanchart_inner_fp { \fparray_item:Nn\g__getree_fanchart_radii_fparry{1} }
-
-     \tl_set:Nn \l__getree_tmpa_tl {\fp_to_dim:n{ sqrt(2)*\l__getree_fanchart_inner_fp }}
-    \use:x
+    \fp_set:Nn \l__getree_fanchart_angle_fp
       {
-        \exp_not:N\pgfkeys{/gtr/level~0/.append~code={\exp_not:N\pgfkeysalso{node~size=\l__getree_tmpa_tl,level~size=\l__getree_tmpa_tl}}}
+        ( \l_getree_fanchart_major_angle_tl - \l_getree_fanchart_minor_angle_tl ) / 2
       }
-    \int_step_inline:nnn {1} { \c_getree_fanchart_maximum_rings_tl-1 }
+    \fp_set:Nn \l__getree_fanchart_inner_fp { \fparray_item:Nn \g__getree_fanchart_radii_fparray { 1 } }
+
+     \tl_set:Nn \l__getree_tmpa_tl { \fp_to_dim:n { sqrt(2)* \l__getree_fanchart_inner_fp }}
+    \exp_args:Ne \pgfkeys
       {
-        \fp_set:Nn \l__getree_fanchart_outer_fp { \fparray_item:Nn\g__getree_fanchart_radii_fparry{##1+1} }
-
-        \fp_set:Nn \l__getree_fanchart_inner_off_fp { \l__getree_fanchart_inner_fp + \fparray_item:Nn\g__getree_fanchart_inner_fparry{##1} }
-        \fp_set:Nn \l__getree_fanchart_outer_off_fp { \l__getree_fanchart_outer_fp - \fparray_item:Nn\g__getree_fanchart_outer_fparry{##1} }
-
-        \fp_set:Nn \l__getree_fanchart_angle_fp { \l__getree_fanchart_angle_fp/2 }
-        \fp_set:Nn \l__getree_fanchart_radius_fp { \l__getree_fanchart_inner_off_fp/\l__getree_fanchart_outer_off_fp  }
-
-        \fp_set:Nn \l_tmpb_fp { sqrt(\l__getree_fanchart_radius_fp^2+8) }
-        \fp_set:Nn \l__getree_tmpa_fp { sqrt( 1 - ( ( \l__getree_fanchart_radius_fp+\l_tmpb_fp )/4 )^2 ) }
-
-        \fp_compare:nNnTF { \l__getree_fanchart_angle_fp<90 ? \l__getree_fanchart_radius_fp*tand(\l__getree_fanchart_angle_fp)<\l__getree_tmpa_fp : 0 } = {0}
-          {
-            \tl_set:Nx \l__getree_tmpa_tl {\fp_to_dim:n{ 2*\l__getree_tmpa_fp*\l__getree_fanchart_outer_off_fp }}%  b
-            \tl_set:Nx \l_tmpb_tl {\fp_to_dim:n{ (\l_tmpb_fp-3*\l__getree_fanchart_radius_fp)/4*\l__getree_fanchart_outer_off_fp }}%  h
-            \fparray_gset:Nnn \g__getree_fanchart_distances_fparry { ##1 }{ (\l_tmpb_fp+5*\l__getree_fanchart_radius_fp)/8*\l__getree_fanchart_outer_off_fp }
-          }
-          {
-            \fp_set:Nn \l__getree_tmpa_fp { sqrt( 1 - ( \l__getree_fanchart_radius_fp*tand(\l__getree_fanchart_angle_fp) )^2 ) }
-            \fp_set:Nn \l_tmpb_fp { cosd( \l__getree_fanchart_angle_fp/2 ) }
-            \fp_compare:nNnTF {\l__getree_tmpa_fp} < {\l_tmpb_fp}
-              {
-                \tl_set:Nx \l__getree_tmpa_tl {\fp_to_dim:n{ 2*\l__getree_fanchart_radius_fp*tand(\l__getree_fanchart_angle_fp)*\l__getree_fanchart_outer_off_fp }}%  b
-                \tl_set:Nx \l_tmpb_tl {\fp_to_dim:n{ (\l__getree_tmpa_fp-\l__getree_fanchart_radius_fp)*\l__getree_fanchart_outer_off_fp }}%  h
-                \fparray_gset:Nnn \g__getree_fanchart_distances_fparry { ##1 }{ (\l__getree_tmpa_fp+\l__getree_fanchart_radius_fp)/2*\l__getree_fanchart_outer_off_fp }
-              }
-              {
-                \tl_set:Nx \l__getree_tmpa_tl {\fp_to_dim:n{ 2*sind(\l__getree_fanchart_angle_fp/2)*\l__getree_fanchart_outer_off_fp }}%  b
-                \tl_set:Nx \l_tmpb_tl {\fp_to_dim:n{ 1/(2*\l_tmpb_fp)*\l__getree_fanchart_outer_off_fp }}%  h
-                \fparray_gset:Nnn \g__getree_fanchart_distances_fparry { ##1 }{ (2*\l_tmpb_fp-1/(2*\l_tmpb_fp))/2*\l__getree_fanchart_outer_off_fp }
-              }
-          }
-        \int_compare:nNnTF {##1} < {\l__getree_fanchart_landscape_level_tl}
-          {
-            \use:x
+        /gtr/level~0/.append~code =
+          { \exp_not:N\pgfkeysalso
             {
-              \exp_not:N\pgfkeys{/gtr/level~##1/.append~code={\exp_not:N\pgfkeysalso{node~size=\l__getree_tmpa_tl,level~size=\l_tmpb_tl}}}
+              node~size = \l__getree_tmpa_tl, level~size = \l__getree_tmpa_tl
             }
           }
+      }
+    \int_step_inline:nnn { 1 } { \c_getree_fanchart_maximum_rings_tl - 1 }
+      {
+        \fp_set:Nn \l__getree_fanchart_outer_fp { \fparray_item:Nn \g__getree_fanchart_radii_fparray { ##1 + 1 } }
+
+        \fp_set:Nn \l__getree_fanchart_inner_off_fp
+          { \l__getree_fanchart_inner_fp + \fparray_item:Nn \g__getree_fanchart_inner_fparray {##1} }
+        \fp_set:Nn \l__getree_fanchart_outer_off_fp
+          { \l__getree_fanchart_outer_fp - \fparray_item:Nn \g__getree_fanchart_outer_fparray {##1} }
+
+        \fp_set:Nn \l__getree_fanchart_angle_fp { \l__getree_fanchart_angle_fp / 2 }
+        \fp_set:Nn \l__getree_fanchart_radius_fp { \l__getree_fanchart_inner_off_fp / \l__getree_fanchart_outer_off_fp }
+
+        \fp_set:Nn \l__getree_tmpb_fp { sqrt( \l__getree_fanchart_radius_fp ^2 + 8 ) }
+        \fp_set:Nn \l__getree_tmpa_fp { sqrt( 1 - ( ( \l__getree_fanchart_radius_fp + \l__getree_tmpb_fp )/4 )^2 ) }
+
+        \fp_compare:nNnTF { \l__getree_fanchart_angle_fp < 90
+            ? \l__getree_fanchart_radius_fp * tand( \l__getree_fanchart_angle_fp ) < \l__getree_tmpa_fp : 0 } = { 0 }
           {
-            \use:x
-            {
-              \exp_not:N\pgfkeys{/gtr/level~##1/.append~code={\exp_not:N\pgfkeysalso{node~size=\l_tmpb_tl,level~size=\l__getree_tmpa_tl}}}
-            }
+            \tl_set:Ne \l__getree_tmpa_tl { \fp_to_dim:n { 2* \l__getree_tmpa_fp * \l__getree_fanchart_outer_off_fp } } %  b
+            \tl_set:Ne \l__gtree_tmpb_tl { \fp_to_dim:n {
+              ( \l__getree_tmpb_fp - 3* \l__getree_fanchart_radius_fp )/4* \l__getree_fanchart_outer_off_fp }} %  h
+            \fparray_gset:Nnn \g__getree_fanchart_distances_fparray { ##1 }
+              { ( \l__getree_tmpb_fp +5* \l__getree_fanchart_radius_fp )/8* \l__getree_fanchart_outer_off_fp }
+          }
+          {
+            \fp_set:Nn \l__getree_tmpa_fp
+              { sqrt( 1 - ( \l__getree_fanchart_radius_fp * tand( \l__getree_fanchart_angle_fp ) )^2 ) }
+            \fp_set:Nn \l__getree_tmpb_fp { cosd( \l__getree_fanchart_angle_fp /2 ) }
+            \fp_compare:nNnTF { \l__getree_tmpa_fp } < { \l__getree_tmpb_fp }
+              {
+                \tl_set:Ne \l__getree_tmpa_tl { \fp_to_dim:n { 2* \l__getree_fanchart_radius_fp
+                  * tand( \l__getree_fanchart_angle_fp )* \l__getree_fanchart_outer_off_fp }} % b
+                \tl_set:Ne \l__gtree_tmpb_tl { \fp_to_dim:n { ( \l__getree_tmpa_fp - \l__getree_fanchart_radius_fp )
+                  * \l__getree_fanchart_outer_off_fp }} % h
+                \fparray_gset:Nnn \g__getree_fanchart_distances_fparray { ##1 }
+                  { ( \l__getree_tmpa_fp + \l__getree_fanchart_radius_fp ) /2 * \l__getree_fanchart_outer_off_fp }
+              }
+              {
+                \tl_set:Ne \l__getree_tmpa_tl { \fp_to_dim:n { 2*sind( \l__getree_fanchart_angle_fp /2)
+                  * \l__getree_fanchart_outer_off_fp }} % b
+                \tl_set:Ne \l__gtree_tmpb_tl { \fp_to_dim:n { 1/(2* \l__getree_tmpb_fp )
+                  * \l__getree_fanchart_outer_off_fp }} % h
+                \fparray_gset:Nnn \g__getree_fanchart_distances_fparray { ##1 }
+                  { (2* \l__getree_tmpb_fp - 1/(2* \l__getree_tmpb_fp )) /2 * \l__getree_fanchart_outer_off_fp }
+              }
+          }
+        \int_compare:nNnTF {##1} < { \l__getree_fanchart_landscape_level_tl }
+          {
+            \exp_args:Ne \pgfkeys
+              {
+                /gtr/level~##1/.append~code =
+                  {
+                    \exp_not:N\pgfkeysalso{ node~size = \l__getree_tmpa_tl, level~size = \l__gtree_tmpb_tl }
+                  }
+              }
+          }
+          {
+            \exp_args:Ne \pgfkeys
+              {
+                /gtr/level~##1/.append~code =
+                  {
+                    \exp_not:N\pgfkeysalso{ node~size = \l__gtree_tmpb_tl, level~size = \l__getree_tmpa_tl }
+                  }
+              }
           }
         \fp_set_eq:NN \l__getree_fanchart_inner_fp \l__getree_fanchart_outer_fp
       }
@@ -140,7 +169,7 @@
 
 \prg_new_conditional:Npnn \getree_fanchart_if_complemented_node: { p, TF }
   {
-    \str_if_eq:VnTF \gtrcomplemented {true}
+    \str_if_eq:VnTF \gtrcomplemented { true }
     {
       \prg_return_true:
     }
@@ -154,75 +183,79 @@
 % #2: level
 % #3: angle a
 % #4: angle b
-\cs_new:Npn \__getree_fanchart_draw_person:nnnn #1#2#3#4
+\cs_new_protected:Npn \__getree_fanchart_draw_person:nnnn #1#2#3#4
   {
     \cs_set_nopar:Npx \gtr@currentperson {#1}
-    \cs_set_nopar:Npx \gtrDBsex {\use:c{gtr@per@\gtr@currentperson @flag@s}}
-    \cs_set_nopar:Npx \gtrDBrelation {\use:c{gtr@per@\gtr@currentperson @flag@r}}
-    \cs_set_nopar:Npx \gtrcomplemented {\use:c{gtr@per@\gtr@currentperson @flag@c}}
-    \tl_set:Nx \l_getree_fanchart_level_tl { \int_eval:n{#2} }
-    \tl_set:Nx \l_getree_fanchart_id_tl {\cs_if_exist_use:c {gtr@per@\gtr@currentperson @id}}
+    \cs_set_nopar:Npx \gtrDBsex { \use:c { gtr@per@ \gtr@currentperson @flag@s } }
+    \cs_set_nopar:Npx \gtrDBrelation { \use:c { gtr@per@ \gtr@currentperson @flag@r } }
+    \cs_set_nopar:Npx \gtrcomplemented { \use:c { gtr@per@ \gtr@currentperson @flag@c } }
+    \tl_set:Nx \l_getree_fanchart_level_tl { \int_eval:n {#2} }
+    \tl_set:Nx \l_getree_fanchart_id_tl { \cs_if_exist_use:c { gtr@per@ \gtr@currentperson @id }}
 
-    \int_compare:nNnTF {\l_getree_fanchart_level_tl} > {0}
+    \int_compare:nNnTF { \l_getree_fanchart_level_tl } > { 0 }
       {
-        \tl_set:Nx \l_getree_fanchart_angle_a_tl { \fp_to_decimal:n{#3} }
-        \tl_set:Nx \l_getree_fanchart_angle_b_tl { \fp_to_decimal:n{#4} }
+        \tl_set:Nx \l_getree_fanchart_angle_a_tl { \fp_to_decimal:n {#3} }
+        \tl_set:Nx \l_getree_fanchart_angle_b_tl { \fp_to_decimal:n {#4} }
         \tl_set:Nx \l_getree_fanchart_ratio_tl
-          { \fp_to_decimal:n{
-            ((\l_getree_fanchart_angle_a_tl+\l_getree_fanchart_angle_b_tl)/2-\l_getree_fanchart_minor_angle_tl)/
-              (\l_getree_fanchart_major_angle_tl-\l_getree_fanchart_minor_angle_tl)
+          { \fp_to_decimal:n {
+            (( \l_getree_fanchart_angle_a_tl + \l_getree_fanchart_angle_b_tl )/2- \l_getree_fanchart_minor_angle_tl )/
+              ( \l_getree_fanchart_major_angle_tl - \l_getree_fanchart_minor_angle_tl )
             }
           }
-        \tl_set:Nx \l_getree_fanchart_radius_a_tl { \fp_to_dim:n{\fparray_item:Nn\g__getree_fanchart_radii_fparry{#2}} }
-        \fp_set:Nn \l__getree_tmpa_fp { \fparray_item:Nn\g__getree_fanchart_radii_fparry{#2+1} }
-        \fp_compare:nNnT {\l__getree_tmpa_fp} > {\l__getree_fanchart_bounds_xmax_fp}
+        \tl_set:Nx \l_getree_fanchart_radius_a_tl { \fp_to_dim:n {
+          \fparray_item:Nn \g__getree_fanchart_radii_fparray {#2}} }
+        \fp_set:Nn \l__getree_tmpa_fp { \fparray_item:Nn \g__getree_fanchart_radii_fparray { #2 +1 } }
+        \fp_compare:nNnT { \l__getree_tmpa_fp } > { \l__getree_fanchart_bounds_xmax_fp }
           {
             \fp_set_eq:NN \l__getree_fanchart_bounds_xmax_fp \l__getree_tmpa_fp
           }
-        \tl_set:Nx \l_getree_fanchart_radius_b_tl { \fp_to_dim:n{\l__getree_tmpa_fp} }
-        \tl_set:Nx \l_getree_fanchart_offset_a_tl { \fp_to_dim:n{\fparray_item:Nn\g__getree_fanchart_inner_fparry{#2}} }
-        \tl_set:Nx \l_getree_fanchart_offset_b_tl { \fp_to_dim:n{\fparray_item:Nn\g__getree_fanchart_outer_fparry{#2}} }
+        \tl_set:Nx \l_getree_fanchart_radius_b_tl { \fp_to_dim:n { \l__getree_tmpa_fp } }
+        \tl_set:Nx \l_getree_fanchart_offset_a_tl { \fp_to_dim:n {
+          \fparray_item:Nn \g__getree_fanchart_inner_fparray {#2}} }
+        \tl_set:Nx \l_getree_fanchart_offset_b_tl { \fp_to_dim:n {
+          \fparray_item:Nn \g__getree_fanchart_outer_fparray {#2}} }
         \tl_set:Nx \l_getree_fanchart_line_width_tl
           {
             \fp_to_dim:n
               {
-                min(\l__getree_fanchart_boundary_width_fp,
-                    \l_getree_fanchart_radius_a_tl*(\l_getree_fanchart_angle_b_tl-\l_getree_fanchart_angle_a_tl)*\l__getree_fanchart_boundary_scale_fp/2000)
+                min( \l__getree_fanchart_boundary_width_fp,
+                     \l_getree_fanchart_radius_a_tl *( \l_getree_fanchart_angle_b_tl - \l_getree_fanchart_angle_a_tl )
+                     * \l__getree_fanchart_boundary_scale_fp /2000)
               }
           }
 
-        \__getree_fanchart_segment_definition:
-        \__getree_fanchart_marker_definition:
-        \__getree_fanchart_draw_segment:
+        \l__getree_fanchart_segment_definition_code_tl
+        \l__getree_fanchart_marker_definition_code_tl
+        \l__getree_fanchart_draw_segment_code_tl
 
-        \fp_set:Nn \l__getree_fanchart_angle_fp {(\l_getree_fanchart_angle_a_tl+\l_getree_fanchart_angle_b_tl)/2}
-        \fp_set:Nn \l__getree_fanchart_radius_fp { \fparray_item:Nn\g__getree_fanchart_distances_fparry{#2} }
+        \fp_set:Nn \l__getree_fanchart_angle_fp { ( \l_getree_fanchart_angle_a_tl + \l_getree_fanchart_angle_b_tl )/2 }
+        \fp_set:Nn \l__getree_fanchart_radius_fp { \fparray_item:Nn \g__getree_fanchart_distances_fparray {#2} }
 
-        \int_compare:nNnTF {#2} < {\l__getree_fanchart_landscape_level_tl}
+        \int_compare:nNnTF { #2 } < { \l__getree_fanchart_landscape_level_tl }
           {
             \__getree_fanchart_portrait_angle:nnn
               {
-                \fp_compare:nNnTF {sind(\l__getree_fanchart_angle_fp)} < {0}
+                \fp_compare:nNnTF { sind( \l__getree_fanchart_angle_fp ) } < { 0 }
                   {
-                    \fp_set:Nn \l__getree_tmpa_fp { \l__getree_fanchart_angle_fp+90 }
+                    \fp_set:Nn \l__getree_tmpa_fp { \l__getree_fanchart_angle_fp +90 }
                   }
                   {
-                    \fp_set:Nn \l__getree_tmpa_fp { \l__getree_fanchart_angle_fp-90 }
+                    \fp_set:Nn \l__getree_tmpa_fp { \l__getree_fanchart_angle_fp -90 }
                   }
               }
               {
-                \fp_set:Nn \l__getree_tmpa_fp { \l__getree_fanchart_angle_fp-90 }
+                \fp_set:Nn \l__getree_tmpa_fp { \l__getree_fanchart_angle_fp -90 }
               }
               {
-                \fp_set:Nn \l__getree_tmpa_fp { \l__getree_fanchart_angle_fp+90 }
+                \fp_set:Nn \l__getree_tmpa_fp { \l__getree_fanchart_angle_fp +90 }
               }
           }
           {
             \__getree_fanchart_landscape_angle:nnn
               {
-                \fp_compare:nNnTF {cosd(\l__getree_fanchart_angle_fp)} < {0}
+                \fp_compare:nNnTF { cosd( \l__getree_fanchart_angle_fp ) } < { 0 }
                   {
-                    \fp_set:Nn \l__getree_tmpa_fp { \l__getree_fanchart_angle_fp-180 }
+                    \fp_set:Nn \l__getree_tmpa_fp { \l__getree_fanchart_angle_fp -180 }
                   }
                   {
                     \fp_set_eq:NN \l__getree_tmpa_fp \l__getree_fanchart_angle_fp
@@ -232,18 +265,19 @@
                 \fp_set_eq:NN \l__getree_tmpa_fp \l__getree_fanchart_angle_fp
               }
               {
-                \fp_set:Nn \l__getree_tmpa_fp { \l__getree_fanchart_angle_fp-180 }
+                \fp_set:Nn \l__getree_tmpa_fp { \l__getree_fanchart_angle_fp -180 }
               }
           }
-        \node[rotate=\fp_to_decimal:N\l__getree_tmpa_fp]
-          at (\fp_to_decimal:N\l__getree_fanchart_angle_fp \c_colon_str \fp_to_dim:N\l__getree_fanchart_radius_fp)
-          {\unhbox\use:c{gtr@per@#1@box}};
+        \node[ rotate = \fp_to_decimal:N \l__getree_tmpa_fp ]
+          at ( \fp_to_decimal:N \l__getree_fanchart_angle_fp \c_colon_str \fp_to_dim:N \l__getree_fanchart_radius_fp )
+          { \hbox_unpack_drop:c { gtr@per@#1@box } } ;
       }
       {
-        \tl_set:Nx \l_getree_fanchart_radius_b_tl { \fp_to_dim:n{\fparray_item:Nn\g__getree_fanchart_radii_fparry{1}} }
-        \tl_set:Nn \l_getree_fanchart_line_width_tl {\fp_to_dim:N\l__getree_fanchart_boundary_width_fp}
-        \__getree_fanchart_draw_root:
-        \node at ( 0,0 ) {\unhbox\use:c{gtr@per@#1@box}};
+        \tl_set:Nx \l_getree_fanchart_radius_b_tl
+          { \fp_to_dim:n { \fparray_item:Nn \g__getree_fanchart_radii_fparray { 1 } } }
+        \tl_set:Nn \l_getree_fanchart_line_width_tl { \fp_to_dim:N \l__getree_fanchart_boundary_width_fp }
+        \l__getree_fanchart_draw_root_code_tl
+        \node at ( 0,0 ) { \hbox_unpack_drop:c { gtr@per@#1@box } } ;
       }
   }
 
@@ -253,80 +287,82 @@
 % #2: level
 % #3: angle a
 % #4: angle b
-\cs_new:Npn \__getree_fanchart_draw_family:nnnn #1#2#3#4
+\cs_new_protected:Npn \__getree_fanchart_draw_family:nnnn #1#2#3#4
   {
-    \gtr@set@currentfamily{#1}
-    \letcs\gtr@node{gtr@fam@\gtr@currentfamily @g}
-    \__getree_fanchart_draw_person:nnnn {\gtr@node}{#2}{#3}{#4}
-    \def\dodo##1
+    \gtr@set@currentfamily {#1}
+    \cs_set_eq:Nc \gtr@node { gtr@fam@ \gtr@currentfamily @g }
+    \__getree_fanchart_draw_person:nnnn {\gtr@node} {#2} {#3} {#4}
+    \cs_set_protected_nopar:Npn \dodo ##1
     {
-      \cs_if_exist:cT {gtr@per@##1@box}
+      \cs_if_exist:cT { gtr@per@##1@box }
         {
-          \cs_if_exist:cTF {gtr@per@##1@chiof}
+          \cs_if_exist:cTF { gtr@per@##1@chiof }
             {
-              \tl_put_right:Nx\l__getree_fanchart_recursive_action_tl
+              \tl_put_right:Nx \l__getree_fanchart_recursive_action_tl
                 {
-                  \exp_not:N\__getree_fanchart_draw_family:nnnn { \use:c{gtr@per@##1@chiof} }{ \int_eval:n{#2+1} }{ #3 }{ \l__getree_tmpa_tl }
+                  \exp_not:N \__getree_fanchart_draw_family:nnnn { \use:c { gtr@per@##1@chiof } }
+                    { \int_eval:n { #2+1 } } { #3 } { \l__getree_tmpa_tl }
                 }
             }
             {
-              \tl_put_right:Nx\l__getree_fanchart_recursive_action_tl
+              \tl_put_right:Nx \l__getree_fanchart_recursive_action_tl
                 {
-                  \exp_not:N\__getree_fanchart_draw_person:nnnn { ##1 }{ #2+1 }{ #3 }{ \l__getree_tmpa_tl }
+                  \exp_not:N \__getree_fanchart_draw_person:nnnn { ##1 } { #2+1 } { #3 } { \l__getree_tmpa_tl }
                 }
             }
         }
     }
-    \def\do##1
+    \cs_set_protected_nopar:Npn \do ##1
     {
-      \cs_if_exist:cT {gtr@per@##1@box}
+      \cs_if_exist:cT { gtr@per@##1@box }
         {
-          \cs_if_exist:cTF {gtr@per@##1@chiof}
+          \cs_if_exist:cTF { gtr@per@##1@chiof }
             {
-              \tl_put_right:Nx\l__getree_fanchart_recursive_action_tl
+              \tl_put_right:Nx \l__getree_fanchart_recursive_action_tl
                 {
-                  \exp_not:N\__getree_fanchart_draw_family:nnnn { \use:c{gtr@per@##1@chiof} }{ \int_eval:n{#2+1} }{ \l__getree_tmpa_tl }{ #4 }
+                  \exp_not:N \__getree_fanchart_draw_family:nnnn { \use:c { gtr@per@##1@chiof } }
+                    { \int_eval:n { #2+1 } } { \l__getree_tmpa_tl } { #4 }
                 }
             }
             {
-              \tl_put_right:Nx\l__getree_fanchart_recursive_action_tl
+              \tl_put_right:Nx \l__getree_fanchart_recursive_action_tl
                 {
-                  \exp_not:N\__getree_fanchart_draw_person:nnnn { ##1 }{ #2+1 }{ \l__getree_tmpa_tl }{ #4 }
+                  \exp_not:N \__getree_fanchart_draw_person:nnnn { ##1 } { #2+1 } { \l__getree_tmpa_tl } { #4 }
                 }
             }
         }
-      \let\do\dodo
-    }%
-    \cs_if_exist:cT {gtr@fam@\gtr@currentfamily @par}
+      \cs_set_eq:NN \do \dodo
+    }
+    \cs_if_exist:cT { gtr@fam@ \gtr@currentfamily @par }
       {
         \tl_set:Nx \l__getree_tmpa_tl { \fp_to_decimal:n { (#3+#4)/2 } }
-        \tl_clear:N\l__getree_fanchart_recursive_action_tl
-        \dolistcsloop{gtr@fam@\gtr@currentfamily @par}
-        \tl_use:N\l__getree_fanchart_recursive_action_tl
+        \tl_clear:N \l__getree_fanchart_recursive_action_tl
+        \dolistcsloop{ gtr@fam@ \gtr@currentfamily @par }
+        \tl_use:N \l__getree_fanchart_recursive_action_tl
       }
   }
 
 
-\cs_new:Npn \__getree_fanchart_bounds_fit:n #1
+\cs_new_protected:Npn \__getree_fanchart_bounds_fit:n #1
   {
-    \fp_set:Nn \l__getree_tmpa_fp { \l__getree_fanchart_radius_fp*cosd(#1) }
-    \fp_compare:nNnTF {\l__getree_tmpa_fp} < {\l__getree_fanchart_bounds_xmin_fp}
+    \fp_set:Nn \l__getree_tmpa_fp { \l__getree_fanchart_radius_fp *cosd(#1) }
+    \fp_compare:nNnTF { \l__getree_tmpa_fp } < { \l__getree_fanchart_bounds_xmin_fp }
       {
         \fp_set_eq:NN \l__getree_fanchart_bounds_xmin_fp \l__getree_tmpa_fp
       }
       {
-        \fp_compare:nNnT {\l__getree_tmpa_fp} > {\l__getree_fanchart_bounds_xmax_fp}
+        \fp_compare:nNnT { \l__getree_tmpa_fp } > { \l__getree_fanchart_bounds_xmax_fp }
           {
             \fp_set_eq:NN \l__getree_fanchart_bounds_xmax_fp \l__getree_tmpa_fp
           }
       }
-    \fp_set:Nn \l__getree_tmpa_fp { \l__getree_fanchart_radius_fp*sind(#1) }
-    \fp_compare:nNnTF {\l__getree_tmpa_fp} < {\l__getree_fanchart_bounds_ymin_fp}
+    \fp_set:Nn \l__getree_tmpa_fp { \l__getree_fanchart_radius_fp *sind(#1) }
+    \fp_compare:nNnTF { \l__getree_tmpa_fp } < { \l__getree_fanchart_bounds_ymin_fp }
       {
         \fp_set_eq:NN \l__getree_fanchart_bounds_ymin_fp \l__getree_tmpa_fp
       }
       {
-        \fp_compare:nNnT {\l__getree_tmpa_fp} > {\l__getree_fanchart_bounds_ymax_fp}
+        \fp_compare:nNnT { \l__getree_tmpa_fp } > { \l__getree_fanchart_bounds_ymax_fp }
           {
             \fp_set_eq:NN \l__getree_fanchart_bounds_ymax_fp \l__getree_tmpa_fp
           }
@@ -334,63 +370,68 @@
   }
 
 
-\cs_new:Npn \__getree_fanchart_reset_bounds:
+\cs_new_protected:Npn \__getree_fanchart_reset_bounds:
   {
     \fp_set_eq:NN \l__getree_fanchart_radius_fp \l__getree_fanchart_bounds_xmax_fp
 
-    \fp_set:Nn \l__getree_fanchart_bounds_xmax_fp { \fparray_item:Nn\g__getree_fanchart_radii_fparry{1} }
+    \fp_set:Nn \l__getree_fanchart_bounds_xmax_fp { \fparray_item:Nn \g__getree_fanchart_radii_fparray { 1 } }
     \fp_set_eq:NN \l__getree_fanchart_bounds_ymax_fp \l__getree_fanchart_bounds_xmax_fp
-    \fp_set:Nn \l__getree_fanchart_bounds_xmin_fp { -\l__getree_fanchart_bounds_xmax_fp }
+    \fp_set:Nn \l__getree_fanchart_bounds_xmin_fp { - \l__getree_fanchart_bounds_xmax_fp }
     \fp_set_eq:NN \l__getree_fanchart_bounds_ymin_fp \l__getree_fanchart_bounds_xmin_fp
 
     \__getree_fanchart_bounds_fit:n { \l_getree_fanchart_minor_angle_tl }
     \__getree_fanchart_bounds_fit:n { \l_getree_fanchart_major_angle_tl }
-    \fp_set:Nn \l__getree_fanchart_angle_fp { floor(\l_getree_fanchart_minor_angle_tl/90)*90+90  }
-    \fp_while_do:nNnn {\l__getree_fanchart_angle_fp} < {\l_getree_fanchart_major_angle_tl}
+    \fp_set:Nn \l__getree_fanchart_angle_fp { floor( \l_getree_fanchart_minor_angle_tl /90)*90+90  }
+    \fp_while_do:nNnn { \l__getree_fanchart_angle_fp } < { \l_getree_fanchart_major_angle_tl }
       {
         \__getree_fanchart_bounds_fit:n { \l__getree_fanchart_angle_fp }
-        \fp_set:Nn \l__getree_fanchart_angle_fp { \l__getree_fanchart_angle_fp+90  }
+        \fp_set:Nn \l__getree_fanchart_angle_fp { \l__getree_fanchart_angle_fp +90  }
       }
 
     \pgfresetboundingbox
     \path
-        (\fp_to_dim:n{\l__getree_fanchart_bounds_xmin_fp-\l__getree_fanchart_bounds_border_fp},
-         \fp_to_dim:n{\l__getree_fanchart_bounds_ymin_fp-\l__getree_fanchart_bounds_border_fp})
+        ( \fp_to_dim:n { \l__getree_fanchart_bounds_xmin_fp - \l__getree_fanchart_bounds_border_fp },
+          \fp_to_dim:n { \l__getree_fanchart_bounds_ymin_fp - \l__getree_fanchart_bounds_border_fp } )
       rectangle
-        (\fp_to_dim:n{\l__getree_fanchart_bounds_xmax_fp+\l__getree_fanchart_bounds_border_fp},
-         \fp_to_dim:n{\l__getree_fanchart_bounds_ymax_fp+\l__getree_fanchart_bounds_border_fp});
+        ( \fp_to_dim:n { \l__getree_fanchart_bounds_xmax_fp + \l__getree_fanchart_bounds_border_fp },
+          \fp_to_dim:n { \l__getree_fanchart_bounds_ymax_fp + \l__getree_fanchart_bounds_border_fp } );
   }
 
 
-\cs_new:Npn \__getree_fanchart:nn #1#2
+\cs_new_protected:Npn \__getree_fanchart:nn #1#2
   {
     \group_begin:
     \cs_if_exist:NF \pgfpictureid
       {
-        \gtr@error{\gtrfanchart\space~outside~tikzpicture~environment}
-          {\gtrfanchart\space~can~only~be~used~inside~a~tikzpicture~environment.}
+        \gtr@error { \gtrfanchart \space ~outside~tikzpicture~environment }
+          { \gtrfanchart \space ~can~only~be~used~inside~a~tikzpicture~environment. }
       }
     \def\gtr@proc@@parent@end
       {
-        \cs_if_exist:cF {gtr@fam@\gtr@currentfamily @g}
+        \cs_if_exist:cF { gtr@fam@ \gtr@currentfamily @g }
         {
-          \gtr@error{No~g-node~in~parent~family~(\gtr@currentfamily)}{Every~family~needs~a~g-node}
+          \gtr@error{ No~g-node~in~parent~family~( \gtr@currentfamily ) } { Every~family~needs~a~g-node }
         }
       }
     \def\gtr@positioning{}
-    \gtrset{
-      phantom/.style={phantom*={##1},
-        code={
-          \cs_if_exist:NT \gtr@currentperson
+    \gtrset
+      {
+        phantom/.style =
+          { phantom* = {##1},
+            code =
             {
-              \use:x
-              {
-                \exp_not:N\gappto\exp_not:N\gtrkv@after@parser{\exp_not:N\csundef{gtr@per@\gtr@currentperson @box}}
-              }
+              \cs_if_exist:NT \gtr@currentperson
+                {
+                  %\use:x
+                  %{
+                  %  \exp_not:N\gappto\exp_not:N\gtrkv@after@parser{\exp_not:N\csundef{gtr@per@\gtr@currentperson @box}}
+                  %}
+                  \exp_args:NNx \gappto \gtrkv@after@parser
+                    { \exp_not:N \csundef { gtr@per@ \gtr@currentperson @box } }
+                }
             }
-        }
-      },
-    }
+          },
+      }
     \gtr@reset@before@parser
     \gtr@parsegraph
     [
@@ -404,21 +445,22 @@
         middle = \tcbfitdim/5,
         halign = center,
         valign = center,
-        before~upper={\parskip=0.1\tcbfitdim},
+        before~upper = { \parskip = 0.1\tcbfitdim },
       },
-      level/.prefix~code=
+      level/.prefix~code =
         {
-          \int_compare:nNnT {##1} > {5}
+          \int_compare:nNnT { ##1 } > { 5 }
             {
-              \pgfkeysalso{node={list~separators={\par}{~}{}{}}}
+              \pgfkeysalso{ node = { list~separators = {\par} {~} {} {} } }
             }
         },
       #1,
-      code={\__getree_fanchart_segment_computation:}
-    ]{#2}
+      code = { \__getree_fanchart_segment_computation: }
+    ] {#2}
     \gtrkv@after@parser
     \fp_zero:N \l__getree_fanchart_bounds_xmax_fp
-    \__getree_fanchart_draw_family:nnnn{\gtr@num@fam@first}{0}{\l_getree_fanchart_minor_angle_tl}{\l_getree_fanchart_major_angle_tl}
+    \__getree_fanchart_draw_family:nnnn { \gtr@num@fam@first } { 0 }
+      { \l_getree_fanchart_minor_angle_tl } { \l_getree_fanchart_major_angle_tl }
     \bool_if:NT \l__getree_fanchart_reset_bounds_bool
       {
         \__getree_fanchart_reset_bounds:
@@ -427,15 +469,15 @@
   }
 
 
-\NewDocumentCommand{\gtrfanchart}{ +O{} }
+\NewDocumentCommand \gtrfanchart { +O {} }
   {
     \__getree_fanchart:nn {#1}
   }
 
 
-\NewDocumentCommand{\gtrfanchartinput}{ +O{} m }
+\NewDocumentCommand \gtrfanchartinput { +O {} m }
   {
-    \__getree_fanchart:nn {#1}{input{#2}}
+    \__getree_fanchart:nn {#1} { input {#2} }
   }
 
 
@@ -444,15 +486,15 @@
 %%%%%%%%%%%%%%%%%%%%%%%
 
 
-\cs_new:Npn \__getree_fanchart_paper_fit:nn #1#2
+\cs_new_protected:Npn \__getree_fanchart_paper_fit:nn #1#2
   {
     \fp_set:Nn \l__getree_tmpa_fp {#1}
-    \fp_set:Nn \l_tmpb_fp {#2}
-    \fp_compare:nTF { \l__getree_tmpa_fp > \l_tmpb_fp }
+    \fp_set:Nn \l__getree_tmpb_fp {#2}
+    \fp_compare:nNnTF { \l__getree_tmpa_fp } > { \l__getree_tmpb_fp }
       {
-        \fp_compare:nTF { \l_tmpb_fp > \l__getree_tmpa_fp/2 }
+        \fp_compare:nNnTF { \l__getree_tmpb_fp } > { \l__getree_tmpa_fp /2 }
           {
-            \fp_set:Nn \l__getree_tmpa_fp { 180+2*asind( 2*\l_tmpb_fp/\l__getree_tmpa_fp - 1 ) }
+            \fp_set:Nn \l__getree_tmpa_fp { 180+2*asind( 2* \l__getree_tmpb_fp / \l__getree_tmpa_fp - 1 ) }
             \gtrset
               {
                 fanchart~open~up       = \l__getree_tmpa_fp,
@@ -468,9 +510,9 @@
           }
       }
       {
-        \fp_compare:nTF { \l__getree_tmpa_fp > \l_tmpb_fp/2 }
+        \fp_compare:nNnTF { \l__getree_tmpa_fp } > { \l__getree_tmpb_fp /2 }
           {
-            \fp_set:Nn \l__getree_tmpa_fp { 180+2*asind( 2*\l__getree_tmpa_fp/\l_tmpb_fp -1 ) }
+            \fp_set:Nn \l__getree_tmpa_fp { 180+2*asind( 2* \l__getree_tmpa_fp / \l__getree_tmpb_fp -1 ) }
             \gtrset
               {
                 fanchart~open~right     = \l__getree_tmpa_fp,
@@ -489,110 +531,115 @@
 
 
 \gtrset{
-  fanchart~radii/.code={
-    \clist_set:Nn \l__getree_tmpa_clist {#1}
-    \fparray_gzero:N \g__getree_fanchart_radii_fparry
-    \int_zero:N \l__getree_tmpa_int
-    \fp_zero:N \l_tmpb_fp
-    \clist_map_inline:Nn \l__getree_tmpa_clist
-      {
-        \int_incr:N \l__getree_tmpa_int
-        \fp_set:Nn \l__getree_tmpa_fp { ##1 }
-        \fp_add:Nn \l_tmpb_fp {\l__getree_tmpa_fp}
-        \fparray_gset:Nnn \g__getree_fanchart_radii_fparry { \l__getree_tmpa_int }{ \l_tmpb_fp }
-      }
-    \int_step_inline:nnn { \l__getree_tmpa_int+1 }{ \c_getree_fanchart_maximum_rings_tl }
-      {
-        \fp_add:Nn \l_tmpb_fp {\l__getree_tmpa_fp}
-        \fparray_gset:Nnn \g__getree_fanchart_radii_fparry { ##1 }{ \l_tmpb_fp }
-      }
-  },
-  fanchart~inner~offset/.code={
-    \clist_set:Nn \l__getree_tmpa_clist {#1}
-    \fparray_gzero:N \g__getree_fanchart_inner_fparry
-    \int_zero:N \l__getree_tmpa_int
-    \fp_zero:N \l__getree_tmpa_fp
-    \clist_map_inline:Nn \l__getree_tmpa_clist
-      {
-        \int_incr:N \l__getree_tmpa_int
-        \fp_set:Nn \l__getree_tmpa_fp { ##1 }
-        \fparray_gset:Nnn \g__getree_fanchart_inner_fparry { \l__getree_tmpa_int }{ \l__getree_tmpa_fp }
-      }
-    \int_step_inline:nnn { \l__getree_tmpa_int+1 }{ \c_getree_fanchart_maximum_rings_tl }
-      {
-        \fp_add:Nn \l_tmpb_fp {\l__getree_tmpa_fp}
-        \fparray_gset:Nnn \g__getree_fanchart_inner_fparry { ##1 }{ \l__getree_tmpa_fp }
-      }
-  },
-  fanchart~outer~offset/.code={
-    \clist_set:Nn \l__getree_tmpa_clist {#1}
-    \fparray_gzero:N \g__getree_fanchart_outer_fparry
-    \int_zero:N \l__getree_tmpa_int
-    \fp_zero:N \l__getree_tmpa_fp
-    \clist_map_inline:Nn \l__getree_tmpa_clist
-      {
-        \int_incr:N \l__getree_tmpa_int
-        \fp_set:Nn \l__getree_tmpa_fp { ##1 }
-        \fparray_gset:Nnn \g__getree_fanchart_outer_fparry { \l__getree_tmpa_int }{ \l__getree_tmpa_fp }
-      }
-    \int_step_inline:nnn { \l__getree_tmpa_int+1 }{ \c_getree_fanchart_maximum_rings_tl }
-      {
-        \fp_add:Nn \l_tmpb_fp {\l__getree_tmpa_fp}
-        \fparray_gset:Nnn \g__getree_fanchart_outer_fparry { ##1 }{ \l__getree_tmpa_fp }
-      }
-  },
-  fanchart~minor~angle/.code={\tl_set:Nx \l_getree_fanchart_minor_angle_tl { \fp_to_decimal:n {#1} }},
-  fanchart~major~angle/.code={\tl_set:Nx \l_getree_fanchart_major_angle_tl { \fp_to_decimal:n {#1} }},
-  fanchart~open~up/.code={
-    \tl_set:Nx \l_getree_fanchart_minor_angle_tl { \fp_to_decimal:n {90-(#1)/2}}
-    \tl_set:Nx \l_getree_fanchart_major_angle_tl { \fp_to_decimal:n {90+(#1)/2}}
-  },
-  fanchart~open~up/.default=220,
-  fanchart~open~left/.code={
-    \tl_set:Nx \l_getree_fanchart_minor_angle_tl { \fp_to_decimal:n {180-(#1)/2}}
-    \tl_set:Nx \l_getree_fanchart_major_angle_tl { \fp_to_decimal:n {180+(#1)/2}}
-  },
-  fanchart~open~left/.default=160,
-  fanchart~open~right/.code={
-    \tl_set:Nx \l_getree_fanchart_minor_angle_tl { \fp_to_decimal:n {-(#1)/2}}
-    \tl_set:Nx \l_getree_fanchart_major_angle_tl { \fp_to_decimal:n {(#1)/2}}
-  },
-  fanchart~open~right/.default=160,
-  fanchart~open~down/.code={
-    \tl_set:Nx \l_getree_fanchart_minor_angle_tl { \fp_to_decimal:n {270-(#1)/2}}
-    \tl_set:Nx \l_getree_fanchart_major_angle_tl { \fp_to_decimal:n {270+(#1)/2}}
-  },
-  fanchart~open~down/.default=220,
-  fanchart~open~full/.style={fanchart~open~right=360},
-  fanchart~open~for/.code~args={#1x#2}{\__getree_fanchart_paper_fit:nn{#1}{#2}},
-  fanchart~landscape~from~level/.code={\tl_set:Nn\l__getree_fanchart_landscape_level_tl{#1}},
+  fanchart~radii/.code =
+    {
+      \fparray_gzero:N \g__getree_fanchart_radii_fparray
+      \int_zero:N \l__getree_tmpa_int
+      \fp_zero:N \l__getree_tmpb_fp
+      \clist_map_inline:nn { #1 }
+        {
+          \int_incr:N \l__getree_tmpa_int
+          \fp_set:Nn \l__getree_tmpa_fp { ##1 }
+          \fp_add:Nn \l__getree_tmpb_fp { \l__getree_tmpa_fp }
+          \fparray_gset:Nnn \g__getree_fanchart_radii_fparray { \l__getree_tmpa_int } { \l__getree_tmpb_fp }
+        }
+      \int_step_inline:nnn { \l__getree_tmpa_int +1 } { \c_getree_fanchart_maximum_rings_tl }
+        {
+          \fp_add:Nn \l__getree_tmpb_fp { \l__getree_tmpa_fp }
+          \fparray_gset:Nnn \g__getree_fanchart_radii_fparray { ##1 } { \l__getree_tmpb_fp }
+        }
+    },
+  fanchart~inner~offset/.code =
+    {
+      \fparray_gzero:N \g__getree_fanchart_inner_fparray
+      \int_zero:N \l__getree_tmpa_int
+      \fp_zero:N \l__getree_tmpa_fp
+      \clist_map_inline:nn { #1 }
+        {
+          \int_incr:N \l__getree_tmpa_int
+          \fp_set:Nn \l__getree_tmpa_fp { ##1 }
+          \fparray_gset:Nnn \g__getree_fanchart_inner_fparray { \l__getree_tmpa_int } { \l__getree_tmpa_fp }
+        }
+      \int_step_inline:nnn { \l__getree_tmpa_int +1 } { \c_getree_fanchart_maximum_rings_tl }
+        {
+          \fp_add:Nn \l__getree_tmpb_fp { \l__getree_tmpa_fp }
+          \fparray_gset:Nnn \g__getree_fanchart_inner_fparray { ##1 } { \l__getree_tmpa_fp }
+        }
+    },
+  fanchart~outer~offset/.code =
+    {
+      \fparray_gzero:N \g__getree_fanchart_outer_fparray
+      \int_zero:N \l__getree_tmpa_int
+      \fp_zero:N \l__getree_tmpa_fp
+      \clist_map_inline:nn { #1 }
+        {
+          \int_incr:N \l__getree_tmpa_int
+          \fp_set:Nn \l__getree_tmpa_fp { ##1 }
+          \fparray_gset:Nnn \g__getree_fanchart_outer_fparray { \l__getree_tmpa_int } { \l__getree_tmpa_fp }
+        }
+      \int_step_inline:nnn { \l__getree_tmpa_int +1 } { \c_getree_fanchart_maximum_rings_tl }
+        {
+          \fp_add:Nn \l__getree_tmpb_fp { \l__getree_tmpa_fp }
+          \fparray_gset:Nnn \g__getree_fanchart_outer_fparray { ##1 } { \l__getree_tmpa_fp }
+        }
+    },
+  fanchart~minor~angle/.code = { \tl_set:Nx \l_getree_fanchart_minor_angle_tl { \fp_to_decimal:n {#1} } },
+  fanchart~major~angle/.code = { \tl_set:Nx \l_getree_fanchart_major_angle_tl { \fp_to_decimal:n {#1} } },
+  fanchart~open~up/.code =
+    {
+      \tl_set:Nx \l_getree_fanchart_minor_angle_tl { \fp_to_decimal:n { 90-(#1)/2 }}
+      \tl_set:Nx \l_getree_fanchart_major_angle_tl { \fp_to_decimal:n { 90+(#1)/2 }}
+    },
+  fanchart~open~up/.default = 220,
+  fanchart~open~left/.code =
+    {
+      \tl_set:Nx \l_getree_fanchart_minor_angle_tl { \fp_to_decimal:n { 180-(#1)/2 }}
+      \tl_set:Nx \l_getree_fanchart_major_angle_tl { \fp_to_decimal:n { 180+(#1)/2 }}
+    },
+  fanchart~open~left/.default = 160,
+  fanchart~open~right/.code =
+    {
+      \tl_set:Nx \l_getree_fanchart_minor_angle_tl { \fp_to_decimal:n { -(#1)/2 }}
+      \tl_set:Nx \l_getree_fanchart_major_angle_tl { \fp_to_decimal:n { (#1)/2 }}
+    },
+  fanchart~open~right/.default = 160,
+  fanchart~open~down/.code=
+    {
+      \tl_set:Nx \l_getree_fanchart_minor_angle_tl { \fp_to_decimal:n { 270-(#1)/2 }}
+      \tl_set:Nx \l_getree_fanchart_major_angle_tl { \fp_to_decimal:n { 270+(#1)/2 }}
+    },
+  fanchart~open~down/.default = 220,
+  fanchart~open~full/.style = { fanchart~open~right = 360 },
+  fanchart~open~for/.code~args = { #1x#2 } { \__getree_fanchart_paper_fit:nn {#1} {#2} },
+  fanchart~landscape~from~level/.code = { \tl_set:Nn \l__getree_fanchart_landscape_level_tl {#1} },
   fanchart~text~portrait/.is~choice,
-  fanchart~text~portrait/.default=auto,
+  fanchart~text~portrait/.default = auto,
   fanchart~text~portrait/auto/.code     = \cs_set_eq:NN \__getree_fanchart_portrait_angle:nnn \use_i:nnn,
   fanchart~text~portrait/inwards/.code  = \cs_set_eq:NN \__getree_fanchart_portrait_angle:nnn \use_ii:nnn,
   fanchart~text~portrait/outwards/.code = \cs_set_eq:NN \__getree_fanchart_portrait_angle:nnn \use_iii:nnn,
   fanchart~text~landscape/.is~choice,
-  fanchart~text~landscape/.default=auto,
+  fanchart~text~landscape/.default = auto,
   fanchart~text~landscape/auto/.code             = \cs_set_eq:NN \__getree_fanchart_landscape_angle:nnn \use_i:nnn,
   fanchart~text~landscape/clockwise/.code        = \cs_set_eq:NN \__getree_fanchart_landscape_angle:nnn \use_ii:nnn,
   fanchart~text~landscape/counterclockwise/.code = \cs_set_eq:NN \__getree_fanchart_landscape_angle:nnn \use_iii:nnn,
-  fanchart~boundary~color/.code={\colorlet{gtrfanchartboundary}{#1}},
-  fanchart~boundary~width/.code={
+  fanchart~boundary~color/.code = { \colorlet{ gtrfanchartboundary } {#1} },
+  fanchart~boundary~width/.code =
+    {
       \fp_set:Nn \l__getree_fanchart_boundary_width_fp {#1}
-      \fp_set:Nn \l__getree_fanchart_boundary_scale_fp {min(5,\l__getree_fanchart_boundary_width_fp/0.4pt)}
+      \fp_set:Nn \l__getree_fanchart_boundary_scale_fp { min( 5, \l__getree_fanchart_boundary_width_fp /0.4pt ) }
     },
-  fanchart~male~style/.code={\tikzset{gtr@fanchart@male@style/.style={#1}}},
-  fanchart~female~style/.code={\tikzset{gtr@fanchart@female@style/.style={#1}}},
-  fanchart~neuter~style/.code={\tikzset{gtr@fanchart@neuter@style/.style={#1}}},
-  fanchart~ancestor~style/.code={\tikzset{gtr@fanchart@ancestor@style/.style={#1}}},
-  fanchart~descendant~style/.code={\tikzset{gtr@fanchart@descendant@style/.style={#1}}},
-  fanchart~sibling~style/.code={\tikzset{gtr@fanchart@sibling@style/.style={#1}}},
-  fanchart~unrelated~style/.code={\tikzset{gtr@fanchart@unrelated@style/.style={#1}}},
+  fanchart~male~style/.code       = { \tikzset{ gtr@fanchart@male@style/.style       = {#1} }},
+  fanchart~female~style/.code     = { \tikzset{ gtr@fanchart@female@style/.style     = {#1} }},
+  fanchart~neuter~style/.code     = { \tikzset{ gtr@fanchart@neuter@style/.style     = {#1} }},
+  fanchart~ancestor~style/.code   = { \tikzset{ gtr@fanchart@ancestor@style/.style   = {#1} }},
+  fanchart~descendant~style/.code = { \tikzset{ gtr@fanchart@descendant@style/.style = {#1} }},
+  fanchart~sibling~style/.code    = { \tikzset{ gtr@fanchart@sibling@style/.style    = {#1} }},
+  fanchart~unrelated~style/.code  = { \tikzset{ gtr@fanchart@unrelated@style/.style  = {#1} }},
   fanchart~reset~bounds/.is~choice,
-  fanchart~reset~bounds/.default=true,
-  fanchart~reset~bounds/true/.code={\bool_set_true:N \l__getree_fanchart_reset_bounds_bool},
-  fanchart~reset~bounds/false/.code={\bool_set_false:N \l__getree_fanchart_reset_bounds_bool},
-  fanchart~bounds~border/.code={\fp_set:Nn \l__getree_fanchart_bounds_border_fp {#1}},
+  fanchart~reset~bounds/.default = true,
+  fanchart~reset~bounds/true/.code = { \bool_set_true:N \l__getree_fanchart_reset_bounds_bool },
+  fanchart~reset~bounds/false/.code = { \bool_set_false:N \l__getree_fanchart_reset_bounds_bool },
+  fanchart~bounds~border/.code = { \fp_set:Nn \l__getree_fanchart_bounds_border_fp {#1} },
 }
 
 
@@ -605,16 +652,26 @@
   {
     \getree_fanchart_if_complemented_node:TF
       {
-        \tikzset{gtr@fanchart@marker@style/.style={#1,
-          gtr@fanchart/@mark@level@\l_getree_fanchart_level_tl/.try,
-          gtr@fanchart@marker@complemented
-        }}
+        \tikzset
+          {
+            gtr@fanchart@marker@style/.style =
+              {
+                #1,
+                gtr@fanchart/@mark@level@ \l_getree_fanchart_level_tl /.try,
+                gtr@fanchart@marker@complemented
+              }
+          }
       }
       {
-        \tikzset{gtr@fanchart@marker@style/.style={#1,
-          gtr@fanchart/@mark@level@\l_getree_fanchart_level_tl/.try,
-          gtr@fanchart/@mark@id@\l_getree_fanchart_id_tl/.try
-        }}
+        \tikzset
+          {
+            gtr@fanchart@marker@style/.style =
+              {
+                #1,
+                gtr@fanchart/@mark@level@ \l_getree_fanchart_level_tl /.try,
+                gtr@fanchart/@mark@id@ \l_getree_fanchart_id_tl /.try
+              }
+          }
       }
   }
 
@@ -622,39 +679,51 @@
   {
     \getree_fanchart_if_complemented_node:TF
       {
-        \tikzset{gtr@fanchart@segment@style/.style={#1,
-          gtr@fanchart/@seg@level@\l_getree_fanchart_level_tl/.try,
-          gtr@fanchart@segment@complemented
-        }}
+        \tikzset
+          {
+            gtr@fanchart@segment@style/.style =
+              {
+                #1,
+                gtr@fanchart/@seg@level@ \l_getree_fanchart_level_tl /.try,
+                gtr@fanchart@segment@complemented
+              }
+          }
       }
       {
-        \tikzset{gtr@fanchart@segment@style/.style={#1,
-          gtr@fanchart/@seg@level@\l_getree_fanchart_level_tl/.try,
-          gtr@fanchart/@seg@id@\l_getree_fanchart_id_tl/.try
-        }}
+        \tikzset
+          {
+            gtr@fanchart@segment@style/.style =
+              {
+                #1,
+                gtr@fanchart/@seg@level@ \l_getree_fanchart_level_tl /.try,
+                gtr@fanchart/@seg@id@ \l_getree_fanchart_id_tl /.try
+                }
+          }
       }
   }
 
 
 \cs_new:Npn \getree_fanchart_set_color_wave:n #1
   {
-    \definecolor{#1}{rgb:wave}{\fp_to_decimal:n { 400 + (1-\l_getree_fanchart_ratio_tl)*360 } }
+    \definecolor {#1} { rgb:wave } { \fp_to_decimal:n { 400 + (1- \l_getree_fanchart_ratio_tl )*360 } }
   }
 
 
 % customize by \def\rangetHsb
 \cs_new:Npn \getree_fanchart_set_color_colorwheel:n #1
   {
-    \definecolor{#1}{rgb:tHsb}{\fp_to_decimal:n{(1-\l_getree_fanchart_ratio_tl)*360},1,1}
+    \definecolor {#1} { rgb:tHsb } { \fp_to_decimal:n { (1- \l_getree_fanchart_ratio_tl )*360 }, 1, 1 }
   }
 
 \cs_new:Npn \getree_fanchart_draw_path:n #1
   {
     \path[#1]
       ( \l_getree_fanchart_angle_a_tl  \c_colon_str \l_getree_fanchart_radius_a_tl  )
-      arc ( \l_getree_fanchart_angle_a_tl \c_colon_str \l_getree_fanchart_angle_b_tl \c_colon_str \l_getree_fanchart_radius_a_tl )
+      arc ( \l_getree_fanchart_angle_a_tl \c_colon_str \l_getree_fanchart_angle_b_tl
+            \c_colon_str \l_getree_fanchart_radius_a_tl )
       -- ( \l_getree_fanchart_angle_b_tl \c_colon_str \l_getree_fanchart_radius_b_tl )
-      arc ( \l_getree_fanchart_angle_b_tl \c_colon_str \l_getree_fanchart_angle_a_tl \c_colon_str \l_getree_fanchart_radius_b_tl )
+      arc ( \l_getree_fanchart_angle_b_tl \c_colon_str \l_getree_fanchart_angle_a_tl
+            \c_colon_str \l_getree_fanchart_radius_b_tl )
       -- cycle;
   }
 
@@ -664,9 +733,11 @@
     \tl_set:Nx \l__getree_fanchart_tmpb_tl { \fp_to_dim:n {#2} }
     \path[#3]
       ( \l_getree_fanchart_angle_a_tl  \c_colon_str \l__getree_fanchart_tmpa_tl  )
-      arc ( \l_getree_fanchart_angle_a_tl \c_colon_str \l_getree_fanchart_angle_b_tl \c_colon_str \l__getree_fanchart_tmpa_tl )
+      arc ( \l_getree_fanchart_angle_a_tl \c_colon_str \l_getree_fanchart_angle_b_tl
+            \c_colon_str \l__getree_fanchart_tmpa_tl )
       -- ( \l_getree_fanchart_angle_b_tl \c_colon_str \l__getree_fanchart_tmpb_tl )
-      arc ( \l_getree_fanchart_angle_b_tl \c_colon_str \l_getree_fanchart_angle_a_tl \c_colon_str \l__getree_fanchart_tmpb_tl )
+      arc ( \l_getree_fanchart_angle_b_tl \c_colon_str \l_getree_fanchart_angle_a_tl
+            \c_colon_str \l__getree_fanchart_tmpb_tl )
       -- cycle;
   }
 
@@ -679,36 +750,41 @@
         {
           \getree_fanchart_draw_path:n
             {
-              draw=gtrfanchartboundary,line~width=\l_getree_fanchart_line_width_tl,gtr@fanchart@segment@style
+              draw       = gtrfanchartboundary,
+              line~width = \l_getree_fanchart_line_width_tl,
+              gtr@fanchart@segment@style
             }
         }
         {
           \getree_fanchart_draw_path:nnn
-            {\l_getree_fanchart_radius_a_tl+\l_getree_fanchart_offset_a_tl}
-            {\l_getree_fanchart_radius_b_tl}
+            { \l_getree_fanchart_radius_a_tl + \l_getree_fanchart_offset_a_tl }
+            { \l_getree_fanchart_radius_b_tl }
             {
-              draw=gtrfanchartboundary,line~width=\l_getree_fanchart_line_width_tl,gtr@fanchart@segment@style
+              draw       = gtrfanchartboundary,
+              line~width = \l_getree_fanchart_line_width_tl,
+              gtr@fanchart@segment@style
             }
         }
       }
       {
         \getree_fanchart_draw_path:nnn
-          {\l_getree_fanchart_radius_a_tl+\l_getree_fanchart_offset_a_tl}
-          {\l_getree_fanchart_radius_b_tl-\l_getree_fanchart_offset_b_tl}
+          { \l_getree_fanchart_radius_a_tl + \l_getree_fanchart_offset_a_tl }
+          { \l_getree_fanchart_radius_b_tl - \l_getree_fanchart_offset_b_tl }
           {
             gtr@fanchart@segment@style
           }
         \getree_fanchart_draw_path:nnn
-          {\l_getree_fanchart_radius_b_tl-\l_getree_fanchart_offset_b_tl}
-          {\l_getree_fanchart_radius_b_tl}
+          { \l_getree_fanchart_radius_b_tl - \l_getree_fanchart_offset_b_tl }
+          { \l_getree_fanchart_radius_b_tl }
           {
             gtr@fanchart@marker@style
           }
         \getree_fanchart_draw_path:nnn
-          {\l_getree_fanchart_radius_a_tl+\l_getree_fanchart_offset_a_tl}
-          {\l_getree_fanchart_radius_b_tl}
+          { \l_getree_fanchart_radius_a_tl + \l_getree_fanchart_offset_a_tl }
+          { \l_getree_fanchart_radius_b_tl }
           {
-            draw=gtrfanchartboundary,line~width=\l_getree_fanchart_line_width_tl
+            draw       = gtrfanchartboundary,
+            line~width = \l_getree_fanchart_line_width_tl
           }
       }
   }
@@ -716,8 +792,13 @@
 
 \cs_new:Npn \getree_fanchart_draw_root_style:n #1
   {
-    \path[draw=gtrfanchartboundary,line~width=\l_getree_fanchart_line_width_tl,#1]
-      ( 0,0  ) circle[radius=\l_getree_fanchart_radius_b_tl];
+    \path
+      [
+        draw       = gtrfanchartboundary,
+        line~width = \l_getree_fanchart_line_width_tl,
+        #1
+      ]
+      ( 0,0  ) circle[ radius = \l_getree_fanchart_radius_b_tl ];
   }
 
 
@@ -725,99 +806,162 @@
   {
     fanchart-segment-code/.code=
       {
-        \cs_set:Npn \__getree_fanchart_draw_segment: {#1}
+        \tl_set:Nn \l__getree_fanchart_draw_segment_code_tl { #1 }
       },
     fanchart-root-code/.code=
       {
-        \cs_set:Npn \__getree_fanchart_draw_root: {#1}
+        \tl_set:Nn \l__getree_fanchart_draw_root_code_tl { #1 }
       },
     fanchart-marker-definition/.code=
       {
-        \cs_set:Npn \__getree_fanchart_marker_definition: {#1}
+        \tl_set:Nn \l__getree_fanchart_marker_definition_code_tl { #1 }
       },
     fanchart-segment-definition/.code=
       {
-        \cs_set:Npn \__getree_fanchart_segment_definition: {#1}
+        \tl_set:Nn \l__getree_fanchart_segment_definition_code_tl {#1}
       },
   }
 
 \tikzset
   {
-    gtr~set~color~wave/.code={\getree_fanchart_set_color_wave:n{#1}},
-    gtr~set~color~colorwheel/.code={\getree_fanchart_set_color_colorwheel:n{#1}},
-    gtr~set~color~series/.code={\colorlet{#1}{fanchart!![\l_getree_fanchart_level_tl]}},
+    gtr~set~color~wave/.code = { \getree_fanchart_set_color_wave:n {#1} },
+    gtr~set~color~colorwheel/.code = { \getree_fanchart_set_color_colorwheel:n {#1} },
+    gtr~set~color~series/.code = { \colorlet{#1} { fanchart!![ \l_getree_fanchart_level_tl ] } },
   }
 
 \gtrset
   {
-    fanchart-segment-code={\getree_fanchart_draw_segment_standard:},
+    fanchart-segment-code = { \getree_fanchart_draw_segment_standard: },
+
+    fanchart~root~style/.style =
+      {
+        fanchart-root-code = { \getree_fanchart_draw_root_style:n {#1} }
+      },
+    fanchart~root~malefemale/.style =
+      {
+        fanchart-root-code = { \getree_fanchart_draw_root_style:n { gtr@fanchart@ \gtrDBsex @style } }
+      },
+
+    fanchart~segment~style/.style =
+      {
+        fanchart-segment-definition = { \getree_fanchart_set_segment_style:n {#1} }
+      },
+    fanchart~segment~malefemale/.style =
+      {
+        fanchart~segment~style = { gtr@fanchart@ \gtrDBsex @style }
+      },
+    fanchart~segment~relation/.style =
+      {
+        fanchart~segment~style = { gtr@fanchart@ \gtrDBrelation @style }
+      },
+    fanchart~segment~wave/.style =
+      {
+        fanchart~segment~style =
+          {
+            gtr~set~color~wave = gtr@fanchart@segment,
+            top~color          = gtr@fanchart@segment!20,
+            bottom~color       = gtr@fanchart@segment!25
+          }
+      },
+    fanchart~segment~colorwheel/.style =
+      {
+        fanchart~segment~style =
+          {
+            gtr~set~color~colorwheel = gtr@fanchart@segment,
+            top~color                = gtr@fanchart@segment!20,
+            bottom~color             = gtr@fanchart@segment!25
+          }
+      },
+    fanchart~segment~radial/.style=
+      {
+        fanchart~segment~style =
+          {
+            gtr~set~color~series = gtr@fanchart@segment,
+            top~color            = gtr@fanchart@segment!20,
+            bottom~color         = gtr@fanchart@segment!25
+          }
+      },
+
+    fanchart~marker~style/.style =
+      {
+        fanchart-marker-definition = { \getree_fanchart_set_marker_style:n {#1} }
+      },
+    fanchart~marker~malefemale/.style =
+      {
+        fanchart~marker~style = { gtr@fanchart@ \gtrDBsex @style }
+      },
+    fanchart~marker~relation/.style =
+      {
+        fanchart~marker~style = { gtr@fanchart@ \gtrDBrelation @style }
+      },
+    fanchart~marker~wave/.style =
+      {
+        fanchart~marker~style =
+          {
+            gtr~set~color~wave = gtr@fanchart@marker,
+            fill               = gtr@fanchart@marker
+          }
+      },
+    fanchart~marker~colorwheel/.style =
+      {
+        fanchart~marker~style =
+          {
+            gtr~set~color~colorwheel = gtr@fanchart@marker,
+            fill                     = gtr@fanchart@marker
+          }
+      },
+    fanchart~marker~radial/.style =
+      {
+        fanchart~marker~style =
+          {
+            gtr~set~color~series = gtr@fanchart@marker,
+            fill                 = gtr@fanchart@marker
+          }
+      },
+
+    fanchart~complemented~segment~style/.code =
+      {
+        \tikzset
+          {
+            gtr@fanchart@segment@complemented/.style = {#1}
+          }
+      },
+    fanchart~complemented~marker~style/.code =
+      {
+        \tikzset
+          {
+            gtr@fanchart@marker@complemented/.style = {#1}
+          }
+      },
     %
-    fanchart~root~style/.style={fanchart-root-code={\getree_fanchart_draw_root_style:n{#1}}},
-    fanchart~root~malefemale/.style={fanchart-root-code={\getree_fanchart_draw_root_style:n{gtr@fanchart@\gtrDBsex @style}}},
-    %
-    fanchart~segment~style/.style={fanchart-segment-definition={\getree_fanchart_set_segment_style:n{#1}}},
-    fanchart~segment~malefemale/.style={fanchart~segment~style={gtr@fanchart@\gtrDBsex @style}},
-    fanchart~segment~relation/.style={fanchart~segment~style={gtr@fanchart@\gtrDBrelation @style}},
-    fanchart~segment~wave/.style={fanchart~segment~style={
-      gtr~set~color~wave=gtr@fanchart@segment,
-      top~color=gtr@fanchart@segment!20,bottom~color=gtr@fanchart@segment!25
-    }},
-    fanchart~segment~colorwheel/.style={fanchart~segment~style={
-      gtr~set~color~colorwheel=gtr@fanchart@segment,
-      top~color=gtr@fanchart@segment!20,bottom~color=gtr@fanchart@segment!25
-    }},
-    fanchart~segment~radial/.style={fanchart~segment~style={
-      gtr~set~color~series=gtr@fanchart@segment,
-      top~color=gtr@fanchart@segment!20,bottom~color=gtr@fanchart@segment!25
-    }},
-    %
-    fanchart~marker~style/.style={fanchart-marker-definition={\getree_fanchart_set_marker_style:n{#1}}},
-    fanchart~marker~malefemale/.style={fanchart~marker~style={gtr@fanchart@\gtrDBsex @style}},
-    fanchart~marker~relation/.style={fanchart~marker~style={gtr@fanchart@\gtrDBrelation @style}},
-    fanchart~marker~wave/.style={fanchart~marker~style={
-      gtr~set~color~wave=gtr@fanchart@marker,
-      fill=gtr@fanchart@marker
-    }},
-    fanchart~marker~colorwheel/.style={fanchart~marker~style={
-      gtr~set~color~colorwheel=gtr@fanchart@marker,
-      fill=gtr@fanchart@marker
-    }},
-    fanchart~marker~radial/.style={fanchart~marker~style={
-      gtr~set~color~series=gtr@fanchart@marker,
-      fill=gtr@fanchart@marker
-    }},
-    %
-    fanchart~complemented~segment~style/.code={\tikzset{gtr@fanchart@segment@complemented/.style={#1}}},
-    fanchart~complemented~marker~style/.code={\tikzset{gtr@fanchart@marker@complemented/.style={#1}}},
-    %
-    fanchart~segment~style~for~levels/.code~2~args={
-      \clist_set:Nn \l__getree_tmpa_clist {#1}
-      \clist_map_inline:Nn \l__getree_tmpa_clist
-        {
-          \tikzset{gtr@fanchart/@seg@level@##1/.style={#2}}
-        }
-    },
-    fanchart~marker~style~for~levels/.code~2~args={
-      \clist_set:Nn \l__getree_tmpa_clist {#1}
-      \clist_map_inline:Nn \l__getree_tmpa_clist
-        {
-          \tikzset{gtr@fanchart/@mark@level@##1/.style={#2}}
-        }
-    },
-    fanchart~segment~style~for~ids/.code~2~args={
-      \clist_set:Nn \l__getree_tmpa_clist {#1}
-      \clist_map_inline:Nn \l__getree_tmpa_clist
-        {
-          \tikzset{gtr@fanchart/@seg@id@##1/.style={#2}}
-        }
-    },
-    fanchart~marker~style~for~ids/.code~2~args={
-      \clist_set:Nn \l__getree_tmpa_clist {#1}
-      \clist_map_inline:Nn \l__getree_tmpa_clist
-        {
-          \tikzset{gtr@fanchart/@mark@id@##1/.style={#2}}
-        }
-    },
+    fanchart~segment~style~for~levels/.code~2~args =
+      {
+        \clist_map_inline:nn { #1 }
+          {
+            \tikzset{ gtr@fanchart/@seg@level@##1/.style = {#2} }
+          }
+      },
+    fanchart~marker~style~for~levels/.code~2~args =
+      {
+        \clist_map_inline:nn { #1 }
+          {
+            \tikzset{ gtr@fanchart/@mark@level@##1/.style = {#2} }
+          }
+      },
+    fanchart~segment~style~for~ids/.code~2~args =
+      {
+        \clist_map_inline:nn { #1 }
+          {
+            \tikzset { gtr@fanchart/@seg@id@##1/.style = {#2} }
+          }
+      },
+    fanchart~marker~style~for~ids/.code~2~args =
+      {
+        \clist_map_inline:nn { #1 }
+          {
+            \tikzset{ gtr@fanchart/@mark@id@##1/.style = {#2} }
+          }
+      },
   }
 
 \ExplSyntaxOff

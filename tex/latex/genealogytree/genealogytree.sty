@@ -1,8 +1,8 @@
-%% The LaTeX package genealogytree - version 2.3.1pre1 (2025/05/28)
+%% The LaTeX package genealogytree - version 2.4.0 (2026/05/06)
 %% genealogytree.sty: genealogy trees (graphs)
 %%
 %% -------------------------------------------------------------------------------------------
-%% Copyright (c) 2013-2025 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Copyright (c) 2013-2026 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
 %% -------------------------------------------------------------------------------------------
 %%
 %% This work may be distributed and/or modified under the
@@ -17,13 +17,11 @@
 %%
 %% This work consists of all files listed in README
 %%
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{genealogytree}[2025/05/28 version 2.3.1pre1 genealogy trees]
-\def\gtr@version{2.3.1pre1}
+\NeedsTeXFormat{LaTeX2e}[2025-11-01]
+\ProvidesPackage{genealogytree}[2026/05/06 version 2.4.0 genealogy trees]
+\def\gtr@version{2.4.0}
 
-\RequirePackage{expl3}[2020/02/25]
-\RequirePackage{xparse,xfp}
-\RequirePackage{tcolorbox}[2020/04/28]
+\RequirePackage{tcolorbox}[2025/11/28]
 
 \tcbuselibrary{skins,fitting,external}
 \usetikzlibrary{arrows.meta}
@@ -44,10 +42,12 @@
 \box_new:N \l__getree_tmpa_box
 \clist_new:N \l__getree_tmpa_clist
 \fp_new:N \l__getree_tmpa_fp
+\fp_new:N \l__getree_tmpb_fp
 \int_new:N \l__getree_tmpa_int
 \tl_new:N \l__getree_tmpa_tl
+\tl_new:N \l__getree_tmpb_tl
 
-\NewDocumentCommand{\gtrloadlanguage}{ m }
+\NewDocumentCommand \gtrloadlanguage { m }
   {
     \clist_set:Nn \l__getree_tmpa_clist { #1 }
     \clist_map_function:NN \l__getree_tmpa_clist \gtr@load@language

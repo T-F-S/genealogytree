@@ -1,8 +1,8 @@
-%% The LaTeX package genealogytree - version 2.3.1pre1 (2025/05/28)
+%% The LaTeX package genealogytree - version 2.4.0 (2026/05/06)
 %% gtrcore.node.code.tex: Node Boxes
 %%
 %% -------------------------------------------------------------------------------------------
-%% Copyright (c) 2013-2025 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Copyright (c) 2013-2026 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
 %% -------------------------------------------------------------------------------------------
 %%
 %% This work may be distributed and/or modified under the
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{2.3.1pre1}
+\gtr@set@library@version{2.4.0}
 
 %%%%%%%%%%%%%%
 % Processors %
@@ -247,6 +247,7 @@
   descendant/.style={relation=descendant},
   sibling/.style={relation=sibling},
   unrelated/.style={relation=unrelated},
+  id/.code={\gtrset{id=#1,code={\gtr@key@keysalsofrom{/gtr/nopt/\gtr@gkv@id}}}},
 }
 
 \tcbset{%
@@ -417,7 +418,13 @@
   \gtr@print@infolist%
 }
 
-\def\gtr@ifmarriagedefined#1#2{%
+\def\gtrifnativitydefined#1#2{%
+  \gtrifeventdefined{birth}{#1}{%
+    \gtrifeventdefined{baptism}{#1}{#2}%
+  }%
+}
+
+\def\gtrifwedlockdefined#1#2{%
   \gtrifeventdefined{marriage}{#1}{%
     \gtrifeventdefined{engagement}{#1}{%
       \gtrifeventdefined{divorce}{#1}{#2}%
@@ -425,8 +432,14 @@
   }%
 }
 
+\def\gtrifdeceasedefined#1#2{%
+  \gtrifeventdefined{death}{#1}{%
+    \gtrifeventdefined{burial}{#1}{#2}%
+  }%
+}
+
 \gtrDeclareDatabaseFormat{full marriage above}{}{%
-  \gtr@ifmarriagedefined{%
+  \gtrifwedlockdefined{%
     \begin{gtreventlist}%
       \gtr@list@event{engagement}%
       \gtr@list@event{marriage}%
@@ -454,7 +467,7 @@
     \gtr@list@event{burial}%
   \end{gtreventlist}%
   \gtr@print@infolist%
-  \gtr@ifmarriagedefined{%
+  \gtrifwedlockdefined{%
     \tcbline\begin{gtreventlist}%
       \gtr@list@event{engagement}%
       \gtr@list@event{marriage}%
@@ -491,12 +504,14 @@
 
 \def\gtr@list@event@floruit{%
   \gtrifeventdefined{floruit}{%
-    \gtrifeventdefined{birth}{}{%
-    \gtrifeventdefined{baptism}{}{%
-    \gtrifeventdefined{death}{}{%
-    \gtrifeventdefined{burial}{}{%
-      \gtrlistseparator\hspace{0pt}\gtrPrintEvent{floruit}}{%
-  }}}}}{}%
+    \gtrifnativitydefined{%
+        \gtrifdeceasedefined{}{%
+          \gtrlistseparator\hspace{0pt}\gtrPrintEvent{floruit}%
+        }%
+      }{%
+        \gtrlistseparator\hspace{0pt}\gtrPrintEvent{floruit}%
+       }%
+  }{}%
 }
 
 \def\gtr@list@event@death{%
@@ -517,7 +532,7 @@
 }
 
 \gtrDeclareDatabaseFormat{medium marriage above}{}{%
-  \gtr@ifmarriagedefined{\begin{gtreventlist}\gtr@list@event@marriage\end{gtreventlist}\tcbline}{}%
+  \gtrifwedlockdefined{\begin{gtreventlist}\gtr@list@event@marriage\end{gtreventlist}\tcbline}{}%
   \gtrPrintName%
   \begin{gtreventlist}%
     \gtr@list@event@birth%
@@ -535,7 +550,7 @@
     \gtr@list@event@death%
   \end{gtreventlist}%
   \gtr@print@infolist%
-  \gtr@ifmarriagedefined{\tcbline\begin{gtreventlist}\gtr@list@event@marriage\end{gtreventlist}}{}%
+  \gtrifwedlockdefined{\tcbline\begin{gtreventlist}\gtr@list@event@marriage\end{gtreventlist}}{}%
 }
 
 \gtrDeclareDatabaseFormat{medium no marriage}{}{%
@@ -559,7 +574,7 @@
 }
 
 \gtrDeclareDatabaseFormat{short marriage above}{}{%
-  \gtr@ifmarriagedefined{\begin{gtreventlist}\gtr@list@event@marriage\end{gtreventlist}\tcbline}{}%
+  \gtrifwedlockdefined{\begin{gtreventlist}\gtr@list@event@marriage\end{gtreventlist}\tcbline}{}%
   \gtrPrintName%
   \begin{gtreventlist}%
     \gtr@list@event@birth%
@@ -575,7 +590,7 @@
     \gtr@list@event@floruit%
     \gtr@list@event@death%
   \end{gtreventlist}%
-  \gtr@ifmarriagedefined{\tcbline\begin{gtreventlist}\gtr@list@event@marriage\end{gtreventlist}}{}%
+  \gtrifwedlockdefined{\tcbline\begin{gtreventlist}\gtr@list@event@marriage\end{gtreventlist}}{}%
 }
 
 \gtrDeclareDatabaseFormat{short no marriage}{}{%

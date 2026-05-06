@@ -1,8 +1,8 @@
-%% The LaTeX package genealogytree - version 2.3.1pre1 (2025/05/28)
+%% The LaTeX package genealogytree - version 2.4.0 (2026/05/06)
 %% gtrcore.options.code.tex: Options
 %%
 %% -------------------------------------------------------------------------------------------
-%% Copyright (c) 2013-2025 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
+%% Copyright (c) 2013-2026 by Prof. Dr. Dr. Thomas F. Sturm <thomas dot sturm at unibw dot de>
 %% -------------------------------------------------------------------------------------------
 %%
 %% This work may be distributed and/or modified under the
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{2.3.1pre1}
+\gtr@set@library@version{2.4.0}
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% General handling
@@ -97,77 +97,77 @@
 \ExplSyntaxOn
 
 
-\cs_new:Npn \getree_set_options_for_subtree:nn #1#2
+\cs_new_protected:Npn \getree_set_options_for_subtree:nn #1#2
   {
     \clist_set:Nn \l__getree_tmpa_clist { #1 }
     \clist_map_inline:Nn \l__getree_tmpa_clist
       {
-        \gtr@keys@addvalue{/gtr/sopt/##1}{subtree={#2}}
+        \gtr@keys@addvalue{ /gtr/sopt/##1 } { subtree = {#2} }
       }
   }
 
 
-\cs_new:Npn \getree_set_options_for_family:nn #1#2
+\cs_new_protected:Npn \getree_set_options_for_family:nn #1#2
   {
     \clist_set:Nn \l__getree_tmpa_clist { #1 }
     \clist_map_inline:Nn \l__getree_tmpa_clist
       {
-        \gtr@keys@addvalue{/gtr/sopt/##1}{family={#2}}
+        \gtr@keys@addvalue{ /gtr/sopt/##1 } { family = {#2} }
       }
   }
 
 
-\cs_new:Npn \getree_set_options_for_node:nn #1#2
+\cs_new_protected:Npn \getree_set_options_for_node:nn #1#2
   {
     \clist_set:Nn \l__getree_tmpa_clist { #1 }
     \clist_map_inline:Nn \l__getree_tmpa_clist
       {
-        \gtr@keys@addvalue{/gtr/nopt/##1}{#2}
+        \gtr@keys@addvalue{ /gtr/nopt/##1 } {#2}
       }
   }
 
 
-\NewDocumentCommand{\gtrsetoptionsforsubtree}{ m +m }
+\NewDocumentCommand \gtrsetoptionsforsubtree { m +m }
   {
-    \getree_set_options_for_subtree:nn {#1}{#2}
+    \getree_set_options_for_subtree:nn {#1} {#2}
   }
 
 
-\NewDocumentCommand{\gtrsetoptionsforfamily}{ m +m }
+\NewDocumentCommand \gtrsetoptionsforfamily { m +m }
   {
-    \getree_set_options_for_family:nn {#1}{#2}
+    \getree_set_options_for_family:nn {#1} {#2}
   }
 
 
-\NewDocumentCommand{\gtrsetoptionsfornode}{ m +m }
+\NewDocumentCommand \gtrsetoptionsfornode { m +m }
   {
-    \getree_set_options_for_node:nn {#1}{#2}
+    \getree_set_options_for_node:nn {#1} {#2}
   }
 
 
-\NewDocumentCommand{\gtrignoresubtree}{ m }
+\NewDocumentCommand \gtrignoresubtree { m }
   {
     \clist_set:Nn \l__getree_tmpa_clist { #1 }
     \clist_map_inline:Nn \l__getree_tmpa_clist
       {
-        \gtr@keys@addvalue{/gtr/sopt/##1}{ignore}
+        \gtr@keys@addvalue{ /gtr/sopt/##1 } { ignore }
       }
   }
 
 
-\NewDocumentCommand{\gtrignorenode}{ m }
+\NewDocumentCommand \gtrignorenode { m }
   {
-    \getree_set_options_for_node:nn{#1}{ignore}
+    \getree_set_options_for_node:nn {#1} { ignore }
   }
 
 
 \gtrset{
-  options~for~subtree/.code~n~args={2}{\getree_set_options_for_subtree:nn{#1}{#2}},
-  options~for~family/.code~n~args={2}{\getree_set_options_for_family:nn{#1}{#2}},
-  options~for~node/.code~n~args={2}{\getree_set_options_for_node:nn{#1}{#2}},
+  options~for~subtree/.code~n~args = { 2 } { \getree_set_options_for_subtree:nn {#1} {#2} },
+  options~for~family/.code~n~args  = { 2 } { \getree_set_options_for_family:nn {#1} {#2} },
+  options~for~node/.code~n~args    = { 2 } { \getree_set_options_for_node:nn {#1} {#2} },
   %
-  ignore~subtree/.code={\gtrignoresubtree{#1}},
-  ignore~node/.code={\gtrignorenode{#1}},
+  ignore~subtree/.code = { \gtrignoresubtree{#1} },
+  ignore~node/.code    = { \gtrignorenode{#1} },
 }
 
 \ExplSyntaxOff

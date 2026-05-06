@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on
-[Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
@@ -17,21 +17,37 @@ and this project adheres to
 
 
 
-## [2.3.1] - xxxx-xx-xx
+## [2.4.0] - 2026-05-06
 
 ### Added
+- `\gtrifnativitydefined`
+- `\gtrifwedlockdefined`
+- `\gtrifdeceasedefined`
+- `/gtr/database/id` as alias for `/gtr/id`
+- Template `template=medical`
+    with additional options `carrier`, `affected`,  and `deceased`
+
 ### Changed
 - Usage of expl3 scratch variables like `\l_tmpa_tl` replaced by package variables like `\l__getree_tmpa_tl`
+- Some code optimizations
+- The `floruit` event is now displayed if birth/baptism or death/burial data are missing.
+    Previously, it was displayed only if all of these were missing (issue #43).
 - Tutorial example 'Conversion during Externalization' adapted to current tcolorbox
 - Documentation example for `/gtr/edge/custom` made more fail-safe (issue #49)
 - Documentation typos (issue #52)
+- Documentation typo in 1.4 Installation corrected
+- Documentation listings encoding handling changed
+- `CHANGES.md` renamed to `CHANGELOG.md` following https://keepachangelog.com/en/1.1.0/
+- Bibliography updated
 
-### Deprecated
 ### Removed
+- Obsolete packages `expl3`, `xparse`, `xfp`
+
 ### Fixed
 - Italian translation corrected by Andrea Vaccari
-
-### Security
+- Library `fanchart`: code with errors reported by explcheck was replaced (no functional but stylistic errors)
+- Code style improved with explcheck
+- Documentation for `floruit-` corrected (wrong argument)
 
 
 
