@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 2.4.0 (2026/05/06)
+%% The LaTeX package genealogytree - version 2.4.1 (2026/06/16)
 %% genealogytree.sty: genealogy trees (graphs)
 %%
 %% -------------------------------------------------------------------------------------------
@@ -18,8 +18,8 @@
 %% This work consists of all files listed in README
 %%
 \NeedsTeXFormat{LaTeX2e}[2025-11-01]
-\ProvidesPackage{genealogytree}[2026/05/06 version 2.4.0 genealogy trees]
-\def\gtr@version{2.4.0}
+\ProvidesPackage{genealogytree}[2026/06/16 version 2.4.1 genealogy trees]
+\def\gtr@version{2.4.1}
 
 \RequirePackage{tcolorbox}[2025/11/28]
 
@@ -41,6 +41,8 @@
 \ExplSyntaxOn
 \box_new:N \l__getree_tmpa_box
 \clist_new:N \l__getree_tmpa_clist
+\dim_new:N \l__getree_tmpa_dim
+\dim_new:N \l__getree_tmpb_dim
 \fp_new:N \l__getree_tmpa_fp
 \fp_new:N \l__getree_tmpb_fp
 \int_new:N \l__getree_tmpa_int

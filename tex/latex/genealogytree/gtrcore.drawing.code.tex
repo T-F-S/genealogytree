@@ -1,4 +1,4 @@
-%% The LaTeX package genealogytree - version 2.4.0 (2026/05/06)
+%% The LaTeX package genealogytree - version 2.4.1 (2026/06/16)
 %% gtrcore.drawing.code.tex: Drawing
 %%
 %% -------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 %%
 %% This work consists of all files listed in README
 %%
-\gtr@set@library@version{2.4.0}
+\gtr@set@library@version{2.4.1}
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %% Auxiliary Tools
@@ -27,26 +27,27 @@
 
 \cs_new_protected:Npn \__getree_autosize_box:Nnn #1#2#3
   {
-    \fp_set:Nn \l__getree_tmpa_fp {#2}
-    \fp_set:Nn \l__getree_tmpb_fp {#3}
-    \bool_lazy_and:nnTF { \fp_compare_p:n { \l__getree_tmpa_fp > 0 } }
-                        { \fp_compare_p:n { \l__getree_tmpa_fp < \maxdimen } }
+    \tl_if_blank:nTF {#2}
+      { \dim_zero:N \l__getree_tmpa_dim }
+      { \dim_set:Nn \l__getree_tmpa_dim {#2} }
+    \tl_if_blank:nTF {#3}
+      { \dim_zero:N \l__getree_tmpb_dim }
+      { \dim_set:Nn \l__getree_tmpb_dim {#3} }
+    \dim_compare:nNnTF { \l__getree_tmpa_dim } > { \c_zero_dim }
       {
-        \bool_lazy_and:nnTF { \fp_compare_p:n { \l__getree_tmpb_fp > 0 } }
-                            { \fp_compare_p:n { \l__getree_tmpb_fp < \maxdimen } }
+        \dim_compare:nNnTF { \l__getree_tmpb_dim } > { \c_zero_dim }
           {
-            \box_autosize_to_wd_and_ht_plus_dp:Nnn #1 { \fp_to_dim:N \l__getree_tmpa_fp }
-                                                      { \fp_to_dim:N \l__getree_tmpb_fp }
+            \box_autosize_to_wd_and_ht_plus_dp:Nnn #1 { \l__getree_tmpa_dim }
+                                                      { \l__getree_tmpb_dim }
           }
           {
-            \box_resize_to_wd:Nn #1 { \fp_to_dim:N \l__getree_tmpa_fp }
+            \box_resize_to_wd:Nn #1 { \l__getree_tmpa_dim }
           }
       }
       {
-        \bool_lazy_and:nnT { \fp_compare_p:n { \l__getree_tmpb_fp > 0 } }
-                           { \fp_compare_p:n { \l__getree_tmpb_fp < \maxdimen } }
+        \dim_compare:nNnT { \l__getree_tmpb_dim } > { \c_zero_dim }
           {
-            \box_resize_to_ht_plus_dp:Nn #1 { \fp_to_dim:N \l__getree_tmpb_fp }
+            \box_resize_to_ht_plus_dp:Nn #1 { \l__getree_tmpb_dim }
           }
       }
   }
@@ -54,35 +55,35 @@
 
 \cs_new_protected:Npn \__getree_autosize_box_shrink:Nnn #1#2#3
   {
-    \fp_set:Nn \l__getree_tmpa_fp {#2}
-    \fp_set:Nn \l__getree_tmpb_fp {#3}
-    \bool_lazy_and:nnTF { \fp_compare_p:n { \l__getree_tmpa_fp > 0 } }
-                        { \fp_compare_p:n { \l__getree_tmpa_fp < \maxdimen } }
+    \tl_if_blank:nTF {#2}
+      { \dim_zero:N \l__getree_tmpa_dim }
+      { \dim_set:Nn \l__getree_tmpa_dim {#2} }
+    \tl_if_blank:nTF {#3}
+      { \dim_zero:N \l__getree_tmpb_dim }
+      { \dim_set:Nn \l__getree_tmpb_dim {#3} }
+    \dim_compare:nNnTF { \l__getree_tmpa_dim } > { \c_zero_dim }
       {
-        \bool_lazy_and:nnTF { \fp_compare_p:n { \l__getree_tmpb_fp > 0 } }
-                            { \fp_compare_p:n { \l__getree_tmpb_fp < \maxdimen } }
+        \dim_compare:nNnTF { \l__getree_tmpb_dim } > { \c_zero_dim }
           {
-            \bool_lazy_or:nnTF { \fp_compare_p:n { \l__getree_tmpa_fp < \box_wd:N #1 } }
-                               { \fp_compare_p:n { \l__getree_tmpb_fp < \box_ht:N #1 + \box_dp:N #1 } }
+            \bool_lazy_or:nnT { \dim_compare_p:nNn { \l__getree_tmpa_dim } < { \box_wd:N #1 } }
+                              { \dim_compare_p:nNn { \l__getree_tmpb_dim } < { \box_ht_plus_dp:N #1 } }
               {
-                \box_autosize_to_wd_and_ht_plus_dp:Nnn #1 { \fp_to_dim:N \l__getree_tmpa_fp }
-                                                          { \fp_to_dim:N \l__getree_tmpb_fp }
+                \box_autosize_to_wd_and_ht_plus_dp:Nnn #1 { \l__getree_tmpa_dim }
+                                                          { \l__getree_tmpb_dim }
               }
           }
           {
-            \bool_if:nT { \fp_compare_p:n { \l__getree_tmpa_fp < \box_wd:N #1 } }
+            \dim_compare:nNnT { \l__getree_tmpa_dim } < { \box_wd:N #1 }
               {
-                \box_resize_to_wd:Nn #1 { \fp_to_dim:N \l__getree_tmpa_fp }
+                \box_resize_to_wd:Nn #1 { \l__getree_tmpa_dim }
               }
           }
       }
       {
-        \bool_if:nT { \fp_compare_p:n { \l__getree_tmpb_fp > 0 } && \fp_compare_p:n { \l__getree_tmpb_fp < \maxdimen } }
+        \bool_lazy_and:nnT { \dim_compare_p:nNn { \l__getree_tmpb_dim } > { \c_zero_dim } }
+                           { \dim_compare_p:nNn { \l__getree_tmpb_dim } < { \box_ht_plus_dp:N #1 } }
           {
-            \bool_if:nT { \fp_compare_p:n { \l__getree_tmpb_fp < \box_ht:N #1 + \box_dp:N #1 } }
-              {
-                \box_resize_to_ht_plus_dp:Nn #1 { \fp_to_dim:N \l__getree_tmpb_fp }
-              }
+            \box_resize_to_ht_plus_dp:Nn #1 { \l__getree_tmpb_dim }
           }
       }
   }

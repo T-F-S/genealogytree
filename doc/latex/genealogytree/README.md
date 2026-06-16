@@ -1,4 +1,4 @@
-# The LaTeX package genealogytree - version 2.4.0 (2026/05/06)
+# The LaTeX package genealogytree - version 2.4.1 (2026/06/16)
 
 [![CTAN](https://img.shields.io/ctan/v/genealogytree.svg)](https://www.ctan.org/pkg/genealogytree)
 

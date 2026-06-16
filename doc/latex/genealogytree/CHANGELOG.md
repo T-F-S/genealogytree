@@ -16,6 +16,13 @@ and this project adheres to
 ### Security
 
 
+## [2.4.1] - 2026-06-16
+
+### Fixed
+- `\gtrautosizebox*` and `autosizetikzpicture*` (regression error)
+- Example 4 (regression error)
+
+
 
 ## [2.4.0] - 2026-05-06
 
